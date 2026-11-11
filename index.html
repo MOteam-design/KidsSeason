@@ -155,6 +155,16 @@ textarea{font-weight:500;min-height:90px;resize:vertical}
 .fallback{display:grid;gap:8px}
 .fallback textarea{font-size:12.5px;min-height:110px}
 .foot{font-size:12.5px;color:var(--muted)}
+.sync{display:grid;gap:6px;font-size:13px}
+.sync-st{font-weight:700;color:var(--muted)}
+.sync-st.ok{color:var(--accent)}
+.sync-st.err{color:var(--bad)}
+.sync-set summary{cursor:pointer;color:var(--accent);font-weight:700;font-size:13px}
+.sync-set small{display:block;color:var(--muted);margin:6px 0}
+.sync-row{display:flex;gap:8px;margin-top:6px}
+.sync-row input{flex:1;min-width:0;font:600 14px var(--body);color:var(--ink);background:var(--bg);border:1px solid var(--line);border-radius:10px;padding:8px 10px}
+.sync-row button,.sync-del{appearance:none;border:0;background:var(--accent);color:var(--surface);font:700 13px var(--body);border-radius:10px;padding:8px 12px;cursor:pointer}
+.sync-del{background:transparent;color:var(--bad);padding:4px 0}
 .enot{border-left:4px solid var(--gold)}
 .enl{display:grid;gap:5px}
 .enl div{display:grid;grid-template-columns:28px 1fr auto;gap:8px;align-items:center;background:var(--bg);border-radius:10px;padding:7px 10px;font-size:13.5px}
@@ -218,6 +228,8 @@ textarea{font-weight:500;min-height:90px;resize:vertical}
     <div class="panel" id="send">
       <span class="eyebrow">Отчёт папе</span>
       <h2>Отправить отметки папе</h2>
+      <p class="small ok-t" id="send-auto" hidden>Автосинхронизация включена: отметки уходят папе сами через пару секунд, а его ответы появляются здесь. Кнопка ниже — запасной способ.</p>
+      <div class="sync" id="sync-box"></div>
       <p>Каждый вечер нажимай кнопку и выбирай MAX и чат с папой. Папа посмотрит отметки, подтвердит их и переведёт деньги в воскресенье.</p>
       <p class="muted small" id="s-last"></p>
       <div class="row"><button class="btn big" type="button" id="s-go">Отправить папе</button></div>
@@ -398,12 +410,25 @@ textarea{font-weight:500;min-height:90px;resize:vertical}
 <script src="core.js"></script>
 <script src="puzzles.js"></script>
 <script src="enot.js"></script>
+<script src="sync.js"></script>
 <script>
 (function(){
 "use strict";
 const S=window.SC;
 const $=id=>document.getElementById(id);
 const esc=s=>String(s==null?"":s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+
+// автосинхронизация: любое изменение отметок, ответов, книг или курса → через 2,5 с запись sasha/child.json
+const SY=window.SYNC;
+const _set=S.LS.set.bind(S.LS);
+let pushT=null;
+function pushIfChanged(){
+  if(!SY||!SY.enabled) return;
+  const p=childPayload(), sig=JSON.stringify(Object.assign({},p,{at:0}));
+  if(sig===S.LS.get("sa-sync-sig","")) return;
+  SY.write("sasha/child.json",p,"Саша: отметки").then(ok=>{ if(ok){ _set("sa-sync-sig",sig); _set("sa-last",Date.now()); renderLast(); } });
+}
+S.LS.set=(k,v)=>{ _set(k,v); if(/^sa-(done|ans|enot|books)$/.test(k)){ clearTimeout(pushT); pushT=setTimeout(pushIfChanged,2500); } };
 
 let done=S.LS.get("sa-done",{});          // {date:{key:1}}
 let papa=S.LS.get("sa-papa",{ov:{},fi:[],cf:[],pd:[],tt:{},as:[],pz:{},at:0});
@@ -420,25 +445,31 @@ const today=new Date(); const todayISO=S.iso(today);
 let sel=S.dowOf(today);
 const mon=S.mondayOf(today);
 
-// ---------- ответ папы по ссылке ----------
-const fromPapa=S.readHash("p");
-if(fromPapa&&fromPapa.v===1){
+// ---------- ответ папы: по ссылке или автосинхронизацией ----------
+// Возвращает true, если данные новые и применены.
+function applyPapa(fromPapa,quiet){
+  if(!fromPapa||fromPapa.v!==1) return false;
+  if((fromPapa.at||0)<=(papa.at||0)) return false;
   const oldAs=new Set((papa.as||[]).map(a=>a.id));
+  const oldF=new Set((papa.fi||[]).map(f=>f.id)), oldCf=new Set(papa.cf||[]), oldPd=new Set(papa.pd||[]), oldPz=JSON.stringify(papa.pz||{});
   papa={ov:fromPapa.ov||{},fi:fromPapa.fi||[],cf:fromPapa.cf||[],pd:fromPapa.pd||[],tt:fromPapa.tt||{},as:fromPapa.as||[],pz:fromPapa.pz||{},ev:fromPapa.ev||{},at:fromPapa.at||Date.now()};
-  var newAs=papa.as.filter(a=>!oldAs.has(a.id));
-  S.LS.set("sa-papa",papa); S.clearHash();
+  const newAs=papa.as.filter(a=>!oldAs.has(a.id));
+  S.LS.set("sa-papa",papa);
   const m=S.iso(mon);
   let msg="<b>Папа прислал итог.</b> ";
-  if(papa.cf.includes(m)) msg+="Эта неделя подтверждена: "+S.rub(papa.tt[m]||0)+". ";
+  if(papa.cf.includes(m)&&!(quiet&&oldCf.has(m))) msg+="Эта неделя подтверждена: "+S.rub(papa.tt[m]||0)+". ";
   const lastMon=S.iso(S.addDays(mon,-7));
-  if(papa.pd.includes(lastMon)) msg+="Прошлая неделя переведена. ";
-  const newF=papa.fi.filter(f=>f.d>=m);
-  if(newF.length) msg+="Штрафы на этой неделе: "+newF.map(f=>esc(f.w)+" −"+f.a+" ₽").join(", ")+". ";
+  if(papa.pd.includes(lastMon)&&!(quiet&&oldPd.has(lastMon))) msg+="Прошлая неделя переведена. ";
+  const newF=papa.fi.filter(f=>f.d>=m&&!oldF.has(f.id));
+  if(newF.length) msg+="Новые штрафы: "+newF.map(f=>esc(f.w)+" −"+f.a+" ₽").join(", ")+". ";
   const upPz=Object.keys(papa.pz).filter(d=>d>=todayISO).sort();
-  if(upPz.length) msg+=(upPz[0]===todayISO?"Сегодня тебя ждёт задачка дня! ":"Папа приготовил задачки дня: "+upPz.length+". ");
+  if(upPz.length&&!(quiet&&JSON.stringify(papa.pz)===oldPz)) msg+=(upPz[0]===todayISO?"Сегодня тебя ждёт задачка дня! ":"Папа приготовил задачки дня: "+upPz.length+". ");
   if(newAs.length) msg+="Новая книга от папы: "+newAs.map(a=>"«"+esc(a.t)+"»").join(", ")+". Загляни во вкладку «Книги».";
-  $("papa-banner").innerHTML=msg; $("papa-banner").hidden=false;
+  if(!quiet||msg!=="<b>Папа прислал итог.</b> "){ $("papa-banner").innerHTML=msg; $("papa-banner").hidden=false; }
+  return true;
 }
+const fromLink=S.readHash("p");
+if(fromLink){ applyPapa(fromLink); S.clearHash(); }
 
 const eff=(d,k)=>{const o=papa.ov[d]; if(o&&o[k]!==undefined) return o[k]===1; return !!(done[d]&&done[d][k]);};
 const mine=(d,k)=>!!(done[d]&&done[d][k]);
@@ -703,10 +734,14 @@ $("bk-done").onclick=()=>{
 };
 
 // ---------- отчёт папе ----------
+function childPayload(){
+  const now=new Date();
+  const d={}; for(let i=0;i<28;i++){const ds=S.iso(S.addDays(now,-i)); if(done[ds]) d[ds]=Object.keys(done[ds]).join(",");}
+  const an={}; Object.keys(ans).forEach(k=>{ if(k>=S.iso(S.addDays(now,-27))) an[k]=ans[k].slice(0,400); });
+  return {v:1,at:Date.now(),d,an,en:enot,bk:books.list,pg:books.pg,cur:books.cur.t?{t:books.cur.t,a:books.cur.a}:null};
+}
 function report(){
-  const d={}; for(let i=0;i<28;i++){const ds=S.iso(S.addDays(today,-i)); if(done[ds]) d[ds]=Object.keys(done[ds]).join(",");}
-  const an={}; Object.keys(ans).forEach(k=>{ if(k>=S.iso(S.addDays(today,-27))) an[k]=ans[k].slice(0,400); });
-  const payload={v:1,at:Date.now(),d,an,en:enot,bk:books.list,pg:books.pg,cur:books.cur.t?{t:books.cur.t,a:books.cur.a}:null};
+  const payload=childPayload();
   const url=S.pageURL("papa.html")+"#r="+S.enc(payload);
   const w=S.week(mon,eff,books.list,papa.fi,papa.as,papa.pz,enot,papa.ev);
   const ds=todayISO; let tg=0; S.plan(S.dowOf(today)).forEach(it=>{if(eff(ds,it.k))tg+=it.pts;});
@@ -754,6 +789,19 @@ $("paste-go").onclick=()=>{
   location.hash="p="+m[1]; location.reload();
 };
 render(); renderLast(); renderEnot(); tab();
+
+// ---------- автосинхронизация с папой ----------
+if(SY){
+  SY.mountBox($("sync-box"));
+  if(SY.enabled){
+    $("send-auto").hidden=false;
+    SY.poll(async()=>{
+      const p=await SY.read("sasha/papa.json");
+      if(applyPapa(p,true)){ render(true); renderEnot(); renderTop(); const t=(location.hash||"").slice(1); if(t==="progress") renderProgress(); if(t==="books") renderBooks(); }
+    },60);
+    setTimeout(pushIfChanged,1500);
+  }
+}
 })();
 </script>
 </body>

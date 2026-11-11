@@ -148,6 +148,16 @@ td.n{white-space:nowrap}
 .paste{display:grid;gap:6px}
 .paste-row{display:flex;gap:8px}
 .paste-row input{flex:1;min-width:0}
+.sync{display:grid;gap:6px;font-size:13px}
+.sync-st{font-weight:700;color:var(--muted)}
+.sync-st.ok{color:var(--ok)}
+.sync-st.err{color:var(--bad)}
+.sync-set summary{cursor:pointer;color:var(--accent);font-weight:700;font-size:13px}
+.sync-set small{display:block;color:var(--muted);margin:6px 0}
+.sync-row{display:flex;gap:8px;margin-top:6px}
+.sync-row input{flex:1;min-width:0}
+.sync-row button,.sync-del{appearance:none;border:0;background:var(--accent);color:var(--surface);font:700 13px var(--body);border-radius:10px;padding:8px 12px;cursor:pointer}
+.sync-del{background:transparent;color:var(--bad);padding:4px 0}
 @media (max-width:420px){.stats{grid-template-columns:repeat(2,1fr)}}
 </style>
 </head>
@@ -188,6 +198,8 @@ td.n{white-space:nowrap}
       </div>
       <label class="small muted" style="display:grid;gap:4px">Похвала недели — Даня увидит её наверху своей страницы
         <textarea id="w-msg" rows="2" placeholder="Например: «Видел, как ты сам сел за математику во вторник. Горжусь!»"></textarea></label>
+      <p class="small" id="sync-on" hidden style="color:var(--ok);font-weight:600">Автосинхронизация включена: всё, что вы меняете, само появляется у Дани через пару секунд. Кнопка ниже — запасной способ.</p>
+      <div class="sync" id="sync-box"></div>
       <div class="row"><button class="btn ghost" type="button" id="w-send">Отправить итог Дане</button></div>
       <div class="fallback" id="fb" hidden>
         <p class="small">Скопируйте текст и отправьте его Дане.</p>
@@ -418,6 +430,7 @@ td.n{white-space:nowrap}
 <script src="danya-core.js"></script>
 <script src="puzzles.js"></script>
 <script src="kids-switch.js"></script>
+<script src="sync.js"></script>
 <script>
 (function(){
 "use strict";
@@ -434,26 +447,40 @@ let mood=S.LS.get(K("mood"),{}), food=S.LS.get(K("food"),[]), tests=S.LS.get(K("
 let msg=S.LS.get(K("msg"),""), lastAt=S.LS.get(K("last"),0);
 let en=S.LS.get(K("enot"),{}), ev=S.LS.get(K("ev"),{});   // «Енот Чек»: {урок: дата}, решения папы {урок: 0|1}
 const EN=window.ENOT;
-const save=()=>{[["enot",en],["ev",ev],["days",days],["ov",ov],["fi",fines],["cf",cf],["pd",pd],["books",books],["as",assign],["pz",pz],["ans",ans],["mood",mood],["food",food],["tests",tests],["facts",facts],["msg",msg],["last",lastAt]].forEach(([k,v])=>S.LS.set(K(k),v)); if(window.KIDS) window.KIDS.draw();};
+// автосинхронизация: изменения папы → через 2,5 с запись danya/papa.json
+const SY=window.SYNC;
+let pushT=null;
+function pushIfChanged(){
+  if(!SY||!SY.enabled) return;
+  const p=papaPayload(), sig=JSON.stringify(Object.assign({},p,{at:0}));
+  if(sig===S.LS.get(K("sync-sig"),"")) return;
+  SY.write("danya/papa.json",p,"Папа → Даня").then(ok=>{ if(ok) S.LS.set(K("sync-sig"),sig); });
+}
+const save=()=>{clearTimeout(pushT); pushT=setTimeout(pushIfChanged,2500); [["enot",en],["ev",ev],["days",days],["ov",ov],["fi",fines],["cf",cf],["pd",pd],["books",books],["as",assign],["pz",pz],["ans",ans],["mood",mood],["food",food],["tests",tests],["facts",facts],["msg",msg],["last",lastAt]].forEach(([k,v])=>S.LS.set(K(k),v)); if(window.KIDS) window.KIDS.draw();};
 
 const today=new Date(), todayISO=S.iso(today);
 let mon=S.mondayOf(today);
 
-// ---------- приём отчёта Дани ----------
+// ---------- приём отчёта Дани: по ссылке или автосинхронизацией ----------
+// Возвращает число обновлённых дней, -1 — отчёт старый, null — не отчёт Дани.
+function applyReport(rep){
+  if(!rep||rep.v!==1||rep.c!=="danya") return null;
+  if((rep.at||0)<=lastAt) return -1;
+  let n=0;
+  Object.entries(rep.d||{}).forEach(([d,k])=>{days[d]=k?k.split(","):[];n++;});
+  for(let i=0;i<28;i++){const ds=S.iso(S.addDays(new Date(rep.at||Date.now()),-i)); if(!(ds in (rep.d||{}))&&days[ds]) delete days[ds];}
+  books={list:rep.bk||[],cur:rep.cur||null,pg:rep.pg||{}};
+  Object.assign(ans,rep.an||{}); Object.assign(mood,rep.mo||{}); Object.assign(facts,rep.fx||{});
+  if(rep.en) en=rep.en;
+  const seen=new Set(food.map(x=>x.d+"|"+x.f)); (rep.fd||[]).forEach(x=>{ if(!seen.has(x.d+"|"+x.f)) food.push(x); });
+  const tmap={}; tests.concat(rep.ts||[]).forEach(t=>{tmap[t.d]=t;}); tests=Object.values(tmap).sort((a,b)=>a.d.localeCompare(b.d));
+  lastAt=rep.at||Date.now(); save();
+  return n;
+}
 const rep=S.readHash("r");
 if(rep&&rep.v===1&&rep.c==="danya"){
-  if((rep.at||0)>=lastAt){
-    let n=0;
-    Object.entries(rep.d||{}).forEach(([d,k])=>{days[d]=k?k.split(","):[];n++;});
-    for(let i=0;i<28;i++){const ds=S.iso(S.addDays(new Date(rep.at||Date.now()),-i)); if(!(ds in (rep.d||{}))&&days[ds]) delete days[ds];}
-    books={list:rep.bk||[],cur:rep.cur||null,pg:rep.pg||{}};
-    Object.assign(ans,rep.an||{}); Object.assign(mood,rep.mo||{}); Object.assign(facts,rep.fx||{});
-    if(rep.en) en=rep.en;
-    const seen=new Set(food.map(x=>x.d+"|"+x.f)); (rep.fd||[]).forEach(x=>{ if(!seen.has(x.d+"|"+x.f)) food.push(x); });
-    const tmap={}; tests.concat(rep.ts||[]).forEach(t=>{tmap[t.d]=t;}); tests=Object.values(tmap).sort((a,b)=>a.d.localeCompare(b.d));
-    lastAt=rep.at||Date.now(); save();
-    $("imp").innerHTML=`<b>Отчёт Дани получен.</b> Обновлено дней: ${n}. Проверьте неделю и не забудьте написать похвалу.`;
-  } else $("imp").innerHTML="<b>Это старый отчёт.</b> У вас уже есть более свежий, ничего не изменилось.";
+  const n=applyReport(rep);
+  $("imp").innerHTML=n>=0?`<b>Отчёт Дани получен.</b> Обновлено дней: ${n}. Проверьте неделю и не забудьте написать похвалу.`:"<b>Это старый отчёт.</b> У вас уже есть более свежий, ничего не изменилось.";
   $("imp").hidden=false; S.clearHash();
 }
 const kid=(d,k)=>!!(days[d]&&days[d].includes(k));
@@ -542,9 +569,12 @@ $("w-paid").onclick=()=>{const m=S.iso(mon); pd=pd.includes(m)?pd.filter(x=>x!==
 $("w-msg").addEventListener("input",()=>{msg=$("w-msg").value.trim().slice(0,300); save();});
 
 // ---------- итог Дане ----------
-$("w-send").onclick=async()=>{
+function papaPayload(){
   const tt={}; [...new Set([...cf,...pd])].forEach(m=>{tt[m]=WK(S.parse(m)).total;});
-  const payload={v:1,c:"danya",at:Date.now(),ov,fi:fines,cf,pd,tt,as:assign,pz,ev,msg};
+  return {v:1,c:"danya",at:Date.now(),ov,fi:fines,cf,pd,tt,as:assign,pz,ev,msg};
+}
+$("w-send").onclick=async()=>{
+  const payload=papaPayload();
   const url=S.pageURL("danya.html")+"#p="+S.enc(payload);
   const m=S.iso(mon), w=WK(mon);
   let line=`Даня, итог недели ${S.range(mon)}: ${w.total} ₽`;
@@ -676,6 +706,23 @@ $("paste-go").onclick=()=>{
 };
 $("t-max").textContent=S.week(S.mondayOf(today),()=>true,[],[],[],{}).max+" ₽";
 renderWeek(); tab();
+
+// ---------- автосинхронизация с Даней ----------
+if(SY&&!window.KIDS_REDIRECT){
+  SY.mountBox($("sync-box"));
+  if(SY.enabled){
+    $("sync-on").hidden=false;
+    SY.poll(async()=>{
+      const r=await SY.read("danya/child.json");
+      const n=applyReport(r);
+      if(n!==null&&n>=0){
+        $("imp").innerHTML=`<b>Новые отметки Дани пришли автоматически</b> (${new Date(lastAt).toLocaleString("ru-RU",{day:"numeric",month:"short",hour:"2-digit",minute:"2-digit"})}).`; $("imp").hidden=false;
+        renderWeek(); const t=(location.hash||"").slice(1); if(t==="books") renderBooks(); if(t==="puzzles") renderPuzzles(); if(t==="food") renderFood();
+      }
+    },60);
+    setTimeout(pushIfChanged,2000);
+  }
+}
 })();
 </script>
 </body>

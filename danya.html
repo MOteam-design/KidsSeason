@@ -192,6 +192,16 @@ textarea{font-weight:500;min-height:80px;resize:vertical}
 .circ div{display:grid;grid-template-columns:22px 1fr;gap:6px;font-size:13.5px;background:var(--bg);border-radius:10px;padding:7px 10px}
 .circ div b{color:var(--sport)}
 .circ div small{grid-column:2;color:var(--muted);font-size:12.5px}
+.sync{display:grid;gap:6px;font-size:13px}
+.sync-st{font-weight:700;color:var(--muted)}
+.sync-st.ok{color:var(--ok)}
+.sync-st.err{color:var(--bad)}
+.sync-set summary{cursor:pointer;color:var(--accent);font-weight:700;font-size:13px}
+.sync-set small{display:block;color:var(--muted);margin:6px 0}
+.sync-row{display:flex;gap:8px;margin-top:6px}
+.sync-row input{flex:1;min-width:0;font:600 14px var(--body);color:var(--ink);background:var(--bg);border:1px solid var(--line);border-radius:10px;padding:8px 10px}
+.sync-row button,.sync-del{appearance:none;border:0;background:var(--accent);color:var(--surface);font:700 13px var(--body);border-radius:10px;padding:8px 12px;cursor:pointer}
+.sync-del{background:transparent;color:var(--bad);padding:4px 0}
 .enot{border-left:4px solid var(--gold)}
 .enl{display:grid;gap:5px}
 .enl div{display:grid;grid-template-columns:28px 1fr auto;gap:8px;align-items:center;background:var(--bg);border-radius:10px;padding:7px 10px;font-size:13.5px}
@@ -265,6 +275,8 @@ textarea{font-weight:500;min-height:80px;resize:vertical}
     <div class="panel" id="send">
       <span class="eyebrow">Отчёт папе</span>
       <h2>Отправить отметки папе</h2>
+      <p class="small ok-t" id="send-auto" hidden>Автосинхронизация включена: отметки уходят папе сами через пару секунд, а его ответы появляются здесь. Кнопка ниже — запасной способ.</p>
+      <div class="sync" id="sync-box"></div>
       <p>Каждый вечер нажимай кнопку и выбирай чат с папой. Папа посмотрит отметки, подтвердит их и переведёт деньги в воскресенье.</p>
       <p class="muted small" id="s-last"></p>
       <div class="row"><button class="btn big" type="button" id="s-go">Отправить папе</button></div>
@@ -487,12 +499,25 @@ textarea{font-weight:500;min-height:80px;resize:vertical}
 <script src="danya-core.js"></script>
 <script src="danya-bank.js"></script>
 <script src="puzzles.js"></script>
+<script src="sync.js"></script>
 <script>
 (function(){
 "use strict";
 const S=window.DC, B=window.BANK, PZ=window.PUZZLES||{LIST:[],BY:{},GROUPS:{}};
 const $=id=>document.getElementById(id);
 const esc=s=>String(s==null?"":s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+
+// автосинхронизация: любое изменение данных Дани → через 2,5 с запись danya/child.json
+const SY=window.SYNC;
+const _set=S.LS.set.bind(S.LS);
+let pushT=null;
+function pushIfChanged(){
+  if(!SY||!SY.enabled) return;
+  const p=childPayload(), sig=JSON.stringify(Object.assign({},p,{at:0}));
+  if(sig===S.LS.get("dn-sync-sig","")) return;
+  SY.write("danya/child.json",p,"Даня: отметки").then(ok=>{ if(ok){ _set("dn-sync-sig",sig); _set("dn-last",Date.now()); renderLast(); } });
+}
+S.LS.set=(k,v)=>{ _set(k,v); if(/^dn-(done|ans|enot|books|mood|food|tests|facts)$/.test(k)){ clearTimeout(pushT); pushT=setTimeout(pushIfChanged,2500); } };
 
 let done=S.LS.get("dn-done",{});          // {date:{key:1}}
 let papa=S.LS.get("dn-papa",{ov:{},fi:[],cf:[],pd:[],tt:{},as:[],pz:{},msg:"",at:0});
@@ -509,25 +534,33 @@ const today=new Date(); const todayISO=S.iso(today);
 let sel=S.dowOf(today);
 const mon=S.mondayOf(today);
 
-// ---------- ответ папы по ссылке ----------
-const fromPapa=S.readHash("p");
-if(fromPapa&&fromPapa.v===1&&fromPapa.c==="danya"){
-  const oldAs=new Set((papa.as||[]).map(a=>a.id)), oldMsg=papa.msg;
-  papa={ov:fromPapa.ov||{},fi:fromPapa.fi||[],cf:fromPapa.cf||[],pd:fromPapa.pd||[],tt:fromPapa.tt||{},as:fromPapa.as||[],pz:fromPapa.pz||{},ev:fromPapa.ev||{},msg:fromPapa.msg||"",at:fromPapa.at||Date.now()};
+// ---------- ответ папы: по ссылке или автосинхронизацией ----------
+// Возвращает true, если данные новые и применены. quiet — показывать баннер только при новостях.
+function applyPapa(fp,quiet){
+  if(!fp||fp.v!==1||fp.c!=="danya") return false;
+  if((fp.at||0)<=(papa.at||0)) return false;
+  const oldAs=new Set((papa.as||[]).map(a=>a.id)), oldF=new Set((papa.fi||[]).map(f=>f.id)), oldCf=new Set(papa.cf||[]), oldPd=new Set(papa.pd||[]), oldPz=JSON.stringify(papa.pz||{}), oldMsg=papa.msg||"";
+  papa={ov:fp.ov||{},fi:fp.fi||[],cf:fp.cf||[],pd:fp.pd||[],tt:fp.tt||{},as:fp.as||[],pz:fp.pz||{},ev:fp.ev||{},msg:fp.msg||"",at:fp.at||Date.now()};
   const newAs=papa.as.filter(a=>!oldAs.has(a.id));
-  S.LS.set("dn-papa",papa); S.clearHash();
-  const m=S.iso(mon);
-  let msg="<b>Папа прислал итог.</b> ";
-  if(papa.cf.includes(m)) msg+="Эта неделя подтверждена: "+S.rub(papa.tt[m]||0)+". ";
-  if(papa.pd.includes(S.iso(S.addDays(mon,-7)))) msg+="Прошлая неделя переведена. ";
-  const newF=papa.fi.filter(f=>f.d>=m);
-  if(newF.length) msg+="Штрафы на этой неделе: "+newF.map(f=>esc(f.w)+" −"+f.a+" ₽").join(", ")+". ";
+  S.LS.set("dn-papa",papa);
+  const m=S.iso(mon), head="<b>Папа прислал итог.</b> ";
+  let msg=head;
+  if(papa.cf.includes(m)&&!(quiet&&oldCf.has(m))) msg+="Эта неделя подтверждена: "+S.rub(papa.tt[m]||0)+". ";
+  const lastMon=S.iso(S.addDays(mon,-7));
+  if(papa.pd.includes(lastMon)&&!(quiet&&oldPd.has(lastMon))) msg+="Прошлая неделя переведена. ";
+  const newF=papa.fi.filter(f=>f.d>=m&&!oldF.has(f.id));
+  if(newF.length) msg+="Новые штрафы: "+newF.map(f=>esc(f.w)+" −"+f.a+" ₽").join(", ")+". ";
   const upPz=Object.keys(papa.pz).filter(d=>d>=todayISO).sort();
-  if(upPz.length) msg+=(upPz[0]===todayISO?"Сегодня тебя ждёт задачка от папы! ":"Папа приготовил задачки: "+upPz.length+". ");
+  if(upPz.length&&!(quiet&&JSON.stringify(papa.pz)===oldPz)) msg+=(upPz[0]===todayISO?"Сегодня тебя ждёт задачка от папы! ":"Папа приготовил задачки: "+upPz.length+". ");
   if(newAs.length) msg+="Новая книга от папы: "+newAs.map(a=>"«"+esc(a.t)+"»").join(", ")+". Загляни во вкладку «Книги».";
-  $("papa-banner").innerHTML=msg; $("papa-banner").hidden=false;
+  if(papa.msg&&papa.msg!==oldMsg&&quiet) msg+="Папа написал тебе похвалу!";
+  if(!quiet||msg!==head){ $("papa-banner").innerHTML=msg; $("papa-banner").hidden=false; }
+  return true;
 }
-if(papa.msg){ $("praise").innerHTML="<b>Папа пишет:</b> "+esc(papa.msg); $("praise").hidden=false; }
+function renderPraise(){ if(papa.msg){ $("praise").innerHTML="<b>Папа пишет:</b> "+esc(papa.msg); $("praise").hidden=false; } else $("praise").hidden=true; }
+const fromLink=S.readHash("p");
+if(fromLink){ applyPapa(fromLink); S.clearHash(); }
+renderPraise();
 
 const eff=(d,k)=>{const o=papa.ov[d]; if(o&&o[k]!==undefined) return o[k]===1; return !!(done[d]&&done[d][k]);};
 const mine=(d,k)=>!!(done[d]&&done[d][k]);
@@ -875,12 +908,16 @@ $("bk-done").onclick=()=>{
 };
 
 // ---------- отчёт папе ----------
-function report(){
-  const d={}, mo={}, fx={}; for(let i=0;i<28;i++){const ds=S.iso(S.addDays(today,-i)); if(done[ds]) d[ds]=Object.keys(done[ds]).join(","); if(mood[ds]) mo[ds]=mood[ds]; if(facts[ds]) fx[ds]=facts[ds];}
-  const from=S.iso(S.addDays(today,-27));
-  const an={}; Object.keys(ans).filter(x=>x>=from).forEach(x=>an[x]=ans[x]);
-  const payload={v:1,c:"danya",at:Date.now(),d,bk:books.list,pg:books.pg,cur:books.cur.t?{t:books.cur.t,a:books.cur.a}:null,an,mo,fx,
+function childPayload(){
+  const now=new Date();
+  const d={}, mo={}, fx={}; for(let i=0;i<28;i++){const ds=S.iso(S.addDays(now,-i)); if(done[ds]) d[ds]=Object.keys(done[ds]).join(","); if(mood[ds]) mo[ds]=mood[ds]; if(facts[ds]) fx[ds]=facts[ds];}
+  const from=S.iso(S.addDays(now,-27));
+  const an={}; Object.keys(ans).filter(x=>x>=from).forEach(x=>an[x]=String(ans[x]).slice(0,400));
+  return {v:1,c:"danya",at:Date.now(),d,bk:books.list,pg:books.pg,cur:books.cur.t?{t:books.cur.t,a:books.cur.a}:null,an,mo,fx,
     fd:food.slice(-40),ts:tests.slice(-6),en:enot};
+}
+function report(){
+  const payload=childPayload();
   const url=S.pageURL("papa-danya.html")+"#r="+S.enc(payload);
   const w=W();
   let tg=0; S.plan(S.dowOf(today)).forEach(it=>{if(eff(todayISO,it.k))tg+=it.pts;});
@@ -930,6 +967,19 @@ window.addEventListener("hashchange",tab);
 try{ speechSynthesis.getVoices(); speechSynthesis.onvoiceschanged=()=>{}; }catch(e){}
 render(); renderLast(); renderEnot(); tab();
 document.querySelectorAll("#calm .timer").forEach(mountTimer);
+
+// ---------- автосинхронизация с папой ----------
+if(SY){
+  SY.mountBox($("sync-box"));
+  if(SY.enabled){
+    $("send-auto").hidden=false;
+    SY.poll(async()=>{
+      const p=await SY.read("danya/papa.json");
+      if(applyPapa(p,true)){ render(true); renderEnot(); renderTop(); renderPraise(); const t=(location.hash||"").slice(1); if(t==="progress") renderProgress(); if(t==="books") renderBooks(); }
+    },60);
+    setTimeout(pushIfChanged,1500);
+  }
+}
 })();
 </script>
 </body>

@@ -118,6 +118,16 @@ td.n{white-space:nowrap}
 .tip{border-left:3px solid var(--accent);padding-left:12px;display:grid;gap:4px}
 .warnbox{background:var(--gold-soft);border-radius:12px;padding:10px 12px;font-size:14px;display:grid;gap:4px}
 .warnbox b{color:var(--gold)}
+.sync{display:grid;gap:6px;font-size:13px}
+.sync-st{font-weight:700;color:var(--muted)}
+.sync-st.ok{color:var(--accent)}
+.sync-st.err{color:var(--bad)}
+.sync-set summary{cursor:pointer;color:var(--accent);font-weight:700;font-size:13px}
+.sync-set small{display:block;color:var(--muted);margin:6px 0}
+.sync-row{display:flex;gap:8px;margin-top:6px}
+.sync-row input{flex:1;min-width:0}
+.sync-row button,.sync-del{appearance:none;border:0;background:var(--accent);color:var(--surface);font:700 13px var(--body);border-radius:10px;padding:8px 12px;cursor:pointer}
+.sync-del{background:transparent;color:var(--bad);padding:4px 0}
 .pz-ctl{display:grid;grid-template-columns:1fr 1fr;gap:8px;align-items:end}
 .pz-ctl label{display:grid;gap:3px}
 .pz-chk{display:flex!important;align-items:center;gap:6px;padding-bottom:8px}
@@ -181,7 +191,9 @@ td.n{white-space:nowrap}
         <button class="btn" type="button" id="w-conf">Подтвердить неделю</button>
         <button class="btn gold" type="button" id="w-paid">Перевёл деньги</button>
       </div>
+      <p class="small" id="sync-on" hidden style="color:var(--accent);font-weight:600">Автосинхронизация включена: всё, что вы меняете, само появляется у Саши через пару секунд. Кнопка ниже — запасной способ.</p>
       <div class="row"><button class="btn ghost" type="button" id="w-send">Отправить итог Саше</button></div>
+      <div class="sync" id="sync-box"></div>
       <div class="fallback" id="fb" hidden>
         <p class="small">Скопируйте текст и отправьте его Саше в MAX.</p>
         <textarea id="fb-text" readonly></textarea>
@@ -366,6 +378,7 @@ td.n{white-space:nowrap}
 <script src="enot.js"></script>
 <script src="danya-core.js"></script>
 <script src="kids-switch.js"></script>
+<script src="sync.js"></script>
 <script>
 (function(){
 "use strict";
@@ -388,12 +401,34 @@ const PZ=window.PUZZLES;
 let en=S.LS.get("pa-enot",{}), ev=S.LS.get("pa-ev",{});   // «Енот Чек»: {урок: дата} от Саши, решения папы {урок: 0|1}
 const EN=window.ENOT;
 let lastAt=S.LS.get("pa-last",0);
-const save=()=>{S.LS.set("pa-enot",en);S.LS.set("pa-ev",ev);S.LS.set("pa-as",assign);S.LS.set("pa-pz",pz);S.LS.set("pa-ans",ans);S.LS.set("pa-days",days);S.LS.set("pa-ov",ov);S.LS.set("pa-fi",fines);S.LS.set("pa-cf",cf);S.LS.set("pa-pd",pd);S.LS.set("pa-books",books);S.LS.set("pa-last",lastAt);if(window.KIDS)window.KIDS.draw();};
+// автосинхронизация: после любого изменения через 2,5 с пишем sasha/papa.json (если что-то поменялось)
+const SY=window.SYNC;
+let pushT=null;
+function pushIfChanged(){
+  if(!SY||!SY.enabled) return;
+  const p=papaPayload(), sig=JSON.stringify(Object.assign({},p,{at:0}));
+  if(sig===S.LS.get("pa-sync-sig","")) return;
+  SY.write("sasha/papa.json",p,"Папа → Саша").then(ok=>{ if(ok) S.LS.set("pa-sync-sig",sig); });
+}
+const save=()=>{clearTimeout(pushT);pushT=setTimeout(pushIfChanged,2500);S.LS.set("pa-enot",en);S.LS.set("pa-ev",ev);S.LS.set("pa-as",assign);S.LS.set("pa-pz",pz);S.LS.set("pa-ans",ans);S.LS.set("pa-days",days);S.LS.set("pa-ov",ov);S.LS.set("pa-fi",fines);S.LS.set("pa-cf",cf);S.LS.set("pa-pd",pd);S.LS.set("pa-books",books);S.LS.set("pa-last",lastAt);if(window.KIDS)window.KIDS.draw();};
 
 const today=new Date(), todayISO=S.iso(today);
 let mon=S.mondayOf(today);
 
-// ---------- приём отчёта Саши ----------
+// ---------- приём отчёта Саши: по ссылке или автосинхронизацией ----------
+// Возвращает число обновлённых дней, -1 — отчёт старый, null — не отчёт Саши.
+function applyReport(rep){
+  if(!rep||rep.v!==1||rep.c) return null;
+  if((rep.at||0)<=lastAt) return -1;
+  let n=0;
+  Object.entries(rep.d||{}).forEach(([d,k])=>{days[d]=k?k.split(","):[];n++;});
+  for(let i=0;i<28;i++){const ds=S.iso(S.addDays(new Date(rep.at||Date.now()),-i)); if(!(ds in (rep.d||{}))&&days[ds]) delete days[ds];}
+  books={list:rep.bk||[],cur:rep.cur||null,pg:rep.pg||{}};
+  Object.assign(ans,rep.an||{});
+  if(rep.en) en=rep.en;
+  lastAt=rep.at||Date.now(); save();
+  return n;
+}
 const rep=S.readHash("r");
 if(rep&&rep.v===1&&!rep.c){
   if((rep.at||0)>=lastAt){
@@ -498,9 +533,12 @@ $("w-conf").onclick=()=>{const m=S.iso(mon); cf=cf.includes(m)?cf.filter(x=>x!==
 $("w-paid").onclick=()=>{const m=S.iso(mon); pd=pd.includes(m)?pd.filter(x=>x!==m):[...pd,m]; if(pd.includes(m)&&!cf.includes(m)) cf.push(m); save(); renderWeek();};
 
 // ---------- итог Саше ----------
-$("w-send").onclick=async()=>{
+function papaPayload(){
   const tt={}; [...new Set([...cf,...pd])].forEach(m=>{tt[m]=S.week(S.parse(m),eff,books.list,fines,assign,pz,en,ev).total;});
-  const payload={v:1,at:Date.now(),ov,fi:fines,cf,pd,tt,as:assign,pz,ev};
+  return {v:1,at:Date.now(),ov,fi:fines,cf,pd,tt,as:assign,pz,ev};
+}
+$("w-send").onclick=async()=>{
+  const payload=papaPayload();
   const url=S.pageURL("index.html")+"#p="+S.enc(payload);
   const m=S.iso(mon), w=S.week(mon,eff,books.list,fines,assign,pz,en,ev);
   let line=`Саша, итог недели ${S.range(mon)}: ${w.total} ₽`;
@@ -637,6 +675,23 @@ $("paste-go").onclick=()=>{
 };
 $("t-max").textContent=S.week(S.mondayOf(today),()=>true,[],[]).max+" ₽";
 renderWeek(); tab();
+
+// ---------- автосинхронизация с Сашей ----------
+if(SY&&!window.KIDS_REDIRECT){
+  SY.mountBox($("sync-box"));
+  if(SY.enabled){
+    $("sync-on").hidden=false;
+    SY.poll(async()=>{
+      const r=await SY.read("sasha/child.json");
+      const n=applyReport(r);
+      if(n!==null&&n>=0){
+        $("imp").innerHTML=`<b>Новые отметки Саши пришли автоматически</b> (${new Date(lastAt).toLocaleString("ru-RU",{day:"numeric",month:"short",hour:"2-digit",minute:"2-digit"})}).`; $("imp").hidden=false;
+        renderWeek(); const t=(location.hash||"").slice(1); if(t==="books") renderBooks(); if(t==="puzzles") renderPuzzles();
+      }
+    },60);
+    setTimeout(pushIfChanged,2000);
+  }
+}
 })();
 </script>
 </body>
