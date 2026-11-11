@@ -192,6 +192,15 @@ textarea{font-weight:500;min-height:80px;resize:vertical}
 .circ div{display:grid;grid-template-columns:22px 1fr;gap:6px;font-size:13.5px;background:var(--bg);border-radius:10px;padding:7px 10px}
 .circ div b{color:var(--sport)}
 .circ div small{grid-column:2;color:var(--muted);font-size:12.5px}
+.enot{border-left:4px solid var(--gold)}
+.enl{display:grid;gap:5px}
+.enl div{display:grid;grid-template-columns:28px 1fr auto;gap:8px;align-items:center;background:var(--bg);border-radius:10px;padding:7px 10px;font-size:13.5px}
+.enl div b.nb{display:grid;place-items:center;width:26px;height:26px;border-radius:50%;background:var(--line);font-size:12.5px}
+.enl div.ok b.nb{background:var(--ok);color:var(--surface)}
+.enl div.wait b.nb{background:var(--gold);color:var(--surface)}
+.enl div.no b.nb{background:var(--bad);color:var(--surface)}
+.enl small{color:var(--muted);font-size:12px;white-space:nowrap}
+.enl .btn{padding:6px 12px;font-size:13px}
 @media (max-width:380px){.tabs a{font-size:11.5px}}
 @media (prefers-reduced-motion: reduce){.chev,.progress i{transition:none}}
 </style>
@@ -227,6 +236,14 @@ textarea{font-weight:500;min-height:80px;resize:vertical}
     <div class="daybar"><h2 id="dayname"></h2><span id="daycount"></span></div>
     <div class="progress"><i id="bar"></i></div>
     <main class="tl" id="tl"></main>
+
+    <div class="panel enot" id="enot-box">
+      <span class="eyebrow">Сверх лимита · 100 ₽ за урок</span>
+      <h2>Курс «Енот Чек»</h2>
+      <p class="small">10 уроков критического мышления: как отличить факт от мнения, поймать ловушку в рассуждении и не попасться мошенникам. Каждый пройденный урок — <b>+100 ₽</b> сверх обычной недели. Прошёл урок и тест в конце — нажми «Прошёл!», папа подтвердит.</p>
+      <div class="row"><a class="btn ghost" id="enot-link" target="_blank" rel="noopener">Открыть курс</a><span class="small muted" id="enot-st"></span></div>
+      <div class="enl" id="enot-list"></div>
+    </div>
 
     <details class="calm" id="calm">
       <summary><span class="sm"><b>Расстроился? Открой меня</b><span class="tag" style="--k:var(--mood)">2 минуты</span></span>
@@ -466,6 +483,7 @@ textarea{font-weight:500;min-height:80px;resize:vertical}
   </section>
 </div>
 
+<script src="enot.js"></script>
 <script src="danya-core.js"></script>
 <script src="danya-bank.js"></script>
 <script src="puzzles.js"></script>
@@ -485,6 +503,8 @@ let mood=S.LS.get("dn-mood",{});          // {date: 1..5}
 let food=S.LS.get("dn-food",[]);          // [{d,f,st,r}]
 let tests=S.LS.get("dn-tests",[]);        // [{d,pl,pu,sq,bl}]
 let facts=S.LS.get("dn-facts",{});        // {date: факт из подкаста}
+let enot=S.LS.get("dn-enot",{});          // {номер урока «Енот Чек»: дата}
+const EN=window.ENOT;
 const today=new Date(); const todayISO=S.iso(today);
 let sel=S.dowOf(today);
 const mon=S.mondayOf(today);
@@ -493,7 +513,7 @@ const mon=S.mondayOf(today);
 const fromPapa=S.readHash("p");
 if(fromPapa&&fromPapa.v===1&&fromPapa.c==="danya"){
   const oldAs=new Set((papa.as||[]).map(a=>a.id)), oldMsg=papa.msg;
-  papa={ov:fromPapa.ov||{},fi:fromPapa.fi||[],cf:fromPapa.cf||[],pd:fromPapa.pd||[],tt:fromPapa.tt||{},as:fromPapa.as||[],pz:fromPapa.pz||{},msg:fromPapa.msg||"",at:fromPapa.at||Date.now()};
+  papa={ov:fromPapa.ov||{},fi:fromPapa.fi||[],cf:fromPapa.cf||[],pd:fromPapa.pd||[],tt:fromPapa.tt||{},as:fromPapa.as||[],pz:fromPapa.pz||{},ev:fromPapa.ev||{},msg:fromPapa.msg||"",at:fromPapa.at||Date.now()};
   const newAs=papa.as.filter(a=>!oldAs.has(a.id));
   S.LS.set("dn-papa",papa); S.clearHash();
   const m=S.iso(mon);
@@ -512,7 +532,28 @@ if(papa.msg){ $("praise").innerHTML="<b>Папа пишет:</b> "+esc(papa.msg)
 const eff=(d,k)=>{const o=papa.ov[d]; if(o&&o[k]!==undefined) return o[k]===1; return !!(done[d]&&done[d][k]);};
 const mine=(d,k)=>!!(done[d]&&done[d][k]);
 const setDone=(ds,k,on)=>{done[ds]=done[ds]||{}; if(on) done[ds][k]=1; else delete done[ds][k]; if(!Object.keys(done[ds]).length) delete done[ds]; S.LS.set("dn-done",done);};
-const W=()=>S.week(mon,eff,books.list,papa.fi,papa.as,papa.pz);
+if(!papa.ev) papa.ev={};
+const W=()=>S.week(mon,eff,books.list,papa.fi,papa.as,papa.pz,enot,papa.ev);
+
+// ---------- курс «Енот Чек» (сверх лимита) ----------
+function renderEnot(){
+  $("enot-link").href=EN.URL;
+  const next=EN.LESSONS.find(([n])=>!enot[n]);
+  const got=Object.keys(enot).filter(n=>papa.ev[n]!==0).length;
+  $("enot-st").textContent=`Пройдено ${got} из ${EN.LESSONS.length} · заработано ${S.rub(got*EN.PTS)}`;
+  $("enot-list").innerHTML=EN.LESSONS.map(([n,t])=>{
+    const d=enot[n], v=papa.ev[n];
+    let cls="", right="";
+    if(d){ cls=v===0?"no":v===1?"ok":"wait"; right=`<small>${v===0?"папа не засчитал":v===1?"✓ +"+EN.PTS+" ₽":"ждёт папу · "+S.parse(d).toLocaleDateString("ru-RU",{day:"numeric",month:"short"})}</small>`; }
+    else if(next&&next[0]===n) right=`<button class="btn en-go" type="button" data-n="${n}">Прошёл!</button>`;
+    else right=`<small>+${EN.PTS} ₽</small>`;
+    return `<div class="${cls}"><b class="nb">${n}</b><span>${esc(t)}</span>${right}</div>`;
+  }).join("");
+  $("enot-list").querySelectorAll(".en-go").forEach(b=>b.onclick=()=>{
+    if(b.dataset.sure!=="1"){b.dataset.sure="1";b.textContent="Точно прошёл?";return;}
+    enot[b.dataset.n]=todayISO; S.LS.set("dn-enot",enot); renderEnot(); renderWeek(); renderTop();
+  });
+}
 
 // ---------- банк: что сегодня ----------
 const dn=d=>S.dayNum(d);
@@ -724,7 +765,7 @@ function renderProgress(){
   else pp="Папа подтвердит неделю в воскресенье.";
   if(w.fines.length) pp+=` Штрафы: ${w.fines.map(f=>esc(f.w)+" −"+f.a+" ₽").join(", ")}.`;
   $("e-papa").innerHTML=pp;
-  $("e-hint").textContent=`Заработал за задания ${w.base} ₽, бонусы ${w.bonus} ₽${w.fsum?", штрафы −"+w.fsum+" ₽":""}.`;
+  $("e-hint").textContent=`Заработал за задания ${w.base} ₽, бонусы ${w.bonus} ₽${w.enot.n?", «Енот Чек» сверх лимита +"+w.enot.sum+" ₽":""}${w.fsum?", штрафы −"+w.fsum+" ₽":""}.`;
 
   $("mstrip").innerHTML=[0,1,2,3,4,5,6].map(i=>{const ds=S.iso(S.addDays(mon,i)), v=mood[ds], e=v?S.MOODS.find(x=>x[0]===v)[1]:"·"; return `<div><span>${e}</span>${S.DSHORT[i]}</div>`;}).join("");
 
@@ -736,9 +777,9 @@ function renderProgress(){
   const first=all.length?S.mondayOf(S.parse(all[0])):mon;
   const rows=[];
   for(let x=new Date(mon);x>=first&&rows.length<12;x=S.addDays(x,-7)){
-    const ww=S.week(x,eff,books.list,papa.fi,papa.as,papa.pz), mm=S.iso(x);
+    const ww=S.week(x,eff,books.list,papa.fi,papa.as,papa.pz,enot,papa.ev), mm=S.iso(x);
     const st=papa.pd.includes(mm)?'<span class="ok-t">перевёл</span>':papa.cf.includes(mm)?'<span class="ok-t">подтвердил</span>':'<span class="muted">ждём</span>';
-    rows.push(`<tr><td class="n">${S.range(x)}</td><td class="n">${ww.base+ww.bonus} ₽</td><td class="n">${ww.fsum?'<span class="bad-t">−'+ww.fsum+' ₽</span>':"—"}</td><td class="n"><b>${ww.total} ₽</b></td><td class="n">${st}</td></tr>`);
+    rows.push(`<tr><td class="n">${S.range(x)}</td><td class="n">${ww.base+ww.bonus+ww.enot.sum} ₽</td><td class="n">${ww.fsum?'<span class="bad-t">−'+ww.fsum+' ₽</span>':"—"}</td><td class="n"><b>${ww.total} ₽</b></td><td class="n">${st}</td></tr>`);
   }
   $("hist").querySelector("tbody").innerHTML=rows.join("");
   $("papa-at").textContent=papa.at?"Последний итог от папы: "+new Date(papa.at).toLocaleString("ru-RU",{day:"numeric",month:"long",hour:"2-digit",minute:"2-digit"}):"Папа пришлёт тебе ссылку с итогом. Открой её, и подтверждения появятся здесь.";
@@ -748,7 +789,7 @@ function renderProgress(){
   const once=new Map(); for(let i=0;i<7;i++) S.plan(i).forEach(it=>{const key=it.k==="h"?"Дело по дому":it.k==="s"?"Отбой вовремя":it.title; const c=once.get(key)||{pts:it.pts,n:0}; c.n++; once.set(key,c);});
   $("pts-rules").innerHTML=[...once].map(([t,c])=>`<tr><td>${esc(t)} <span class="muted small">· ${c.n===7?"каждый день":c.n+" р. в неделю"}</span></td><td class="n">${c.pts}</td></tr>`).join("")
     +`<tr><td>Задачка от папы (когда задана)</td><td class="n">${S.PZ_PTS}</td></tr>`
-    +S.BONUS.map(b=>`<tr><td>Бонус: ${b.t}</td><td class="n">${b.pts}</td></tr>`).join("")+`<tr><td>Книга от папы, дочитал к сроку</td><td class="n">награда от папы</td></tr><tr><td>Своя книга или аудиокнига</td><td class="n">${S.BOOK_PTS}</td></tr>`;
+    +S.BONUS.map(b=>`<tr><td>Бонус: ${b.t}</td><td class="n">${b.pts}</td></tr>`).join("")+`<tr><td>Сверх лимита: урок курса «Енот Чек» (10 уроков)</td><td class="n">${EN.PTS}</td></tr><tr><td>Книга от папы, дочитал к сроку</td><td class="n">награда от папы</td></tr><tr><td>Своя книга или аудиокнига</td><td class="n">${S.BOOK_PTS}</td></tr>`;
   const base=S.week(mon,()=>true,[],[],[],{}).max;
   $("pts-max").textContent=`Если сделать всё, за неделю выйдет около ${base} ₽, плюс задачки и книги. Если сделать три четверти, выйдет примерно ${Math.round(base*.75/10)*10} ₽.`;
 }
@@ -839,12 +880,12 @@ function report(){
   const from=S.iso(S.addDays(today,-27));
   const an={}; Object.keys(ans).filter(x=>x>=from).forEach(x=>an[x]=ans[x]);
   const payload={v:1,c:"danya",at:Date.now(),d,bk:books.list,pg:books.pg,cur:books.cur.t?{t:books.cur.t,a:books.cur.a}:null,an,mo,fx,
-    fd:food.slice(-40),ts:tests.slice(-6)};
+    fd:food.slice(-40),ts:tests.slice(-6),en:enot};
   const url=S.pageURL("papa-danya.html")+"#r="+S.enc(payload);
   const w=W();
   let tg=0; S.plan(S.dowOf(today)).forEach(it=>{if(eff(todayISO,it.k))tg+=it.pts;});
   const mm=mood[todayISO]?S.MOODS.find(x=>x[0]===mood[todayISO])[1]:"";
-  return `Папа, это Даня! Отчёт за неделю ${S.range(mon)}.\nСегодня: ${tg} ₽${mm?" · настроение "+mm:""}, за неделю: ${w.base+w.bonus} ₽.\nЗарядка ${w.zd}/7 · тренировки ${w.sd} · новые вкусы ${w.fd} · уроки сам ${w.uOk}/${w.uDays}\nОткрой, чтобы проверить и подтвердить:\n${url}`;
+  return `Папа, это Даня! Отчёт за неделю ${S.range(mon)}.\nСегодня: ${tg} ₽${mm?" · настроение "+mm:""}, за неделю: ${w.base+w.bonus+w.enot.sum} ₽${w.enot.n?" (из них «Енот Чек» "+w.enot.sum+" ₽)":""}.\nЗарядка ${w.zd}/7 · тренировки ${w.sd} · новые вкусы ${w.fd} · уроки сам ${w.uOk}/${w.uDays}\nОткрой, чтобы проверить и подтвердить:\n${url}`;
 }
 $("s-go").onclick=async()=>{
   const txt=report(), r=await S.share(txt);
@@ -887,7 +928,7 @@ function tab(){
 }
 window.addEventListener("hashchange",tab);
 try{ speechSynthesis.getVoices(); speechSynthesis.onvoiceschanged=()=>{}; }catch(e){}
-render(); renderLast(); tab();
+render(); renderLast(); renderEnot(); tab();
 document.querySelectorAll("#calm .timer").forEach(mountTimer);
 })();
 </script>

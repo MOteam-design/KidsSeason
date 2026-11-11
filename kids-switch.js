@@ -22,7 +22,7 @@
     const days = get(p + "-days", {}), ov = get(p + "-ov", {});
     const eff = (d, k) => { const o = ov[d]; if (o && o[k] !== undefined) return o[k] === 1; return !!(days[d] && days[d].includes(k)); };
     const books = get(p + "-books", { list: [] });
-    try { return C.week(C.mondayOf(new Date()), eff, books.list || [], get(p + "-fi", []), get(p + "-as", []), get(p + "-pz", {})).total; }
+    try { return C.week(C.mondayOf(new Date()), eff, books.list || [], get(p + "-fi", []), get(p + "-as", []), get(p + "-pz", {}), get(p + "-enot", {}), get(p + "-ev", {})).total; }
     catch (e) { return 0; }
   }
   function draw() {

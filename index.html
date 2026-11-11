@@ -155,6 +155,15 @@ textarea{font-weight:500;min-height:90px;resize:vertical}
 .fallback{display:grid;gap:8px}
 .fallback textarea{font-size:12.5px;min-height:110px}
 .foot{font-size:12.5px;color:var(--muted)}
+.enot{border-left:4px solid var(--gold)}
+.enl{display:grid;gap:5px}
+.enl div{display:grid;grid-template-columns:28px 1fr auto;gap:8px;align-items:center;background:var(--bg);border-radius:10px;padding:7px 10px;font-size:13.5px}
+.enl div b.nb{display:grid;place-items:center;width:26px;height:26px;border-radius:50%;background:var(--line);font-size:12.5px}
+.enl div.ok b.nb{background:var(--accent);color:var(--surface)}
+.enl div.wait b.nb{background:var(--gold);color:var(--surface)}
+.enl div.no b.nb{background:var(--bad);color:var(--surface)}
+.enl small{color:var(--muted);font-size:12px;white-space:nowrap}
+.enl .btn{padding:6px 12px;font-size:13px}
 .paste{display:grid;gap:6px;border-top:1px solid var(--line);padding-top:10px}
 .paste-row{display:flex;gap:8px}
 .paste-row input{flex:1;min-width:0}
@@ -197,6 +206,14 @@ textarea{font-weight:500;min-height:90px;resize:vertical}
     <div class="daybar"><h2 id="dayname"></h2><span id="daycount"></span></div>
     <div class="progress"><i id="bar"></i></div>
     <main class="tl" id="tl"></main>
+
+    <div class="panel enot" id="enot-box">
+      <span class="eyebrow">Сверх лимита · 100 ₽ за урок</span>
+      <h2>Курс «Енот Чек»</h2>
+      <p class="small">10 уроков с Енотом Чеком: как отличить факт от мнения, задавать правильные вопросы, поймать ловушку в рассуждении и не попасться мошенникам. Каждый пройденный урок — <b>+100 ₽</b> сверх обычной недели. Прошёл урок и тест в конце — нажми «Прошёл!», папа подтвердит.</p>
+      <div class="row"><a class="btn ghost" id="enot-link" target="_blank" rel="noopener">Открыть курс</a><span class="small muted" id="enot-st"></span></div>
+      <div class="enl" id="enot-list"></div>
+    </div>
 
     <div class="panel" id="send">
       <span class="eyebrow">Отчёт папе</span>
@@ -380,6 +397,7 @@ textarea{font-weight:500;min-height:90px;resize:vertical}
 
 <script src="core.js"></script>
 <script src="puzzles.js"></script>
+<script src="enot.js"></script>
 <script>
 (function(){
 "use strict";
@@ -392,6 +410,9 @@ let papa=S.LS.get("sa-papa",{ov:{},fi:[],cf:[],pd:[],tt:{},as:[],pz:{},at:0});
 if(!papa.as) papa.as=[];
 if(!papa.pz) papa.pz={};
 let ans=S.LS.get("sa-ans",{});            // {date: ответ на задачку дня}
+let enot=S.LS.get("sa-enot",{});          // курс «Енот Чек»: {номер урока: дата}
+if(!papa.ev) papa.ev={};
+const EN=window.ENOT;
 const PZ=window.PUZZLES;
 let books=S.LS.get("sa-books",{cur:{t:"",a:"",n:""},list:[],pg:{}});
 if(!books.pg) books.pg={};
@@ -403,7 +424,7 @@ const mon=S.mondayOf(today);
 const fromPapa=S.readHash("p");
 if(fromPapa&&fromPapa.v===1){
   const oldAs=new Set((papa.as||[]).map(a=>a.id));
-  papa={ov:fromPapa.ov||{},fi:fromPapa.fi||[],cf:fromPapa.cf||[],pd:fromPapa.pd||[],tt:fromPapa.tt||{},as:fromPapa.as||[],pz:fromPapa.pz||{},at:fromPapa.at||Date.now()};
+  papa={ov:fromPapa.ov||{},fi:fromPapa.fi||[],cf:fromPapa.cf||[],pd:fromPapa.pd||[],tt:fromPapa.tt||{},as:fromPapa.as||[],pz:fromPapa.pz||{},ev:fromPapa.ev||{},at:fromPapa.at||Date.now()};
   var newAs=papa.as.filter(a=>!oldAs.has(a.id));
   S.LS.set("sa-papa",papa); S.clearHash();
   const m=S.iso(mon);
@@ -461,7 +482,7 @@ function info(k,i){
 const CHEV='<svg class="chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg>';
 function renderWeek(){
   const w=$("week"); w.innerHTML="";
-  const wk=S.week(mon,eff,books.list,papa.fi,papa.as,papa.pz);
+  const wk=S.week(mon,eff,books.list,papa.fi,papa.as,papa.pz,enot,papa.ev);
   for(let i=0;i<7;i++){
     const d=S.addDays(mon,i), ds=S.iso(d);
     const got=wk.days[i].got;
@@ -557,7 +578,7 @@ function totalXP(){
   dates.forEach(ds=>{const i=S.dowOf(S.parse(ds)); S.plan(i).forEach(it=>{if(eff(ds,it.k))xp+=it.pts;}); if(papa.pz[ds]&&eff(ds,"zq")) xp+=S.PZ_PTS;});
   // бонусы недель
   const mons=new Set([...dates].map(ds=>S.iso(S.mondayOf(S.parse(ds)))));
-  mons.forEach(m=>{xp+=S.week(S.parse(m),eff,books.list,[],papa.as,papa.pz).bonus;});
+  mons.forEach(m=>{const _w=S.week(S.parse(m),eff,books.list,[],papa.as,papa.pz,enot,papa.ev); xp+=_w.bonus+_w.enot.sum;});
   return xp;
 }
 function renderProgress(){
@@ -569,7 +590,7 @@ function renderProgress(){
   $("st-r").textContent=S.streak(eff,"r",today);
   $("st-b").textContent=books.list.length;
 
-  const w=S.week(mon,eff,books.list,papa.fi,papa.as,papa.pz), m=S.iso(mon);
+  const w=S.week(mon,eff,books.list,papa.fi,papa.as,papa.pz,enot,papa.ev), m=S.iso(mon);
   $("e-week").textContent=S.rub(w.total);
   $("e-of").textContent="из "+w.max+" ₽ возможных";
   $("e-bar").style.width=Math.min(100,Math.round(w.total/w.max*100))+"%";
@@ -579,7 +600,7 @@ function renderProgress(){
   else pp="Папа подтвердит неделю в воскресенье.";
   if(w.fines.length) pp+=` Штрафы: ${w.fines.map(f=>esc(f.w)+" −"+f.a+" ₽").join(", ")}.`;
   $("e-papa").innerHTML=pp;
-  $("e-hint").textContent=`Заработал за задания ${w.base} ₽, бонусы ${w.bonus} ₽${w.fsum?", штрафы −"+w.fsum+" ₽":""}.`;
+  $("e-hint").textContent=`Заработал за задания ${w.base} ₽, бонусы ${w.bonus} ₽${w.enot.n?", «Енот Чек» сверх лимита +"+w.enot.sum+" ₽":""}${w.fsum?", штрафы −"+w.fsum+" ₽":""}.`;
 
   const bd=[[S.BONUS[0],w.pd,7],[S.BONUS[1],w.rd,7],[S.BONUS[2],w.uOk,w.uDays]];
   $("bonus").innerHTML=bd.map(([b,x,of])=>`<div class="${x>=of?"got":""}"><span>${b.t}</span><b>${x>=of?"✓ ":""}+${b.pts} ₽</b><span class="muted small">${x} из ${of}</span><span></span><div class="bar2"><i style="width:${Math.round(x/of*100)}%"></i></div></div>`).join("")
@@ -590,9 +611,9 @@ function renderProgress(){
   const first=all.length?S.mondayOf(S.parse(all[0])):mon;
   const rows=[];
   for(let x=new Date(mon);x>=first&&rows.length<12;x=S.addDays(x,-7)){
-    const ww=S.week(x,eff,books.list,papa.fi,papa.as,papa.pz), mm=S.iso(x);
+    const ww=S.week(x,eff,books.list,papa.fi,papa.as,papa.pz,enot,papa.ev), mm=S.iso(x);
     const st=papa.pd.includes(mm)?'<span class="ok-t">перевёл</span>':papa.cf.includes(mm)?'<span class="ok-t">подтвердил</span>':'<span class="muted">ждём</span>';
-    rows.push(`<tr><td class="n">${S.range(x)}</td><td class="n">${ww.base+ww.bonus} ₽</td><td class="n">${ww.fsum?'<span class="bad-t">−'+ww.fsum+' ₽</span>':"—"}</td><td class="n"><b>${ww.total} ₽</b></td><td class="n">${st}</td></tr>`);
+    rows.push(`<tr><td class="n">${S.range(x)}</td><td class="n">${ww.base+ww.bonus+ww.enot.sum} ₽</td><td class="n">${ww.fsum?'<span class="bad-t">−'+ww.fsum+' ₽</span>':"—"}</td><td class="n"><b>${ww.total} ₽</b></td><td class="n">${st}</td></tr>`);
   }
   $("hist").querySelector("tbody").innerHTML=rows.join("");
   $("papa-at").textContent=papa.at?"Последний итог от папы: "+new Date(papa.at).toLocaleString("ru-RU",{day:"numeric",month:"long",hour:"2-digit",minute:"2-digit"}):"Папа пришлёт тебе ссылку с итогом. Открой её, и подтверждения появятся здесь.";
@@ -601,8 +622,28 @@ function renderProgress(){
   $("ladder").innerHTML=S.LEVELS.map(([x,n],i)=>`<div class="${i===L.i?"cur":""}"><b style="font-weight:inherit">${n}</b><span>${x} XP</span></div>`).join("");
   const once=new Map(); for(let i=0;i<7;i++) S.plan(i).forEach(it=>{const key=it.k==="h"?"Дело по дому":it.k==="s"?"Отбой вовремя":it.title; const c=once.get(key)||{pts:it.pts,n:0}; c.n++; once.set(key,c);});
   $("pts-rules").innerHTML=[...once].map(([t,c])=>`<tr><td>${esc(t)} <span class="muted small">· ${c.n===7?"каждый день":c.n+" р. в неделю"}</span></td><td class="n">${c.pts}</td></tr>`).join("")
-    +S.BONUS.map(b=>`<tr><td>Бонус: ${b.t}</td><td class="n">${b.pts}</td></tr>`).join("")+`<tr><td>Задачка дня от папы (если задал)</td><td class="n">${S.PZ_PTS}</td></tr><tr><td>Книга от папы, дочитал к сроку</td><td class="n">награда от папы</td></tr><tr><td>Своя книга</td><td class="n">${S.BOOK_PTS}</td></tr>`;
+    +S.BONUS.map(b=>`<tr><td>Бонус: ${b.t}</td><td class="n">${b.pts}</td></tr>`).join("")+`<tr><td>Сверх лимита: урок курса «Енот Чек» (10 уроков)</td><td class="n">${EN.PTS}</td></tr><tr><td>Задачка дня от папы (если задал)</td><td class="n">${S.PZ_PTS}</td></tr><tr><td>Книга от папы, дочитал к сроку</td><td class="n">награда от папы</td></tr><tr><td>Своя книга</td><td class="n">${S.BOOK_PTS}</td></tr>`;
   $("pts-max").textContent=`Если сделать всё, за неделю выйдет около ${w.max} ₽, плюс награды за дочитанные книги. Если сделать три четверти, выйдет примерно ${Math.round(w.max*.75/10)*10} ₽.`;
+}
+
+// ---------- курс «Енот Чек» (сверх лимита) ----------
+function renderEnot(){
+  $("enot-link").href=EN.URL;
+  const next=EN.LESSONS.find(([n])=>!enot[n]);
+  const got=Object.keys(enot).filter(n=>papa.ev[n]!==0).length;
+  $("enot-st").textContent=`Пройдено ${got} из ${EN.LESSONS.length} · заработано ${S.rub(got*EN.PTS)}`;
+  $("enot-list").innerHTML=EN.LESSONS.map(([n,t])=>{
+    const d=enot[n], v=papa.ev[n];
+    let cls="", right="";
+    if(d){ cls=v===0?"no":v===1?"ok":"wait"; right=`<small>${v===0?"папа не засчитал":v===1?"✓ +"+EN.PTS+" ₽":"ждёт папу · "+S.parse(d).toLocaleDateString("ru-RU",{day:"numeric",month:"short"})}</small>`; }
+    else if(next&&next[0]===n) right=`<button class="btn en-go" type="button" data-n="${n}">Прошёл!</button>`;
+    else right=`<small>+${EN.PTS} ₽</small>`;
+    return `<div class="${cls}"><b class="nb">${n}</b><span>${esc(t)}</span>${right}</div>`;
+  }).join("");
+  $("enot-list").querySelectorAll(".en-go").forEach(b=>b.onclick=()=>{
+    if(b.dataset.sure!=="1"){b.dataset.sure="1";b.textContent="Точно прошёл?";return;}
+    enot[b.dataset.n]=todayISO; S.LS.set("sa-enot",enot); renderEnot(); render(true);
+  });
 }
 
 // ---------- Книги ----------
@@ -665,11 +706,11 @@ $("bk-done").onclick=()=>{
 function report(){
   const d={}; for(let i=0;i<28;i++){const ds=S.iso(S.addDays(today,-i)); if(done[ds]) d[ds]=Object.keys(done[ds]).join(",");}
   const an={}; Object.keys(ans).forEach(k=>{ if(k>=S.iso(S.addDays(today,-27))) an[k]=ans[k].slice(0,400); });
-  const payload={v:1,at:Date.now(),d,an,bk:books.list,pg:books.pg,cur:books.cur.t?{t:books.cur.t,a:books.cur.a}:null};
+  const payload={v:1,at:Date.now(),d,an,en:enot,bk:books.list,pg:books.pg,cur:books.cur.t?{t:books.cur.t,a:books.cur.a}:null};
   const url=S.pageURL("papa.html")+"#r="+S.enc(payload);
-  const w=S.week(mon,eff,books.list,papa.fi,papa.as,papa.pz);
+  const w=S.week(mon,eff,books.list,papa.fi,papa.as,papa.pz,enot,papa.ev);
   const ds=todayISO; let tg=0; S.plan(S.dowOf(today)).forEach(it=>{if(eff(ds,it.k))tg+=it.pts;});
-  const txt=`Папа, это Саша! Отчёт за неделю ${S.range(mon)}.\nСегодня: ${tg} ₽, за неделю: ${w.base+w.bonus} ₽.\nПианино ${w.pd}/7 · чтение ${w.rd}/7 · уроки сам ${w.uOk}/${w.uDays}\nОткрой, чтобы проверить и подтвердить:\n${url}`;
+  const txt=`Папа, это Саша! Отчёт за неделю ${S.range(mon)}.\nСегодня: ${tg} ₽, за неделю: ${w.base+w.bonus+w.enot.sum} ₽${w.enot.n?" (из них «Енот Чек» "+w.enot.sum+" ₽)":""}.\nПианино ${w.pd}/7 · чтение ${w.rd}/7 · уроки сам ${w.uOk}/${w.uDays}\nОткрой, чтобы проверить и подтвердить:\n${url}`;
   return txt;
 }
 $("s-go").onclick=async()=>{
@@ -688,7 +729,7 @@ function renderLast(){const t=S.LS.get("sa-last",0);$("s-last").textContent=t?"�
 
 // ---------- вкладки ----------
 function renderTop(){
-  const w=S.week(mon,eff,books.list,papa.fi,papa.as,papa.pz);
+  const w=S.week(mon,eff,books.list,papa.fi,papa.as,papa.pz,enot,papa.ev);
   $("top-money").textContent=S.rub(w.total);
   $("top-lv").textContent=S.level(totalXP()).name;
 }
@@ -712,7 +753,7 @@ $("paste-go").onclick=()=>{
   if(!m){$("paste-st").textContent="Это не ссылка от папы. В ней должно быть «#p=».";return;}
   location.hash="p="+m[1]; location.reload();
 };
-render(); renderLast(); tab();
+render(); renderLast(); renderEnot(); tab();
 })();
 </script>
 </body>

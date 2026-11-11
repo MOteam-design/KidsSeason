@@ -169,7 +169,8 @@
   const suggestReward = pg => Math.min(250, Math.max(20, Math.round((+pg || 0) * 0.4 / 10) * 10));
 
   // pz: {дата: id задачки из puzzles.js} — задачка дня от папы, за решение PZ_PTS (ключ отметки "zq")
-  function week(mon, eff, books, fines, assign, pz) {
+  // en/ev — курс «Енот Чек» (enot.js): сверх лимита, в max не входит
+  function week(mon, eff, books, fines, assign, pz, en, ev) {
     let base = 0, max = 0, zd = 0, fd = 0, uDays = 0, uOk = 0, sd = 0, pzN = 0, pzOk = 0;
     const days = [];
     for (let i = 0; i < 7; i++) {
@@ -200,9 +201,10 @@
     const bonus = bon.reduce((s, b) => s + b.pts, 0) + bk.reduce((s, b) => s + b.pts, 0);
     const fi = (fines || []).filter(f => f.d >= from && f.d <= to);
     const fsum = fi.reduce((s, f) => s + (+f.a || 0), 0);
-    const total = Math.max(0, base + bonus - fsum);
+    const enot = window.ENOT ? window.ENOT.sum(en, ev, from, to) : { n: 0, sum: 0, list: [] };
+    const total = Math.max(0, base + bonus + enot.sum - fsum);
     const maxAll = max + BONUS.reduce((s, b) => s + b.pts, 0);
-    return { from, to, base, bonus, bon, books: bk, fines: fi, fsum, total, max: maxAll, days, zd, fd, uOk, uDays, sd, pzN, pzOk };
+    return { from, to, base, bonus, bon, books: bk, fines: fi, fsum, total, max: maxAll, days, zd, fd, uOk, uDays, sd, pzN, pzOk, enot };
   }
 
   function level(xp) {

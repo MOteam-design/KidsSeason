@@ -198,6 +198,15 @@ td.n{white-space:nowrap}
 
     <p class="small muted">Нажмите на пункт, чтобы изменить отметку. <b style="color:var(--accent)">Зелёный</b> — отметил Саша, засчитано. Второе нажатие — <b style="color:var(--bad)">не засчитано</b>. Нажатие на пустой пункт — <b style="color:var(--blue)">засчитал папа</b> (Саша сделал, но забыл отметить).</p>
     <div id="days" style="display:grid;gap:8px"></div>
+
+    <div class="panel" style="border-left:4px solid var(--gold)">
+      <span class="eyebrow">Сверх лимита · 100 ₽ за урок</span>
+      <h2>Курс «Енот Чек»</h2>
+      <p class="small muted">10 уроков критического мышления: <a href="https://moteam-design.github.io/enot-chek/" target="_blank" rel="noopener">moteam-design.github.io/enot-chek</a>. Деньги не входят в обычный максимум недели и засчитываются в неделю, когда урок пройден. Саша отмечает урок сам. Нажмите «нет», если урок не пройден по-настоящему (проверить можно в кабинете учителя курса).</p>
+      <p class="small" id="en-st"></p>
+      <div class="list" id="en-list"></div>
+    </div>
+
     <form class="panel paste" onsubmit="return false">
       <span class="small muted">Пользуетесь приложением с главного экрана, а ссылка от Саши открылась в браузере? Скопируйте ссылку из MAX и вставьте сюда (на iPhone приложение и браузер хранят данные отдельно):</span>
       <div class="paste-row"><input type="text" id="paste-in" placeholder="https://…#r=…" autocomplete="off"><button class="btn" type="button" id="paste-go">Загрузить</button></div>
@@ -310,6 +319,7 @@ td.n{white-space:nowrap}
       <ul>
         <li>Максимум около <b id="t-max">994 ₽</b> в неделю. Если Саша сделает три четверти, выйдет около 750 ₽.</li>
         <li>Бонусы: 60 ₽ за пианино все 7 дней, 40 ₽ за чтение все 7 дней, 60 ₽, если каждый раз сам садился за уроки.</li>
+        <li>Сверх лимита: курс критического мышления «Енот Чек» — 100 ₽ за каждый из 10 уроков. Саша отмечает урок сам, вы подтверждаете на вкладке «Неделя».</li>
         <li>Книги: на вкладке «Книги» вы задаёте книгу, срок и награду. Успел к сроку — вся награда, позже — половина. За книгу, которую Саша выбрал сам, — 40 ₽.</li>
         <li>Штрафы: тройка −50 ₽, двойка −100 ₽, невыполненное задание по музыке −50 ₽. Неделя не уходит в минус.</li>
         <li>Платите в один и тот же день, например в воскресенье вечером. Регулярность важнее суммы.</li>
@@ -353,6 +363,7 @@ td.n{white-space:nowrap}
 
 <script src="core.js"></script>
 <script src="puzzles.js"></script>
+<script src="enot.js"></script>
 <script src="danya-core.js"></script>
 <script src="kids-switch.js"></script>
 <script>
@@ -374,8 +385,10 @@ let assign=S.LS.get("pa-as",[]);  // [{id,t,a,pg,from,due,rw}] — книги, �
 let pz=S.LS.get("pa-pz",{});      // {date: id задачки}
 let ans=S.LS.get("pa-ans",{});    // {date: ответ Саши}
 const PZ=window.PUZZLES;
+let en=S.LS.get("pa-enot",{}), ev=S.LS.get("pa-ev",{});   // «Енот Чек»: {урок: дата} от Саши, решения папы {урок: 0|1}
+const EN=window.ENOT;
 let lastAt=S.LS.get("pa-last",0);
-const save=()=>{S.LS.set("pa-as",assign);S.LS.set("pa-pz",pz);S.LS.set("pa-ans",ans);S.LS.set("pa-days",days);S.LS.set("pa-ov",ov);S.LS.set("pa-fi",fines);S.LS.set("pa-cf",cf);S.LS.set("pa-pd",pd);S.LS.set("pa-books",books);S.LS.set("pa-last",lastAt);if(window.KIDS)window.KIDS.draw();};
+const save=()=>{S.LS.set("pa-enot",en);S.LS.set("pa-ev",ev);S.LS.set("pa-as",assign);S.LS.set("pa-pz",pz);S.LS.set("pa-ans",ans);S.LS.set("pa-days",days);S.LS.set("pa-ov",ov);S.LS.set("pa-fi",fines);S.LS.set("pa-cf",cf);S.LS.set("pa-pd",pd);S.LS.set("pa-books",books);S.LS.set("pa-last",lastAt);if(window.KIDS)window.KIDS.draw();};
 
 const today=new Date(), todayISO=S.iso(today);
 let mon=S.mondayOf(today);
@@ -390,6 +403,7 @@ if(rep&&rep.v===1&&!rep.c){
     for(let i=0;i<28;i++){const ds=S.iso(S.addDays(new Date(rep.at||Date.now()),-i)); if(!(ds in (rep.d||{}))&&days[ds]) delete days[ds];}
     books={list:rep.bk||[],cur:rep.cur||null,pg:rep.pg||{}};
     Object.assign(ans,rep.an||{});
+    if(rep.en) en=rep.en;
     lastAt=rep.at||Date.now(); save();
     $("imp").innerHTML=`<b>Отчёт Саши получен.</b> Обновлено дней: ${n}. Проверьте неделю, при необходимости поправьте отметки и выпишите штрафы.`;
   } else {
@@ -401,9 +415,24 @@ const sasha=(d,k)=>!!(days[d]&&days[d].includes(k));
 const eff=(d,k)=>{const o=ov[d]; if(o&&o[k]!==undefined) return o[k]===1; return sasha(d,k);};
 const firstMon=()=>{const all=Object.keys(days).sort(); return all.length?S.mondayOf(S.parse(all[0])):S.mondayOf(today);};
 
+// ---------- курс «Енот Чек» ----------
+function renderEnot(){
+  const fmtS=ds=>S.parse(ds).toLocaleDateString("ru-RU",{day:"numeric",month:"short"});
+  const done=Object.keys(en).length, ok=Object.keys(en).filter(n=>ev[n]!==0).length;
+  $("en-st").textContent=`Пройдено ${done} из ${EN.LESSONS.length} · засчитано ${S.rub(ok*EN.PTS)}`;
+  $("en-list").innerHTML=EN.LESSONS.map(([n,t])=>{
+    const d=en[n], v=ev[n];
+    if(!d) return `<div><span class="muted">${n}. ${esc(t)}</span><small>не пройден</small></div>`;
+    const lbl=v===0?"не засчитан":v===1?"засчитан ✓":"ждёт проверки";
+    return `<div><span><b>${n}. ${esc(t)}</b><br><small>пройден ${fmtS(d)} · ${lbl}</small></span><span class="row" style="flex-wrap:nowrap"><button class="btn${v===1?"":" ghost"}" type="button" data-n="${n}" data-v="1" style="padding:6px 10px">+100</button><button class="x" type="button" data-n="${n}" data-v="0">${v===0?"вернуть":"нет"}</button></span></div>`;
+  }).join("");
+  $("en-list").querySelectorAll("button[data-n]").forEach(b=>b.onclick=()=>{const n=b.dataset.n, v=+b.dataset.v; if(ev[n]===v) delete ev[n]; else ev[n]=v; save(); renderWeek();});
+}
+
 // ---------- неделя ----------
 function renderWeek(){
-  const m=S.iso(mon), w=S.week(mon,eff,books.list,fines,assign,pz);
+  renderEnot();
+  const m=S.iso(mon), w=S.week(mon,eff,books.list,fines,assign,pz,en,ev);
   $("noreports").hidden=!!Object.keys(days).length;
   $("w-title").textContent=S.range(mon);
   $("w-prev").disabled=mon<=firstMon();
@@ -414,6 +443,7 @@ function renderWeek(){
     `<div><span>Задания</span><b>${w.base} ₽</b></div>`+
     (w.bon.map(b=>`<div><span>Бонус: ${b.t.toLowerCase()}</span><b>+${b.pts} ₽</b></div>`).join(""))+
     (w.books.length?`<div><span>Книги: ${w.books.map(b=>"«"+esc(b.t)+"»").join(", ")}</span><b>+${w.books.reduce((s,b)=>s+b.pts,0)} ₽</b></div>`:"")+
+    (w.enot.n?`<div><span>Сверх лимита: «Енот Чек», уроки ${w.enot.list.join(", ")}</span><b>+${w.enot.sum} ₽</b></div>`:"")+
     (w.fines.map(f=>`<div><span>Штраф: ${esc(f.w)} (${S.parse(f.d).getDate()}.${String(S.parse(f.d).getMonth()+1).padStart(2,"0")})</span><b style="color:var(--bad)">−${f.a} ₽</b></div>`).join(""));
   const isC=cf.includes(m), isP=pd.includes(m);
   $("w-status").className="status"+(isC||isP?" ok":"");
@@ -422,7 +452,7 @@ function renderWeek(){
   $("w-conf").setAttribute("aria-pressed",isC?"true":"false");
   $("w-paid").textContent=isP?"Оплата отмечена ✓":"Перевёл деньги";
   $("w-paid").setAttribute("aria-pressed",isP?"true":"false");
-  $("top-total").textContent=S.rub(S.week(S.mondayOf(today),eff,books.list,fines,assign,pz).total);
+  $("top-total").textContent=S.rub(S.week(S.mondayOf(today),eff,books.list,fines,assign,pz,en,ev).total);
   $("s-p").textContent=w.pd+"/7"; $("s-r").textContent=w.rd+"/7"; $("s-u").textContent=w.uOk+"/"+w.uDays;
   let zc=0; for(let i=0;i<7;i++) if(eff(S.iso(S.addDays(mon,i)),"z")) zc++; $("s-z").textContent=zc+"/7";
   $("last-rep").textContent=lastAt?"Последний отчёт Саши: "+new Date(lastAt).toLocaleString("ru-RU",{weekday:"short",day:"numeric",month:"short",hour:"2-digit",minute:"2-digit"}):"Отчётов пока нет";
@@ -469,10 +499,10 @@ $("w-paid").onclick=()=>{const m=S.iso(mon); pd=pd.includes(m)?pd.filter(x=>x!==
 
 // ---------- итог Саше ----------
 $("w-send").onclick=async()=>{
-  const tt={}; [...new Set([...cf,...pd])].forEach(m=>{tt[m]=S.week(S.parse(m),eff,books.list,fines,assign,pz).total;});
-  const payload={v:1,at:Date.now(),ov,fi:fines,cf,pd,tt,as:assign,pz};
+  const tt={}; [...new Set([...cf,...pd])].forEach(m=>{tt[m]=S.week(S.parse(m),eff,books.list,fines,assign,pz,en,ev).total;});
+  const payload={v:1,at:Date.now(),ov,fi:fines,cf,pd,tt,as:assign,pz,ev};
   const url=S.pageURL("index.html")+"#p="+S.enc(payload);
-  const m=S.iso(mon), w=S.week(mon,eff,books.list,fines,assign,pz);
+  const m=S.iso(mon), w=S.week(mon,eff,books.list,fines,assign,pz,en,ev);
   let line=`Саша, итог недели ${S.range(mon)}: ${w.total} ₽`;
   if(pd.includes(m)) line+=", деньги перевёл"; else if(cf.includes(m)) line+=", подтверждено";
   if(w.fsum) line+=` (штрафы −${w.fsum} ₽)`;
