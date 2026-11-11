@@ -1,0 +1,656 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="robots" content="noindex,nofollow">
+<title>Экспедиция Дани — папа</title>
+<link rel="manifest" href="papa.webmanifest">
+<link rel="icon" type="image/png" sizes="32x32" href="icon-papa-32.png">
+<link rel="apple-touch-icon" href="icon-papa-180.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Папа: дети">
+<meta name="theme-color" content="#1A2C4E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=Russo+One&display=swap">
+<style>
+:root{
+  --bg:#EFF1F4; --surface:#FFFFFF; --ink:#141B26; --muted:#5B6576; --line:#D8DDE5;
+  --accent:#4A43C4; --accent-soft:#E5E4FA; --ok:#16834A; --ok-soft:#DDF1E5; --gold:#A86A00; --gold-soft:#FBEFD6;
+  --bad:#B42318; --bad-soft:#FBE3E0; --blue:#2D5BB8; --blue-soft:#E2EAFA;
+  --display:"Russo One","Manrope",system-ui,sans-serif;
+  --body:"Manrope",system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#0E1219; --surface:#171D28; --ink:#E5E9F0; --muted:#9AA3B3; --line:#283041;
+  --accent:#A5A0FF; --accent-soft:#25234A; --ok:#4CC984; --ok-soft:#143022; --gold:#E9B55A; --gold-soft:#33270F;
+  --bad:#F2877C; --bad-soft:#3A1A17; --blue:#8FB0F2; --blue-soft:#1A2640; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#0E1219; --surface:#171D28; --ink:#E5E9F0; --muted:#9AA3B3; --line:#283041;
+  --accent:#A5A0FF; --accent-soft:#25234A; --ok:#4CC984; --ok-soft:#143022; --gold:#E9B55A; --gold-soft:#33270F;
+  --bad:#F2877C; --bad-soft:#3A1A17; --blue:#8FB0F2; --blue-soft:#1A2640; color-scheme:dark}
+*{box-sizing:border-box}
+html{padding-top:env(safe-area-inset-top,0px)}
+body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.5 var(--body);-webkit-text-size-adjust:100%}
+[hidden]{display:none!important}
+.wrap{max-width:680px;margin:0 auto;padding:10px max(16px,env(safe-area-inset-right,0px)) 48px max(16px,env(safe-area-inset-left,0px))}
+h1,h2,h3{margin:0;text-wrap:balance}
+h1{font:400 22px/1.1 var(--display)}
+h2{font:400 18px/1.2 var(--display)}
+h3{font-size:15px}
+p{margin:0}
+button:focus-visible,a:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.top{position:sticky;top:0;z-index:5;background:var(--bg);padding:8px 0;display:grid;gap:10px}
+.kids{display:grid;grid-template-columns:1fr 1fr auto;gap:6px;align-items:stretch}
+.kids a{display:grid;gap:0;text-decoration:none;color:var(--ink);background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:6px 10px;font-weight:700;font-size:13px}
+.kids a b{font:400 16px/1.1 var(--display);color:var(--gold);font-variant-numeric:tabular-nums}
+.kids a[aria-current="page"]{border-color:var(--ink);box-shadow:inset 0 0 0 1px var(--ink)}
+.kids-sum{display:grid;justify-items:end;align-content:center;font-size:11px;color:var(--muted);padding:0 2px}
+.kids-sum b{font:400 15px/1.1 var(--display);color:var(--ink);font-variant-numeric:tabular-nums}
+.brand{display:flex;justify-content:space-between;align-items:center;gap:10px}
+.brand p{color:var(--muted);font-size:12.5px;margin-top:2px}
+.chip{flex:0 0 auto;display:grid;justify-items:end;font-variant-numeric:tabular-nums}
+.chip b{font:400 19px/1 var(--display);color:var(--gold)}
+.chip small{font-size:11px;color:var(--muted)}
+.tabs{display:grid;grid-auto-flow:column;grid-auto-columns:1fr;gap:4px;background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:4px}
+.tabs a{text-align:center;text-decoration:none;color:var(--muted);font-weight:700;font-size:13px;padding:7px 2px;border-radius:10px}
+.tabs a[aria-current="page"]{background:var(--ink);color:var(--surface)}
+.view{display:grid;gap:14px;padding-top:6px}
+.panel{background:var(--surface);border:1px solid var(--line);border-radius:16px;padding:14px;display:grid;gap:10px}
+.panel>p,.panel li{font-size:14px}
+.panel ul,.panel ol{margin:0;padding-left:20px;display:grid;gap:6px}
+.muted{color:var(--muted)}
+.small{font-size:13px}
+.eyebrow{font-size:11.5px;font-weight:800;letter-spacing:.06em;text-transform:uppercase;color:var(--accent)}
+.row{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.btn{appearance:none;border:0;background:var(--accent);color:var(--surface);font:700 14px var(--body);border-radius:12px;padding:10px 14px;cursor:pointer}
+.btn.ghost{background:transparent;color:var(--accent);border:1px solid var(--line)}
+.btn.gold{background:var(--gold)}
+.btn[aria-pressed="true"]{background:var(--accent-soft);color:var(--accent)}
+.banner{background:var(--blue-soft);border-radius:14px;padding:12px 14px;font-size:14px}
+.banner b{color:var(--blue)}
+.empty{background:var(--gold-soft);border-radius:14px;padding:12px 14px;font-size:14px;display:grid;gap:6px}
+.wnav{display:flex;align-items:center;justify-content:space-between;gap:8px}
+.wnav h2{text-align:center;flex:1}
+.wnav button{appearance:none;border:1px solid var(--line);background:var(--surface);color:var(--ink);border-radius:10px;width:40px;height:36px;font:700 18px var(--body);cursor:pointer}
+.wnav button:disabled{opacity:.35;cursor:default}
+.total{display:flex;align-items:baseline;gap:10px;flex-wrap:wrap}
+.total b{font:400 36px/1 var(--display);color:var(--gold);font-variant-numeric:tabular-nums}
+.total span{color:var(--muted);font-size:14px}
+.calc{display:grid;gap:4px;font-size:14px;font-variant-numeric:tabular-nums}
+.calc div{display:flex;justify-content:space-between;gap:10px;border-bottom:1px dashed var(--line);padding-bottom:4px}
+.calc div:last-child{border-bottom:0}
+.status{font-size:13px;font-weight:700}
+.status.ok{color:var(--ok)}
+.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:6px}
+.stat{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:8px;display:grid;gap:1px;min-width:0}
+.stat b{font:400 19px/1.1 var(--display);font-variant-numeric:tabular-nums}
+.stat span{font-size:11.5px;color:var(--muted);line-height:1.2}
+.mstrip{display:grid;grid-template-columns:repeat(7,1fr);gap:4px;text-align:center}
+.mstrip div{background:var(--bg);border-radius:10px;padding:5px 0;font-size:11px;color:var(--muted);display:grid;gap:1px}
+.mstrip div span{font-size:20px;line-height:1.1}
+.mwarn{background:var(--bad-soft);border-radius:12px;padding:10px 12px;font-size:14px}
+details.day{background:var(--surface);border:1px solid var(--line);border-radius:14px}
+details.day summary{list-style:none;cursor:pointer;display:flex;justify-content:space-between;gap:10px;align-items:center;padding:11px 12px;font-weight:700}
+details.day summary::-webkit-details-marker{display:none}
+details.day summary span{font-weight:600;color:var(--muted);font-size:13px;font-variant-numeric:tabular-nums}
+.mini{height:5px;border-radius:5px;background:var(--line);overflow:hidden;margin:0 12px 10px}
+.mini i{display:block;height:100%;background:var(--accent)}
+.its{display:grid;gap:5px;padding:0 10px 12px}
+.it{appearance:none;width:100%;text-align:left;display:grid;grid-template-columns:24px 1fr auto;gap:8px;align-items:center;border:1px solid var(--line);background:var(--bg);color:var(--ink);border-radius:10px;padding:7px 10px;font:600 13.5px/1.3 var(--body);cursor:pointer}
+.it .mk{width:22px;height:22px;border-radius:50%;display:grid;place-items:center;font-size:13px;font-weight:800;border:2px solid var(--line);color:transparent}
+.it .who{font-size:11px;font-weight:700;color:var(--muted);white-space:nowrap;text-align:right}
+.it .who b{display:block;color:var(--gold);font-size:12px}
+.it.s-yes .mk{background:var(--ok);border-color:var(--ok);color:var(--surface)}
+.it.s-papa .mk{background:var(--blue);border-color:var(--blue);color:var(--surface)}
+.it.s-papa .who{color:var(--blue)}
+.it.s-rej{background:var(--bad-soft)}
+.it.s-rej .mk{background:var(--bad);border-color:var(--bad);color:var(--surface)}
+.it.s-rej .who{color:var(--bad)}
+.it.s-rej .lbl{text-decoration:line-through}
+.it.s-no .lbl{color:var(--muted)}
+.dayx{display:grid;gap:4px;font-size:13px;background:var(--bg);border-radius:10px;padding:8px 10px;margin:0 10px 10px}
+.dayx .ans{white-space:pre-wrap;font-weight:600}
+form.grid{display:grid;grid-template-columns:repeat(2,1fr);gap:8px}
+form.grid label{display:grid;gap:3px;font-size:12.5px;color:var(--muted);min-width:0}
+form.grid label.wide{grid-column:1/-1}
+input,select,textarea{font:600 15px var(--body);color:var(--ink);background:var(--bg);border:1px solid var(--line);border-radius:10px;padding:8px 10px;width:100%;min-width:0}
+textarea{font-weight:500;resize:vertical}
+.list{display:grid;gap:6px}
+.list div{display:flex;justify-content:space-between;align-items:center;gap:10px;background:var(--bg);border-radius:10px;padding:8px 10px;font-size:14px}
+.list small{color:var(--muted)}
+.x{appearance:none;border:0;background:transparent;color:var(--bad);font:700 13px var(--body);cursor:pointer;padding:4px 6px}
+.tblwrap{overflow-x:auto}
+table{border-collapse:collapse;width:100%;font-size:13.5px;font-variant-numeric:tabular-nums}
+th,td{text-align:left;padding:7px 8px;border-bottom:1px solid var(--line)}
+th{font-size:11.5px;color:var(--muted);font-weight:700;letter-spacing:.03em;text-transform:uppercase;white-space:nowrap}
+td.n{white-space:nowrap}
+.fallback{display:grid;gap:8px}
+.fallback textarea{font:500 12.5px var(--body);min-height:110px}
+.tip{border-left:3px solid var(--accent);padding-left:12px;display:grid;gap:4px}
+.warnbox{background:var(--gold-soft);border-radius:12px;padding:10px 12px;font-size:14px;display:grid;gap:4px}
+.warnbox b{color:var(--gold)}
+.pz-ctl{display:grid;grid-template-columns:1fr 1fr;gap:8px;align-items:end}
+.pz-ctl label{display:grid;gap:3px}
+.pz-chk{display:flex!important;align-items:center;gap:6px;padding-bottom:8px}
+.pz-chk input{width:auto}
+.chips{display:flex;flex-wrap:wrap;gap:6px}
+.chips button{appearance:none;border:1px solid var(--line);background:var(--bg);color:var(--ink);border-radius:999px;padding:5px 11px;font:700 12.5px var(--body);cursor:pointer}
+.chips button[aria-pressed="true"]{background:var(--ink);color:var(--surface);border-color:var(--ink)}
+.pzlist{display:grid;gap:8px}
+.pz{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:12px;display:grid;gap:8px}
+.pz.used{opacity:.7}
+.pz-meta{display:flex;justify-content:space-between;gap:8px;font-size:12px;color:var(--muted);font-weight:700}
+.pz-q{font-size:15px;font-weight:600}
+.pz details summary{cursor:pointer;color:var(--accent);font-weight:700;font-size:13px}
+.pz details p{font-size:14px;margin-top:6px;background:var(--accent-soft);border-radius:10px;padding:8px 10px}
+.paste{display:grid;gap:6px}
+.paste-row{display:flex;gap:8px}
+.paste-row input{flex:1;min-width:0}
+@media (max-width:420px){.stats{grid-template-columns:repeat(2,1fr)}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header class="top">
+    <nav class="kids" id="kids" aria-label="Дети"></nav>
+    <div class="brand">
+      <div><h1>Экспедиция Дани · для папы</h1><p id="last-rep">Отчётов пока нет</p></div>
+      <div class="chip"><b id="top-total">0 ₽</b><small>к переводу за неделю</small></div>
+    </div>
+    <nav class="tabs" aria-label="Разделы">
+      <a href="#week" data-tab="week">Неделя</a>
+      <a href="#puzzles" data-tab="puzzles">Задачки</a>
+      <a href="#food" data-tab="food">Еда</a>
+      <a href="#books" data-tab="books">Книги</a>
+      <a href="#tips" data-tab="tips">Советы</a>
+    </nav>
+  </header>
+
+  <!-- ============ НЕДЕЛЯ ============ -->
+  <section class="view" id="v-week">
+    <div class="banner" id="imp" hidden></div>
+    <div class="empty" id="noreports" hidden>
+      <b>Отчётов от Дани пока нет.</b>
+      <span>Даня вечером нажимает у себя «Отправить папе» и присылает вам сообщение со ссылкой. Откройте её: отметки сохранятся на этой странице. Потом страницу можно открывать и без ссылки, данные останутся.</span>
+    </div>
+    <div class="wnav"><button type="button" id="w-prev" aria-label="Прошлая неделя">‹</button><h2 id="w-title"></h2><button type="button" id="w-next" aria-label="Следующая неделя">›</button></div>
+
+    <div class="panel">
+      <span class="eyebrow">Итог недели</span>
+      <div class="total"><b id="w-total">0 ₽</b><span id="w-of"></span></div>
+      <div class="calc" id="w-calc"></div>
+      <p class="status" id="w-status"></p>
+      <div class="row">
+        <button class="btn" type="button" id="w-conf">Подтвердить неделю</button>
+        <button class="btn gold" type="button" id="w-paid">Перевёл деньги</button>
+      </div>
+      <label class="small muted" style="display:grid;gap:4px">Похвала недели — Даня увидит её наверху своей страницы
+        <textarea id="w-msg" rows="2" placeholder="Например: «Видел, как ты сам сел за математику во вторник. Горжусь!»"></textarea></label>
+      <div class="row"><button class="btn ghost" type="button" id="w-send">Отправить итог Дане</button></div>
+      <div class="fallback" id="fb" hidden>
+        <p class="small">Скопируйте текст и отправьте его Дане.</p>
+        <textarea id="fb-text" readonly></textarea>
+        <div class="row"><button class="btn" type="button" id="fb-copy">Скопировать</button><span class="small muted" id="fb-st"></span></div>
+      </div>
+    </div>
+
+    <div class="stats">
+      <div class="stat"><b id="s-z">0/7</b><span>зарядка</span></div>
+      <div class="stat"><b id="s-s">0/5</b><span>сила и кикбоксинг</span></div>
+      <div class="stat"><b id="s-f">0/7</b><span>пробы новой еды</span></div>
+      <div class="stat"><b id="s-u">0/5</b><span>сел за уроки сам</span></div>
+    </div>
+
+    <div class="panel">
+      <span class="eyebrow">Настроение Дани</span>
+      <div class="mstrip" id="mstrip"></div>
+      <div class="mwarn" id="mwarn" hidden></div>
+    </div>
+
+    <p class="small muted">Нажмите на пункт, чтобы изменить отметку. <b style="color:var(--ok)">Зелёный</b> — отметил Даня, засчитано. Второе нажатие — <b style="color:var(--bad)">не засчитано</b>. Нажатие на пустой пункт — <b style="color:var(--blue)">засчитал папа</b> (сделал, но забыл отметить).</p>
+    <div id="days" style="display:grid;gap:8px"></div>
+
+    <div class="panel">
+      <span class="eyebrow">Штрафы — редко и после предупреждения</span>
+      <h2>Выписать штраф</h2>
+      <form class="grid" id="f-form" onsubmit="return false">
+        <label>Дата<input type="date" id="f-d"></label>
+        <label>За что<select id="f-type"></select></label>
+        <label>Сумма, ₽<input type="number" id="f-a" min="0" step="10" inputmode="numeric"></label>
+        <label>Комментарий<input type="text" id="f-c" placeholder="например, геометрия" autocomplete="off"></label>
+        <label class="wide"><button class="btn" type="button" id="f-add">Выписать штраф</button></label>
+      </form>
+      <p class="small muted" id="f-st">Даня очень ранимый: сначала спокойно предупредите словами, штраф — только если договорённость нарушена снова. Неделя не уходит ниже нуля.</p>
+      <div class="list" id="f-list"></div>
+    </div>
+
+    <form class="panel paste" onsubmit="return false">
+      <span class="small muted">Пользуетесь приложением с главного экрана, а ссылка от Дани открылась в браузере? Скопируйте ссылку и вставьте сюда:</span>
+      <div class="paste-row"><input type="text" id="paste-in" placeholder="https://…#r=…" autocomplete="off"><button class="btn" type="button" id="paste-go">Загрузить</button></div>
+      <span class="small" style="color:var(--bad)" id="paste-st"></span>
+    </form>
+  </section>
+
+  <!-- ============ ЗАДАЧКИ ============ -->
+  <section class="view" id="v-puzzles" hidden>
+    <div class="panel">
+      <span class="eyebrow">Задачка дня от папы</span>
+      <h2>Банк задачек: <span id="pz-total"></span></h2>
+      <p class="small muted">Тот же банк, что у Саши. Выберите день и нажмите «Задать» или «Случайная». За решённую задачку Даня получает 10 ₽. Его ответ придёт в отчёте, правильный — у вас под каждой задачей. Не забудьте «Отправить итог Дане».</p>
+      <p class="small warnbox"><span><b>Для Дани:</b> математика даётся ему тяжело, поэтому начните с ★ и ★★. «Логика» и «Смекалка» — задачи словами, через них легче полюбить математику. Хвалите за рассуждение, даже если ответ неверный.</span></p>
+      <div class="pz-ctl">
+        <label class="small muted">День<input type="date" id="pz-date"></label>
+        <label class="small muted">Сложность<select id="pz-lvl"><option value="0">любая</option><option value="1">★ легко</option><option value="2">★★ средне</option><option value="3">★★★ трудно</option></select></label>
+      </div>
+      <div class="chips" id="pz-groups"></div>
+      <div class="pz-ctl">
+        <label class="small muted">Поиск<input type="text" id="pz-q" placeholder="слово из условия" autocomplete="off"></label>
+        <label class="small pz-chk"><input type="checkbox" id="pz-new" checked> только новые для Дани</label>
+      </div>
+      <div class="row"><button class="btn" type="button" id="pz-rand">Случайная задачка на этот день</button></div>
+      <p class="small" id="pz-st"></p>
+    </div>
+    <div class="panel">
+      <span class="eyebrow">Запланировано</span>
+      <div class="list" id="pz-plan"></div>
+    </div>
+    <div class="pzlist" id="pz-list"></div>
+    <div class="row" style="justify-content:center"><button class="btn ghost" type="button" id="pz-more" hidden>Показать ещё</button></div>
+  </section>
+
+  <!-- ============ ЕДА ============ -->
+  <section class="view" id="v-food" hidden>
+    <div class="panel">
+      <span class="eyebrow">Карта вкусов Дани</span>
+      <h2 id="fd-count">Попробовано: 0</h2>
+      <div class="list" id="fd-list"></div>
+      <p class="small muted">Ступеньки: 1 — посмотрел, 2 — понюхал, 3 — потрогал или лизнул, 4 — откусил и выплюнул, 5 — проглотил кусочек, 6 — съел порцию. Любая ступенька — это успех, за неё +10 ₽.</p>
+    </div>
+
+    <div class="panel">
+      <span class="eyebrow">Избирательность в еде</span>
+      <h2>Что работает</h2>
+      <div class="tip"><b>Делите ответственность.</b><span>Вы решаете, <i>что</i>, <i>когда</i> и <i>где</i> едят. Даня решает, <i>есть ли</i> и <i>сколько</i>. Такой подход описала диетолог Эллин Саттер, его используют детские диетологи во всём мире. Он снимает борьбу за столом.</span></div>
+      <div class="tip"><b>Безопасная еда на каждой тарелке.</b><span>Рядом с новым блюдом всегда есть то, что Даня точно ест (хлеб, макароны, его любимое). Так он не останется голодным и не будет бояться ужина.</span></div>
+      <div class="tip"><b>Крошечные порции нового.</b><span>Одна ложка или один кусочек на отдельной тарелке. Чтобы новая еда начала нравиться, обычно нужно 10–15 встреч с ней. Встреча — это даже «посмотрел и понюхал».</span></div>
+      <div class="tip"><b>Без уговоров, подкупа и комментариев.</b><span>«Съешь — получишь десерт» делает новую еду наказанием, а сладкое — наградой. Не говорите «ну попробуй хоть кусочек» и не обсуждайте, сколько он съел. Баллы в программе даются за пробу, не за съеденное.</span></div>
+      <div class="tip"><b>Мосты от любимого.</b><span>Любит наггетсы — сделайте домашние, потом курицу в панировке, потом гриль. На странице Дани есть список таких мостов.</span></div>
+      <div class="tip"><b>Готовьте вместе.</b><span>То, что ребёнок приготовил сам (омлет, сырники, пицца на лаваше), он пробует в разы охотнее. В субботу дело по дому — «приготовь со взрослым».</span></div>
+      <div class="tip"><b>Ритм: 3 приёма пищи и 2 перекуса.</b><span>Без постоянных «кусочков» между ними. Тогда к столу приходит лёгкий голод, а с ним — желание пробовать. Перед кикбоксингом перекус обязателен.</span></div>
+    </div>
+
+    <div class="panel">
+      <span class="eyebrow">Когда к врачу</span>
+      <h2>Тревожные признаки</h2>
+      <ul>
+        <li>Вес не растёт или снижается, Даня заметно меньше ровесников по росту и весу.</li>
+        <li>В рационе меньше 15–20 продуктов, целые группы (мясо, молочное, овощи) исключены полностью.</li>
+        <li>Рвотный рефлекс, страх подавиться, паника при виде новой еды.</li>
+        <li>Частая усталость, бледность, головокружения.</li>
+      </ul>
+      <p class="small muted">В этих случаях стоит показаться педиатру и, если он посоветует, специалисту по пищевому поведению: бывает расстройство избирательного питания (ИРПП, ARFID), оно хорошо лечится. Анализы на ферритин, витамин D и B12 у избирательных детей часто оказываются низкими. Добавки и протеин — только по назначению врача.</p>
+    </div>
+  </section>
+
+  <!-- ============ КНИГИ ============ -->
+  <section class="view" id="v-books" hidden>
+    <div class="panel">
+      <span class="eyebrow">Задать книгу</span>
+      <h2>Книга на срок</h2>
+      <form class="grid" id="a-form" onsubmit="return false">
+        <label class="wide">Название<input type="text" id="a-t" placeholder="например, «Маленький принц»" autocomplete="off"></label>
+        <label class="wide">Автор<input type="text" id="a-a" autocomplete="off"></label>
+        <label>Страниц<input type="number" id="a-pg" min="1" inputmode="numeric" placeholder="необязательно"></label>
+        <label>Дней на чтение<input type="number" id="a-days" min="1" inputmode="numeric"></label>
+        <label>Награда, ₽<input type="number" id="a-rw" min="0" step="10" inputmode="numeric"></label>
+        <label>Срок<input type="date" id="a-due"></label>
+        <label class="wide"><button class="btn" type="button" id="a-add">Задать книгу</button></label>
+      </form>
+      <p class="small muted" id="a-st">Даня читает быстро, поэтому норма — примерно 25 страниц в день. Аудиокнига тоже засчитывается. Успел к сроку — вся награда, позже — половина. Чтобы Даня увидел книгу, нажмите «Отправить итог Дане».</p>
+    </div>
+    <div class="panel">
+      <span class="eyebrow">Заданные книги</span>
+      <div class="list" id="a-list"></div>
+    </div>
+    <div class="panel">
+      <span class="eyebrow">Сейчас читает</span>
+      <p id="b-cur" class="muted">—</p>
+    </div>
+    <div class="panel">
+      <span class="eyebrow">Прочитано</span>
+      <h2 id="b-count">0 книг</h2>
+      <div class="list" id="b-list"></div>
+    </div>
+    <div class="panel">
+      <span class="eyebrow">Из подкастов</span>
+      <h2>Факты Дани</h2>
+      <div class="list" id="fx-list"></div>
+      <p class="small muted">Спросите за ужином: «Расскажи свой факт». Слушать его — лучшая награда для ребёнка, который любит знания.</p>
+    </div>
+    <div class="panel">
+      <span class="eyebrow">Тест силы</span>
+      <h2>Результаты</h2>
+      <div class="tblwrap"><table id="t-table"><thead><tr><th>Дата</th><th>Планка, с</th><th>Отжим.</th><th>Присед. 30 с</th><th>Баланс, с</th></tr></thead><tbody></tbody></table></div>
+    </div>
+  </section>
+
+  <!-- ============ СОВЕТЫ ============ -->
+  <section class="view" id="v-tips" hidden>
+    <div class="panel">
+      <span class="eyebrow">Неделя за 3 шага</span>
+      <h2>Как это работает</h2>
+      <ol>
+        <li><b>Даня</b> отмечает задания у себя на странице и вечером нажимает «Отправить папе». Вам приходит сообщение со ссылкой.</li>
+        <li><b>Вы</b> открываете ссылку, отметки уже на месте. Если что-то не так, нажмите на пункт. Задачку дня можно задать на вкладке «Задачки».</li>
+        <li><b>В воскресенье</b> подтвердите неделю, напишите похвалу и нажмите «Отправить итог Дане». После перевода отметьте «Перевёл деньги».</li>
+      </ol>
+      <p class="small muted">Переключатель вверху — это Саша и Даня. У каждого своя страница и свои данные, а приложение одно. Ссылку из отчёта можно открыть с любой из двух страниц: она сама попадёт к нужному ребёнку.</p>
+    </div>
+
+    <div class="panel">
+      <span class="eyebrow">Деньги</span>
+      <h2>1 балл = 1 ₽</h2>
+      <ul>
+        <li>Максимум около <b id="t-max">1000 ₽</b> в неделю без задачек и книг. Если Даня сделает три четверти, выйдет около 750 ₽.</li>
+        <li>Бонусы: 30 ₽ за зарядку все 7 дней, 40 ₽ за пробы новой еды в 5 дней из 7, 30 ₽, если каждый раз сам садился за уроки.</li>
+        <li>Больше всего баллов дают тело и еда: зарядка, сила, кикбоксинг, проба нового вкуса.</li>
+        <li>Штрафы: двойка −50 ₽, не сделал уроки −30 ₽, нарушил договор о компьютере −30 ₽.</li>
+      </ul>
+    </div>
+
+    <div class="panel">
+      <span class="eyebrow">Ранимый ребёнок</span>
+      <h2>Как говорить, чтобы он слышал</h2>
+      <div class="tip"><b>Хвалите конкретно и за усилие.</b><span>Не «молодец», а «ты 10 минут думал над задачей и не сдался». Поле «Похвала недели» — для этого. Одна такая фраза в неделю работает сильнее денег.</span></div>
+      <div class="tip"><b>Критика — про действие, не про человека.</b><span>«Уроки не сделаны» вместо «ты опять ленишься». Чувствительные дети воспринимают оценку себя очень глубоко.</span></div>
+      <div class="tip"><b>Сначала чувство, потом решение.</b><span>Расстроился — сначала «вижу, тебе обидно», и только потом «давай подумаем, что делать». У Дани на странице есть кнопка «Расстроился?» с дыханием и подсказками.</span></div>
+      <div class="tip"><b>Не сравнивайте с Сашей.</b><span>У каждого своя программа и свои цели. Сравнивайте Даню только с ним самим месяц назад.</span></div>
+      <div class="tip"><b>Следите за настроением.</b><span>Если в отчётах три дня подряд 😟 или 😣, спокойно поговорите один на один. Если такое повторяется неделями или он замыкается, стоит показаться детскому психологу.</span></div>
+    </div>
+
+    <div class="panel">
+      <span class="eyebrow">Мечтатель</span>
+      <h2>«Считать ворон» — это не лень</h2>
+      <div class="tip"><b>Мечтательность — часть творческого ума.</b><span>Даня любит стихи и литературу, это идёт рука об руку с «уходом в себя». Не нужно это ломать, нужно дать рамки.</span></div>
+      <div class="tip"><b>Короткие раунды и таймер.</b><span>20 минут дела, 5 минут перерыв, в котором мечтать разрешено. Так у мечты есть своё время.</span></div>
+      <div class="tip"><b>Одна задача за раз, список на бумаге.</b><span>Мечтателю трудно держать в голове много шагов. Попросите выписать задания на листок и вычёркивать.</span></div>
+      <div class="tip"><b>Если внимание сильно мешает учёбе</b><span>(теряет вещи, не доводит до конца, жалуются учителя), обсудите это с педиатром или неврологом. Иногда за этим стоят особенности внимания, с которыми умеют работать.</span></div>
+    </div>
+
+    <div class="panel">
+      <span class="eyebrow">Математика и французский</span>
+      <h2>Через сильные стороны</h2>
+      <ul>
+        <li><b>Каждый день по 10 минут</b> лучше, чем час в выходной. Так меньше страха и больше повторений.</li>
+        <li><b>Математика словами:</b> задачи на логику, настольные игры с подсчётом очков, Перельман «Живая математика». В программе у Дани есть ежедневная задача с самопроверкой и подсказкой.</li>
+        <li><b>Французский на слух:</b> Даня любит слушать, поэтому карточки озвучиваются. Добавьте песни и аудиокниги на французском, «Маленький принц» на французском — классика.</li>
+        <li><b>Баллы за усилие, не за результат.</b> 10 минут думал и не решил — всё равно засчитывается.</li>
+        <li>Если двойки идут подряд, лучше взять репетитора на 1 раз в неделю, чем штрафовать.</li>
+      </ul>
+    </div>
+
+    <div class="panel">
+      <span class="eyebrow">Тело</span>
+      <h2>Неуклюжесть проходит с тренировкой</h2>
+      <ul>
+        <li>В 12–15 лет руки и ноги растут быстрее, чем мозг успевает «перерисовать карту тела». Поэтому подростки задевают углы и роняют вещи.</li>
+        <li>Лучше всего помогают баланс, ловля мяча и силовые на всё тело. В программе 3 комплекса по 16 минут (Пн, Ср, Пт) и зарядка 10 минут каждый день.</li>
+        <li>Кикбоксинг — отличный выбор: координация, равновесие, уверенность. Похвалите его за то, что ходит.</li>
+        <li>Если неловкость очень заметна (трудно писать, застёгивать пуговицы, кататься на велосипеде), стоит показаться неврологу или специалисту ЛФК.</li>
+      </ul>
+    </div>
+  </section>
+</div>
+
+<script src="core.js"></script>
+<script src="danya-core.js"></script>
+<script src="puzzles.js"></script>
+<script src="kids-switch.js"></script>
+<script>
+(function(){
+"use strict";
+if(window.KIDS_REDIRECT) return;
+const S=window.DC, PZ=window.PUZZLES||{LIST:[],BY:{},GROUPS:{}};
+const $=id=>document.getElementById(id);
+const esc=s=>String(s==null?"":s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+
+const K=k=>"dr-"+k;
+let days=S.LS.get(K("days"),{}), ov=S.LS.get(K("ov"),{}), fines=S.LS.get(K("fi"),[]), cf=S.LS.get(K("cf"),[]), pd=S.LS.get(K("pd"),[]);
+let books=S.LS.get(K("books"),{list:[],cur:null,pg:{}}); if(!books.pg) books.pg={};
+let assign=S.LS.get(K("as"),[]), pz=S.LS.get(K("pz"),{}), ans=S.LS.get(K("ans"),{});
+let mood=S.LS.get(K("mood"),{}), food=S.LS.get(K("food"),[]), tests=S.LS.get(K("tests"),[]), facts=S.LS.get(K("facts"),{});
+let msg=S.LS.get(K("msg"),""), lastAt=S.LS.get(K("last"),0);
+const save=()=>{[["days",days],["ov",ov],["fi",fines],["cf",cf],["pd",pd],["books",books],["as",assign],["pz",pz],["ans",ans],["mood",mood],["food",food],["tests",tests],["facts",facts],["msg",msg],["last",lastAt]].forEach(([k,v])=>S.LS.set(K(k),v)); if(window.KIDS) window.KIDS.draw();};
+
+const today=new Date(), todayISO=S.iso(today);
+let mon=S.mondayOf(today);
+
+// ---------- приём отчёта Дани ----------
+const rep=S.readHash("r");
+if(rep&&rep.v===1&&rep.c==="danya"){
+  if((rep.at||0)>=lastAt){
+    let n=0;
+    Object.entries(rep.d||{}).forEach(([d,k])=>{days[d]=k?k.split(","):[];n++;});
+    for(let i=0;i<28;i++){const ds=S.iso(S.addDays(new Date(rep.at||Date.now()),-i)); if(!(ds in (rep.d||{}))&&days[ds]) delete days[ds];}
+    books={list:rep.bk||[],cur:rep.cur||null,pg:rep.pg||{}};
+    Object.assign(ans,rep.an||{}); Object.assign(mood,rep.mo||{}); Object.assign(facts,rep.fx||{});
+    const seen=new Set(food.map(x=>x.d+"|"+x.f)); (rep.fd||[]).forEach(x=>{ if(!seen.has(x.d+"|"+x.f)) food.push(x); });
+    const tmap={}; tests.concat(rep.ts||[]).forEach(t=>{tmap[t.d]=t;}); tests=Object.values(tmap).sort((a,b)=>a.d.localeCompare(b.d));
+    lastAt=rep.at||Date.now(); save();
+    $("imp").innerHTML=`<b>Отчёт Дани получен.</b> Обновлено дней: ${n}. Проверьте неделю и не забудьте написать похвалу.`;
+  } else $("imp").innerHTML="<b>Это старый отчёт.</b> У вас уже есть более свежий, ничего не изменилось.";
+  $("imp").hidden=false; S.clearHash();
+}
+const kid=(d,k)=>!!(days[d]&&days[d].includes(k));
+const eff=(d,k)=>{const o=ov[d]; if(o&&o[k]!==undefined) return o[k]===1; return kid(d,k);};
+const firstMon=()=>{const all=Object.keys(days).sort(); return all.length?S.mondayOf(S.parse(all[0])):S.mondayOf(today);};
+const fmtS=ds=>S.parse(ds).toLocaleDateString("ru-RU",{day:"numeric",month:"short"});
+
+// ---------- неделя ----------
+function renderWeek(){
+  const m=S.iso(mon), w=S.week(mon,eff,books.list,fines,assign,pz);
+  $("noreports").hidden=!!Object.keys(days).length;
+  $("w-title").textContent=S.range(mon);
+  $("w-prev").disabled=mon<=firstMon();
+  $("w-next").disabled=S.iso(mon)>=S.iso(S.mondayOf(today));
+  $("w-total").textContent=S.rub(w.total);
+  $("w-of").textContent="из "+w.max+" ₽ возможных";
+  $("w-calc").innerHTML=`<div><span>Задания</span><b>${w.base} ₽</b></div>`+
+    w.bon.map(b=>`<div><span>Бонус: ${b.t.toLowerCase()}</span><b>+${b.pts} ₽</b></div>`).join("")+
+    (w.books.length?`<div><span>Книги: ${w.books.map(b=>"«"+esc(b.t)+"»").join(", ")}</span><b>+${w.books.reduce((s,b)=>s+b.pts,0)} ₽</b></div>`:"")+
+    w.fines.map(f=>`<div><span>Штраф: ${esc(f.w)} (${fmtS(f.d)})</span><b style="color:var(--bad)">−${f.a} ₽</b></div>`).join("");
+  const isC=cf.includes(m), isP=pd.includes(m);
+  $("w-status").className="status"+(isC||isP?" ok":"");
+  $("w-status").textContent=isP?"Неделя подтверждена и оплачена.":isC?"Неделя подтверждена. Осталось перевести деньги.":"Неделя ещё не подтверждена.";
+  $("w-conf").textContent=isC?"Снять подтверждение":"Подтвердить неделю"; $("w-conf").setAttribute("aria-pressed",isC?"true":"false");
+  $("w-paid").textContent=isP?"Оплата отмечена ✓":"Перевёл деньги"; $("w-paid").setAttribute("aria-pressed",isP?"true":"false");
+  $("top-total").textContent=S.rub(S.week(S.mondayOf(today),eff,books.list,fines,assign,pz).total);
+  let sDays=0; for(let i=0;i<7;i++) S.plan(i).forEach(it=>{if(it.k==="sl"||it.k==="kb") sDays++;});
+  $("s-z").textContent=w.zd+"/7"; $("s-s").textContent=w.sd+"/"+sDays; $("s-f").textContent=w.fd+"/7"; $("s-u").textContent=w.uOk+"/"+w.uDays;
+  $("last-rep").textContent=lastAt?"Последний отчёт Дани: "+new Date(lastAt).toLocaleString("ru-RU",{weekday:"short",day:"numeric",month:"short",hour:"2-digit",minute:"2-digit"}):"Отчётов пока нет";
+  if(document.activeElement!==$("w-msg")) $("w-msg").value=msg;
+
+  // настроение
+  $("mstrip").innerHTML=[0,1,2,3,4,5,6].map(i=>{const ds=S.iso(S.addDays(mon,i)), v=mood[ds], e=v?S.MOODS.find(x=>x[0]===v)[1]:"·"; return `<div><span>${e}</span>${S.DSHORT[i]}</div>`;}).join("");
+  let low=0, run=0; for(let i=0;i<14;i++){const v=mood[S.iso(S.addDays(today,-i))]; if(v&&v<=2){run++; low=Math.max(low,run);} else if(v) run=0;}
+  $("mwarn").hidden=low<3;
+  if(low>=3) $("mwarn").innerHTML="<b>Несколько тяжёлых дней подряд.</b> Найдите спокойную минуту и спросите один на один: «Как ты? Что было самым трудным?» Без советов, просто послушайте.";
+
+  const box=$("days"); const openSet=new Set([...box.querySelectorAll("details[open]")].map(x=>x.dataset.d));
+  box.innerHTML="";
+  for(let i=0;i<7;i++){
+    const dt=S.addDays(mon,i), ds=S.iso(dt), dd=w.days[i];
+    const el=document.createElement("details"); el.className="day"; el.dataset.d=ds;
+    if(openSet.has(ds)||(!openSet.size&&ds===todayISO)) el.open=true;
+    const mv=mood[ds]?" "+S.MOODS.find(x=>x[0]===mood[ds])[1]:"";
+    el.innerHTML=`<summary>${S.dayLong(dt)}${mv}<span>${dd.got} из ${dd.max} ₽</span></summary><div class="mini"><i style="width:${dd.max?Math.round(dd.got/dd.max*100):0}%"></i></div><div class="its"></div>`;
+    const its=el.querySelector(".its");
+    const items=S.plan(i), p=pz[ds]&&PZ.BY[pz[ds]];
+    const extra=[];
+    if(p){ items.unshift({k:"zq",title:"Задачка от папы",pts:S.PZ_PTS});
+      extra.push(`<span class="muted">${esc(PZ.GROUPS[p.g])} · ${"★".repeat(p.l)}</span><span>${esc(p.q)}</span><span class="muted">Ответ Дани:</span><span class="ans">${ans[ds]?esc(ans[ds]):"— пока нет —"}</span><details><summary class="small" style="cursor:pointer;color:var(--accent);font-weight:700">Правильный ответ</summary><span>${esc(p.a)}</span></details>`); }
+    const fd=food.filter(x=>x.d===ds); if(fd.length) extra.push(`<span><span class="muted">Пробовал:</span> ${fd.map(x=>esc(x.f)+" "+x.r+" (ст. "+x.st+")").join(", ")}</span>`);
+    if(facts[ds]) extra.push(`<span><span class="muted">Факт из подкаста:</span> ${esc(facts[ds])}</span>`);
+    if(extra.length){ const b2=document.createElement("div"); b2.className="dayx"; b2.innerHTML=extra.join(""); el.appendChild(b2); }
+    items.forEach(it=>{
+      const sm=kid(ds,it.k), e=eff(ds,it.k);
+      const st=sm?(e?"yes":"rej"):(e?"papa":"no");
+      const who={yes:"Даня",rej:"не засчитано",papa:"засчитал папа",no:ds>todayISO?"":"не отмечено"}[st];
+      const b=document.createElement("button"); b.type="button"; b.className="it s-"+st;
+      b.innerHTML=`<span class="mk">${st==="rej"?"✕":"✓"}</span><span class="lbl">${esc(it.title)}</span><span class="who"><b>${it.pts} ₽</b>${who}</span>`;
+      b.onclick=()=>{ ov[ds]=ov[ds]||{};
+        if(st==="yes") ov[ds][it.k]=0; else if(st==="rej") delete ov[ds][it.k]; else if(st==="no") ov[ds][it.k]=1; else delete ov[ds][it.k];
+        if(!Object.keys(ov[ds]).length) delete ov[ds]; save(); renderWeek(); };
+      its.appendChild(b);
+    });
+    box.appendChild(el);
+  }
+  renderFines();
+}
+$("w-prev").onclick=()=>{mon=S.addDays(mon,-7);renderWeek();};
+$("w-next").onclick=()=>{mon=S.addDays(mon,7);renderWeek();};
+$("w-conf").onclick=()=>{const m=S.iso(mon); cf=cf.includes(m)?cf.filter(x=>x!==m):[...cf,m]; save(); renderWeek();};
+$("w-paid").onclick=()=>{const m=S.iso(mon); pd=pd.includes(m)?pd.filter(x=>x!==m):[...pd,m]; if(pd.includes(m)&&!cf.includes(m)) cf.push(m); save(); renderWeek();};
+$("w-msg").addEventListener("input",()=>{msg=$("w-msg").value.trim().slice(0,300); save();});
+
+// ---------- итог Дане ----------
+$("w-send").onclick=async()=>{
+  const tt={}; [...new Set([...cf,...pd])].forEach(m=>{tt[m]=S.week(S.parse(m),eff,books.list,fines,assign,pz).total;});
+  const payload={v:1,c:"danya",at:Date.now(),ov,fi:fines,cf,pd,tt,as:assign,pz,msg};
+  const url=S.pageURL("danya.html")+"#p="+S.enc(payload);
+  const m=S.iso(mon), w=S.week(mon,eff,books.list,fines,assign,pz);
+  let line=`Даня, итог недели ${S.range(mon)}: ${w.total} ₽`;
+  if(pd.includes(m)) line+=", деньги перевёл"; else if(cf.includes(m)) line+=", подтверждено";
+  if(w.fsum) line+=` (штрафы −${w.fsum} ₽)`;
+  const txt=line+"."+(msg?"\n"+msg:"")+"\nОткрой ссылку, чтобы увидеть у себя:\n"+url;
+  const r=await S.share(txt);
+  if(r==="fallback"){ $("fb-text").value=txt; $("fb").hidden=false; } else $("fb").hidden=true;
+};
+$("fb-copy").onclick=async()=>{
+  const ta=$("fb-text"); let ok=false;
+  try{await navigator.clipboard.writeText(ta.value);ok=true;}catch(e){try{ta.select();ok=document.execCommand("copy");}catch(e2){}}
+  $("fb-st").textContent=ok?"Скопировано. Вставьте текст в чат с Даней.":"Выделите текст и скопируйте вручную.";
+};
+
+// ---------- штрафы ----------
+S.FINES.forEach(f=>{const o=document.createElement("option"); o.value=f.id; o.textContent=f.t+(f.a?" (−"+f.a+" ₽)":""); $("f-type").appendChild(o);});
+const setAmt=()=>{const f=S.FINES.find(x=>x.id===$("f-type").value); $("f-a").value=f.a||"";};
+$("f-type").onchange=setAmt; setAmt(); $("f-d").value=todayISO;
+$("f-add").onclick=()=>{
+  const f=S.FINES.find(x=>x.id===$("f-type").value), a=Math.max(0,Math.round(+$("f-a").value||0)), d=$("f-d").value||todayISO;
+  if(!a){$("f-st").textContent="Укажите сумму штрафа.";return;}
+  const c=$("f-c").value.trim(), w=(f.id==="x"?(c||"Штраф"):f.t+(c?": "+c:""));
+  fines.push({id:"f"+Date.now().toString(36),d,a,w}); save(); $("f-c").value="";
+  $("f-st").textContent=`Штраф выписан: ${w}, −${a} ₽. Чтобы Даня его увидел, нажмите «Отправить итог Дане». Объясните ему спокойно, за что штраф и как его вернуть.`;
+  renderWeek();
+};
+function renderFines(){
+  const L=fines.slice().sort((a,b)=>b.d.localeCompare(a.d));
+  $("f-list").innerHTML=L.length?L.map(f=>`<div><span>${fmtS(f.d)} · ${esc(f.w)} <b style="color:var(--bad)">−${f.a} ₽</b></span><button class="x" type="button" data-id="${f.id}">Удалить</button></div>`).join(""):'<p class="small muted">Штрафов нет.</p>';
+  $("f-list").querySelectorAll(".x").forEach(b=>b.onclick=()=>{ if(!confirm("Удалить штраф?"))return; fines=fines.filter(f=>f.id!==b.dataset.id); save(); renderWeek(); });
+}
+
+// ---------- задачки (общий банк puzzles.js) ----------
+let pzGroup="all", pzShow=20;
+const usedIds=()=>new Set(Object.values(pz));
+const usedOn=id=>Object.keys(pz).filter(d=>pz[d]===id).sort();
+function pzFiltered(){
+  const lv=+$("pz-lvl").value, q=$("pz-q").value.trim().toLowerCase(), onlyNew=$("pz-new").checked, used=usedIds();
+  return PZ.LIST.filter(p=>(pzGroup==="all"||p.g===pzGroup)&&(!lv||p.l===lv)&&(!q||(p.q+" "+p.a).toLowerCase().includes(q))&&(!onlyNew||!used.has(p.id)));
+}
+function setPz(date,id){
+  if(!date){$("pz-st").textContent="Выберите день.";return;}
+  pz[date]=id; save();
+  $("pz-st").innerHTML=`<span style="color:var(--ok);font-weight:700">Задачка задана на ${S.dayLong(S.parse(date)).toLowerCase()}.</span> Нажмите «Отправить итог Дане», чтобы она появилась у него.`;
+  renderPuzzles();
+}
+function renderPuzzles(){
+  $("pz-total").textContent=PZ.LIST.length+" шт.";
+  const gb=$("pz-groups");
+  if(!gb.children.length){
+    [["all","Все"],...Object.entries(PZ.GROUPS)].forEach(([k,n])=>{const b=document.createElement("button");b.type="button";b.dataset.g=k;b.textContent=n+(k==="all"?"":" · "+PZ.LIST.filter(p=>p.g===k).length);b.onclick=()=>{pzGroup=k;pzShow=20;renderPuzzles();};gb.appendChild(b);});
+  }
+  gb.querySelectorAll("button").forEach(b=>b.setAttribute("aria-pressed",b.dataset.g===pzGroup?"true":"false"));
+  const plan=Object.keys(pz).filter(d=>d>=S.iso(S.addDays(today,-7))).sort();
+  $("pz-plan").innerHTML=plan.length?plan.map(d=>{const p=PZ.BY[pz[d]];return `<div><span><b>${S.parse(d).toLocaleDateString("ru-RU",{weekday:"short",day:"numeric",month:"short"})}</b> · ${p?esc(p.q.length>70?p.q.slice(0,70)+"…":p.q):"?"}${ans[d]?' <small style="color:var(--ok)">есть ответ</small>':""}</span><button class="x" type="button" data-d="${d}">Снять</button></div>`;}).join(""):'<p class="small muted">Пока ничего не задано.</p>';
+  $("pz-plan").querySelectorAll(".x").forEach(b=>b.onclick=()=>{delete pz[b.dataset.d];save();renderPuzzles();});
+  const L=pzFiltered(), date=$("pz-date").value, dl=date?fmtS(date):"";
+  $("pz-list").innerHTML=L.slice(0,pzShow).map(p=>{const u=usedOn(p.id);
+    return `<div class="pz${u.length?" used":""}"><div class="pz-meta"><span>${esc(PZ.GROUPS[p.g])} · ${"★".repeat(p.l)}</span><span>${u.length?"задана "+u.map(fmtS).join(", "):""}</span></div><div class="pz-q">${esc(p.q)}</div><details><summary>Ответ</summary><p>${esc(p.a)}</p></details><div class="row"><button class="btn" type="button" data-id="${p.id}">${pz[date]===p.id?"✓ Задана на "+dl:"Задать на "+dl}</button></div></div>`;
+  }).join("")||'<p class="small muted">Ничего не найдено. Попробуйте другую группу или снимите галочку «только новые».</p>';
+  $("pz-list").querySelectorAll("button[data-id]").forEach(b=>b.onclick=()=>setPz($("pz-date").value,b.dataset.id));
+  $("pz-more").hidden=L.length<=pzShow;
+}
+$("pz-date").value=S.iso(today);
+["pz-lvl","pz-q","pz-new","pz-date"].forEach(id=>$(id).addEventListener(id==="pz-q"?"input":"change",()=>{pzShow=20;renderPuzzles();}));
+$("pz-more").onclick=()=>{pzShow+=20;renderPuzzles();};
+$("pz-rand").onclick=()=>{const L=pzFiltered(); if(!L.length){$("pz-st").textContent="Под фильтр ничего не подходит.";return;} setPz($("pz-date").value,L[Math.floor(Math.random()*L.length)].id);};
+
+// ---------- еда ----------
+function renderFood(){
+  const n=new Set(food.map(x=>x.f.toLowerCase())).size;
+  $("fd-count").textContent="Попробовано: "+n;
+  $("fd-list").innerHTML=food.length?food.slice().reverse().slice(0,40).map(x=>`<div><span><b>${esc(x.f)}</b> ${x.r} <small>· ступенька ${x.st}</small></span><small>${fmtS(x.d)}</small></div>`).join(""):'<p class="small muted">Пока ни одной пробы. Они придут в отчёте Дани.</p>';
+}
+
+// ---------- книги ----------
+const fmtD=ds=>S.parse(ds).toLocaleDateString("ru-RU",{day:"numeric",month:"long"});
+const dirty={days:false,rw:false,due:false};
+function syncDue(){ if(!dirty.due){ const n=Math.max(1,+$("a-days").value||1); $("a-due").value=S.iso(S.addDays(today,n)); } }
+$("a-pg").addEventListener("input",()=>{const pg=+$("a-pg").value||0; if(!dirty.days) $("a-days").value=S.suggestDays(pg); if(!dirty.rw) $("a-rw").value=S.suggestReward(pg); syncDue();});
+$("a-days").addEventListener("input",()=>{dirty.days=true; dirty.due=false; syncDue();});
+$("a-rw").addEventListener("input",()=>{dirty.rw=true;});
+$("a-due").addEventListener("input",()=>{dirty.due=true; const n=Math.round((S.parse($("a-due").value)-S.parse(todayISO))/864e5); if(n>0){$("a-days").value=n; dirty.days=true;}});
+function resetAssignForm(){ $("a-t").value="";$("a-a").value="";$("a-pg").value=""; $("a-days").value=5; $("a-rw").value=60; dirty.days=dirty.rw=dirty.due=false; syncDue(); }
+$("a-add").onclick=()=>{
+  const t=$("a-t").value.trim(); if(!t){$("a-st").textContent="Напишите название книги.";return;}
+  const due=$("a-due").value||S.iso(S.addDays(today,5));
+  const a={id:"b"+Date.now().toString(36),t,a:$("a-a").value.trim(),pg:Math.max(0,Math.round(+$("a-pg").value||0)),from:todayISO,due,rw:Math.max(0,Math.round(+$("a-rw").value||0))};
+  assign.push(a); save(); resetAssignForm();
+  $("a-st").textContent=`Книга «${t}» задана: срок до ${fmtD(due)}, награда ${a.rw} ₽. Теперь нажмите «Отправить итог Дане».`;
+  renderBooks();
+};
+function renderBooks(){
+  const L=assign.slice().sort((x,y)=>x.due.localeCompare(y.due));
+  $("a-list").innerHTML=L.length?L.map(a=>{
+    const fin=books.list.find(b=>b.id===a.id), pg=+books.pg[a.id]||0, left=Math.round((S.parse(a.due)-S.parse(todayISO))/864e5);
+    const st=fin?`<span style="color:var(--ok);font-weight:700">прочитана ${fmtD(fin.d)}${fin.d<=a.due?" к сроку":" после срока"} · +${S.bookPts(fin,assign)} ₽</span>`
+      :(a.pg?`стр. ${pg} из ${a.pg} · `:"")+(left<0?`<span style="color:var(--bad);font-weight:700">срок прошёл ${fmtD(a.due)}</span>`:`до ${fmtD(a.due)}, осталось ${left} дн.`);
+    return `<div style="display:grid;grid-template-columns:1fr auto;align-items:start"><span><b>«${esc(a.t)}»</b>${a.a?" · "+esc(a.a):""}${a.pg?" · "+a.pg+" стр.":""} · награда ${a.rw} ₽<br><small>${st}</small></span><button class="x" type="button" data-id="${a.id}">Удалить</button></div>`;
+  }).join(""):'<p class="small muted">Вы ещё не задали ни одной книги.</p>';
+  $("a-list").querySelectorAll(".x").forEach(b=>b.onclick=()=>{ if(!confirm("Удалить заданную книгу?"))return; assign=assign.filter(a=>a.id!==b.dataset.id); save(); renderBooks(); });
+  $("b-cur").textContent=books.cur&&books.cur.t?("«"+books.cur.t+"»"+(books.cur.a?", "+books.cur.a:"")):"Даня ещё не указал книгу.";
+  const n=books.list.length;
+  $("b-count").textContent=n+" "+(n%10===1&&n%100!==11?"книга":(n%10>=2&&n%10<=4&&(n%100<10||n%100>=20))?"книги":"книг");
+  $("b-list").innerHTML=n?books.list.slice().reverse().map(b=>`<div><span><b>${esc(b.t)}</b>${b.a?" · "+esc(b.a):""}${b.f?" · 🎧":""} ${"★".repeat(b.s||0)}</span><small>${fmtS(b.d)}</small></div>`).join(""):'<p class="small muted">Пока ни одной.</p>';
+  const fk=Object.keys(facts).sort().reverse();
+  $("fx-list").innerHTML=fk.length?fk.slice(0,20).map(d=>`<div><span>${esc(facts[d])}</span><small>${fmtS(d)}</small></div>`).join(""):'<p class="small muted">Пока нет фактов.</p>';
+  $("t-table").querySelector("tbody").innerHTML=tests.length?tests.slice().reverse().map(t=>`<tr><td class="n">${fmtS(t.d)}</td>${["pl","pu","sq","bl"].map(k=>`<td class="n">${t[k]===""||t[k]==null?"—":t[k]}</td>`).join("")}</tr>`).join(""):'<tr><td colspan="5" class="muted">Даня ещё не делал тест.</td></tr>';
+}
+resetAssignForm();
+
+// ---------- вкладки ----------
+const TABS=["week","puzzles","food","books","tips"];
+function tab(){
+  let t=(location.hash||"#week").slice(1); if(!TABS.includes(t)) t="week";
+  TABS.forEach(x=>{$("v-"+x).hidden=x!==t; document.querySelector(`[data-tab="${x}"]`).setAttribute("aria-current",x===t?"page":"false");});
+  if(t==="puzzles") renderPuzzles();
+  if(t==="food") renderFood();
+  if(t==="books") renderBooks();
+  if(t==="week") renderWeek();
+  window.scrollTo(0,0);
+}
+window.addEventListener("hashchange",tab);
+$("paste-go").onclick=()=>{
+  const m=$("paste-in").value.match(/#r=([A-Za-z0-9_-]+)/);
+  if(!m){$("paste-st").textContent="Это не ссылка из отчёта: в ней должно быть «#r=».";return;}
+  location.hash="r="+m[1]; location.reload();
+};
+$("t-max").textContent=S.week(S.mondayOf(today),()=>true,[],[],[],{}).max+" ₽";
+renderWeek(); tab();
+})();
+</script>
+</body>
+</html>

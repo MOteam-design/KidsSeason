@@ -1,0 +1,613 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="robots" content="noindex,nofollow">
+<title>Сезон Саши — папа</title>
+<link rel="manifest" href="papa.webmanifest">
+<link rel="icon" type="image/png" sizes="32x32" href="icon-papa-32.png">
+<link rel="apple-touch-icon" href="icon-papa-180.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Папа: дети">
+<meta name="theme-color" content="#1A2C4E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=Russo+One&display=swap">
+<style>
+:root{
+  --bg:#EFF1F4; --surface:#FFFFFF; --ink:#141B26; --muted:#5B6576; --line:#D8DDE5;
+  --accent:#16834A; --accent-soft:#DDF1E5; --gold:#A86A00; --gold-soft:#FBEFD6;
+  --bad:#B42318; --bad-soft:#FBE3E0; --blue:#2D5BB8; --blue-soft:#E2EAFA;
+  --display:"Russo One","Manrope",system-ui,sans-serif;
+  --body:"Manrope",system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#0E1219; --surface:#171D28; --ink:#E5E9F0; --muted:#9AA3B3; --line:#283041;
+  --accent:#4CC984; --accent-soft:#143022; --gold:#E9B55A; --gold-soft:#33270F;
+  --bad:#F2877C; --bad-soft:#3A1A17; --blue:#8FB0F2; --blue-soft:#1A2640; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#0E1219; --surface:#171D28; --ink:#E5E9F0; --muted:#9AA3B3; --line:#283041;
+  --accent:#4CC984; --accent-soft:#143022; --gold:#E9B55A; --gold-soft:#33270F;
+  --bad:#F2877C; --bad-soft:#3A1A17; --blue:#8FB0F2; --blue-soft:#1A2640; color-scheme:dark}
+*{box-sizing:border-box}
+html{padding-top:env(safe-area-inset-top,0px)}
+body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.5 var(--body);-webkit-text-size-adjust:100%}
+[hidden]{display:none!important}
+.wrap{max-width:680px;margin:0 auto;padding:10px max(16px,env(safe-area-inset-right,0px)) 48px max(16px,env(safe-area-inset-left,0px))}
+h1,h2,h3{margin:0;text-wrap:balance}
+h1{font:400 22px/1.1 var(--display)}
+h2{font:400 18px/1.2 var(--display)}
+h3{font-size:15px}
+p{margin:0}
+button:focus-visible,a:focus-visible,input:focus-visible,select:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.top{position:sticky;top:0;z-index:5;background:var(--bg);padding:8px 0;display:grid;gap:10px}
+.brand{display:flex;justify-content:space-between;align-items:center;gap:10px}
+.brand p{color:var(--muted);font-size:12.5px;margin-top:2px}
+.chip{flex:0 0 auto;display:grid;justify-items:end;font-variant-numeric:tabular-nums}
+.chip b{font:400 19px/1 var(--display);color:var(--gold)}
+.chip small{font-size:11px;color:var(--muted)}
+.tabs{display:grid;grid-auto-flow:column;grid-auto-columns:1fr;gap:4px;background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:4px}
+.tabs a{text-align:center;text-decoration:none;color:var(--muted);font-weight:700;font-size:13px;padding:7px 2px;border-radius:10px}
+.tabs a[aria-current="page"]{background:var(--ink);color:var(--surface)}
+.view{display:grid;gap:14px;padding-top:6px}
+.panel{background:var(--surface);border:1px solid var(--line);border-radius:16px;padding:14px;display:grid;gap:10px}
+.panel>p,.panel li{font-size:14px}
+.panel ul,.panel ol{margin:0;padding-left:20px;display:grid;gap:6px}
+.muted{color:var(--muted)}
+.small{font-size:13px}
+.eyebrow{font-size:11.5px;font-weight:800;letter-spacing:.06em;text-transform:uppercase;color:var(--accent)}
+.row{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.btn{appearance:none;border:0;background:var(--accent);color:var(--surface);font:700 14px var(--body);border-radius:12px;padding:10px 14px;cursor:pointer}
+.btn.ghost{background:transparent;color:var(--accent);border:1px solid var(--line)}
+.btn.gold{background:var(--gold)}
+.btn[aria-pressed="true"]{background:var(--accent-soft);color:var(--accent)}
+.banner{background:var(--blue-soft);border-radius:14px;padding:12px 14px;font-size:14px}
+.banner b{color:var(--blue)}
+.empty{background:var(--gold-soft);border-radius:14px;padding:12px 14px;font-size:14px;display:grid;gap:6px}
+.wnav{display:flex;align-items:center;justify-content:space-between;gap:8px}
+.wnav h2{text-align:center;flex:1}
+.wnav button{appearance:none;border:1px solid var(--line);background:var(--surface);color:var(--ink);border-radius:10px;width:40px;height:36px;font:700 18px var(--body);cursor:pointer}
+.wnav button:disabled{opacity:.35;cursor:default}
+.total{display:flex;align-items:baseline;gap:10px;flex-wrap:wrap}
+.total b{font:400 36px/1 var(--display);color:var(--gold);font-variant-numeric:tabular-nums}
+.total span{color:var(--muted);font-size:14px}
+.calc{display:grid;gap:4px;font-size:14px;font-variant-numeric:tabular-nums}
+.calc div{display:flex;justify-content:space-between;gap:10px;border-bottom:1px dashed var(--line);padding-bottom:4px}
+.calc div:last-child{border-bottom:0}
+.status{font-size:13px;font-weight:700}
+.status.ok{color:var(--accent)}
+.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:6px}
+.stat{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:8px;display:grid;gap:1px;min-width:0}
+.stat b{font:400 19px/1.1 var(--display);font-variant-numeric:tabular-nums}
+.stat span{font-size:11.5px;color:var(--muted);line-height:1.2}
+details.day{background:var(--surface);border:1px solid var(--line);border-radius:14px}
+details.day summary{list-style:none;cursor:pointer;display:flex;justify-content:space-between;gap:10px;align-items:center;padding:11px 12px;font-weight:700}
+details.day summary::-webkit-details-marker{display:none}
+details.day summary span{font-weight:600;color:var(--muted);font-size:13px;font-variant-numeric:tabular-nums}
+.mini{height:5px;border-radius:5px;background:var(--line);overflow:hidden;margin:0 12px 10px}
+.mini i{display:block;height:100%;background:var(--accent)}
+.its{display:grid;gap:5px;padding:0 10px 12px}
+.it{appearance:none;width:100%;text-align:left;display:grid;grid-template-columns:24px 1fr auto;gap:8px;align-items:center;border:1px solid var(--line);background:var(--bg);color:var(--ink);border-radius:10px;padding:7px 10px;font:600 13.5px/1.3 var(--body);cursor:pointer}
+.it .mk{width:22px;height:22px;border-radius:50%;display:grid;place-items:center;font-size:13px;font-weight:800;border:2px solid var(--line);color:transparent}
+.it .who{font-size:11px;font-weight:700;color:var(--muted);white-space:nowrap;text-align:right}
+.it .who b{display:block;color:var(--gold);font-size:12px}
+.it.s-yes .mk{background:var(--accent);border-color:var(--accent);color:var(--surface)}
+.it.s-papa .mk{background:var(--blue);border-color:var(--blue);color:var(--surface)}
+.it.s-papa .who{color:var(--blue)}
+.it.s-rej{background:var(--bad-soft)}
+.it.s-rej .mk{background:var(--bad);border-color:var(--bad);color:var(--surface)}
+.it.s-rej .who{color:var(--bad)}
+.it.s-rej .lbl{text-decoration:line-through}
+.it.s-no .lbl{color:var(--muted)}
+form.grid{display:grid;grid-template-columns:repeat(2,1fr);gap:8px}
+form.grid label{display:grid;gap:3px;font-size:12.5px;color:var(--muted);min-width:0}
+form.grid label.wide{grid-column:1/-1}
+input,select{font:600 15px var(--body);color:var(--ink);background:var(--bg);border:1px solid var(--line);border-radius:10px;padding:8px 10px;width:100%;min-width:0}
+.list{display:grid;gap:6px}
+.list div{display:flex;justify-content:space-between;align-items:center;gap:10px;background:var(--bg);border-radius:10px;padding:8px 10px;font-size:14px}
+.list small{color:var(--muted)}
+.x{appearance:none;border:0;background:transparent;color:var(--bad);font:700 13px var(--body);cursor:pointer;padding:4px 6px}
+.tblwrap{overflow-x:auto}
+table{border-collapse:collapse;width:100%;font-size:13.5px;font-variant-numeric:tabular-nums}
+th,td{text-align:left;padding:7px 8px;border-bottom:1px solid var(--line)}
+th{font-size:11.5px;color:var(--muted);font-weight:700;letter-spacing:.03em;text-transform:uppercase;white-space:nowrap}
+td.n{white-space:nowrap}
+.fallback{display:grid;gap:8px}
+.fallback textarea{font:500 12.5px var(--body);color:var(--ink);background:var(--bg);border:1px solid var(--line);border-radius:10px;padding:8px;min-height:110px;width:100%}
+.tip{border-left:3px solid var(--accent);padding-left:12px;display:grid;gap:4px}
+.warnbox{background:var(--gold-soft);border-radius:12px;padding:10px 12px;font-size:14px;display:grid;gap:4px}
+.warnbox b{color:var(--gold)}
+.pz-ctl{display:grid;grid-template-columns:1fr 1fr;gap:8px;align-items:end}
+.pz-ctl label{display:grid;gap:3px}
+.pz-chk{display:flex!important;align-items:center;gap:6px;padding-bottom:8px}
+.pz-chk input{width:auto}
+.chips{display:flex;flex-wrap:wrap;gap:6px}
+.chips button{appearance:none;border:1px solid var(--line);background:var(--bg);color:var(--ink);border-radius:999px;padding:5px 11px;font:700 12.5px var(--body);cursor:pointer}
+.chips button[aria-pressed="true"]{background:var(--ink);color:var(--surface);border-color:var(--ink)}
+.pzlist{display:grid;gap:8px}
+.pz{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:12px;display:grid;gap:8px}
+.pz.used{opacity:.7}
+.pz-meta{display:flex;justify-content:space-between;gap:8px;font-size:12px;color:var(--muted);font-weight:700}
+.pz-q{font-size:15px;font-weight:600}
+.pz details summary{cursor:pointer;color:var(--accent);font-weight:700;font-size:13px}
+.pz details p{font-size:14px;margin-top:6px;background:var(--accent-soft);border-radius:10px;padding:8px 10px}
+.pzday{display:grid;gap:4px;font-size:13px;background:var(--bg);border-radius:10px;padding:8px 10px;margin:0 10px 10px}
+.pzday .ans{white-space:pre-wrap;font-weight:600}
+.paste{display:grid;gap:6px}
+.paste-row{display:flex;gap:8px}
+.paste-row input{flex:1;min-width:0}
+@media (max-width:420px){.stats{grid-template-columns:repeat(2,1fr)}}
+.kids{display:grid;grid-template-columns:1fr 1fr auto;gap:6px;align-items:stretch}
+.kids a{display:grid;gap:0;text-decoration:none;color:var(--ink);background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:6px 10px;font-weight:700;font-size:13px}
+.kids a b{font:400 16px/1.1 var(--display);color:var(--gold);font-variant-numeric:tabular-nums}
+.kids a[aria-current="page"]{border-color:var(--ink);box-shadow:inset 0 0 0 1px var(--ink)}
+.kids-sum{display:grid;justify-items:end;align-content:center;font-size:11px;color:var(--muted);padding:0 2px}
+.kids-sum b{font:400 15px/1.1 var(--display);color:var(--ink);font-variant-numeric:tabular-nums}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header class="top">
+    <nav class="kids" id="kids" aria-label="Дети"></nav>
+    <div class="brand">
+      <div><h1>Сезон Саши · для папы</h1><p id="last-rep">Отчётов пока нет</p></div>
+      <div class="chip"><b id="top-total">0 ₽</b><small>к переводу за неделю</small></div>
+    </div>
+    <nav class="tabs" aria-label="Разделы">
+      <a href="#week" data-tab="week">Неделя</a>
+      <a href="#puzzles" data-tab="puzzles">Задачки</a>
+      <a href="#fines" data-tab="fines">Штрафы</a>
+      <a href="#books" data-tab="books">Книги</a>
+      <a href="#tips" data-tab="tips">Советы</a>
+    </nav>
+  </header>
+
+  <!-- ============ НЕДЕЛЯ ============ -->
+  <section class="view" id="v-week">
+    <div class="banner" id="imp" hidden></div>
+    <div class="empty" id="noreports" hidden>
+      <b>Отчётов от Саши пока нет.</b>
+      <span>Саша вечером нажимает у себя «Отправить папе» и присылает вам в MAX сообщение со ссылкой. Откройте эту ссылку: отметки сохранятся на этой странице. Потом страницу можно открывать и без ссылки, данные останутся.</span>
+    </div>
+    <div class="wnav"><button type="button" id="w-prev" aria-label="Прошлая неделя">‹</button><h2 id="w-title"></h2><button type="button" id="w-next" aria-label="Следующая неделя">›</button></div>
+
+    <div class="panel">
+      <span class="eyebrow">Итог недели</span>
+      <div class="total"><b id="w-total">0 ₽</b><span id="w-of"></span></div>
+      <div class="calc" id="w-calc"></div>
+      <p class="status" id="w-status"></p>
+      <div class="row">
+        <button class="btn" type="button" id="w-conf">Подтвердить неделю</button>
+        <button class="btn gold" type="button" id="w-paid">Перевёл деньги</button>
+      </div>
+      <div class="row"><button class="btn ghost" type="button" id="w-send">Отправить итог Саше</button></div>
+      <div class="fallback" id="fb" hidden>
+        <p class="small">Скопируйте текст и отправьте его Саше в MAX.</p>
+        <textarea id="fb-text" readonly></textarea>
+        <div class="row"><button class="btn" type="button" id="fb-copy">Скопировать</button><span class="small muted" id="fb-st"></span></div>
+      </div>
+    </div>
+
+    <div class="stats">
+      <div class="stat"><b id="s-p">0/7</b><span>пианино дома</span></div>
+      <div class="stat"><b id="s-r">0/7</b><span>чтение</span></div>
+      <div class="stat"><b id="s-u">0/5</b><span>сел за уроки сам</span></div>
+      <div class="stat"><b id="s-z">0/7</b><span>зарядка</span></div>
+    </div>
+
+    <p class="small muted">Нажмите на пункт, чтобы изменить отметку. <b style="color:var(--accent)">Зелёный</b> — отметил Саша, засчитано. Второе нажатие — <b style="color:var(--bad)">не засчитано</b>. Нажатие на пустой пункт — <b style="color:var(--blue)">засчитал папа</b> (Саша сделал, но забыл отметить).</p>
+    <div id="days" style="display:grid;gap:8px"></div>
+    <form class="panel paste" onsubmit="return false">
+      <span class="small muted">Пользуетесь приложением с главного экрана, а ссылка от Саши открылась в браузере? Скопируйте ссылку из MAX и вставьте сюда (на iPhone приложение и браузер хранят данные отдельно):</span>
+      <div class="paste-row"><input type="text" id="paste-in" placeholder="https://…#r=…" autocomplete="off"><button class="btn" type="button" id="paste-go">Загрузить</button></div>
+      <span class="small" style="color:var(--bad)" id="paste-st"></span>
+    </form>
+  </section>
+
+  <!-- ============ ЗАДАЧКИ ============ -->
+  <section class="view" id="v-puzzles" hidden>
+    <div class="panel">
+      <span class="eyebrow">Задачка дня</span>
+      <h2>Банк задачек: <span id="pz-total"></span></h2>
+      <p class="small muted">Выберите день и нажмите «Задать» у любой задачки или «Случайная». За решённую задачку Саша получает 10 ₽. Его ответ придёт в отчёте, правильный ответ есть у вас под каждой задачей. Не забудьте нажать «Отправить итог Саше».</p>
+      <div class="pz-ctl">
+        <label class="small muted">День<input type="date" id="pz-date"></label>
+        <label class="small muted">Сложность<select id="pz-lvl"><option value="0">любая</option><option value="1">★ легко</option><option value="2">★★ средне</option><option value="3">★★★ трудно</option></select></label>
+      </div>
+      <div class="chips" id="pz-groups"></div>
+      <div class="pz-ctl">
+        <label class="small muted pz-wide">Поиск<input type="text" id="pz-q" placeholder="слово из условия" autocomplete="off"></label>
+        <label class="small pz-chk"><input type="checkbox" id="pz-new" checked> только новые</label>
+      </div>
+      <div class="row"><button class="btn" type="button" id="pz-rand">Случайная задачка на этот день</button></div>
+      <p class="small" id="pz-st"></p>
+    </div>
+    <div class="panel">
+      <span class="eyebrow">Запланировано</span>
+      <div class="list" id="pz-plan"></div>
+    </div>
+    <div class="pzlist" id="pz-list"></div>
+    <div class="row" style="justify-content:center"><button class="btn ghost" type="button" id="pz-more" hidden>Показать ещё</button></div>
+  </section>
+
+  <!-- ============ ШТРАФЫ ============ -->
+  <section class="view" id="v-fines" hidden>
+    <div class="panel">
+      <span class="eyebrow">Выписать штраф</span>
+      <h2>Новый штраф</h2>
+      <form class="grid" id="f-form" onsubmit="return false">
+        <label>Дата<input type="date" id="f-d"></label>
+        <label>За что<select id="f-type"></select></label>
+        <label>Сумма, ₽<input type="number" id="f-a" min="0" step="10" inputmode="numeric"></label>
+        <label>Комментарий<input type="text" id="f-c" placeholder="например, математика" autocomplete="off"></label>
+        <label class="wide"><button class="btn" type="button" id="f-add">Выписать штраф</button></label>
+      </form>
+      <p class="small muted" id="f-st">Штраф вычитается из суммы недели, но ниже нуля неделя не уходит. Чтобы Саша увидел штраф, нажмите «Отправить итог Саше» на вкладке «Неделя».</p>
+    </div>
+    <div class="panel">
+      <span class="eyebrow">Все штрафы</span>
+      <div class="list" id="f-list"></div>
+    </div>
+    <div class="panel">
+      <span class="eyebrow">Правила, которые видит Саша</span>
+      <div class="tblwrap"><table><thead><tr><th>За что</th><th>Сколько</th></tr></thead><tbody id="f-rules"></tbody></table></div>
+      <p class="small muted">Если Саша исправил оценку, штраф можно удалить. Возможность исправить ошибку мотивирует сильнее, чем окончательный штраф.</p>
+    </div>
+  </section>
+
+  <!-- ============ КНИГИ ============ -->
+  <section class="view" id="v-books" hidden>
+    <div class="panel">
+      <span class="eyebrow">Задать книгу</span>
+      <h2>Книга на срок</h2>
+      <form class="grid" id="a-form" onsubmit="return false">
+        <label class="wide">Название<input type="text" id="a-t" placeholder="например, «Денискины рассказы»" autocomplete="off"></label>
+        <label class="wide">Автор<input type="text" id="a-a" autocomplete="off"></label>
+        <label>Страниц<input type="number" id="a-pg" min="1" inputmode="numeric" placeholder="необязательно"></label>
+        <label>Дней на чтение<input type="number" id="a-days" min="1" inputmode="numeric"></label>
+        <label>Награда, ₽<input type="number" id="a-rw" min="0" step="10" inputmode="numeric"></label>
+        <label>Срок<input type="date" id="a-due"></label>
+        <label class="wide"><button class="btn" type="button" id="a-add">Задать книгу</button></label>
+      </form>
+      <p class="small muted" id="a-st">Срок и награда подставятся по числу страниц (примерно 20 страниц в день), но их можно поменять. Рассказ на 10 страниц — 1 день и 20 ₽, книга на 300 страниц — 15 дней и 120 ₽. Успел к сроку — вся награда, позже — половина. Чтобы Саша увидел книгу, нажмите «Отправить итог Саше» на вкладке «Неделя».</p>
+    </div>
+    <div class="panel">
+      <span class="eyebrow">Заданные книги</span>
+      <div class="list" id="a-list"></div>
+    </div>
+    <div class="panel">
+      <span class="eyebrow">Лоцманы книжных морей</span>
+      <h2>Своя книга сейчас</h2>
+      <p id="b-cur" class="muted">—</p>
+    </div>
+    <div class="panel">
+      <span class="eyebrow">Прочитано</span>
+      <h2 id="b-count">0 книг</h2>
+      <div class="list" id="b-list"></div>
+      <p class="small muted">За заданную книгу Саша получает вашу награду (после срока — половину), за свою книгу — 40 ₽. Спросите его о книге за ужином: «Кто тебе больше всех понравился?» Это и проверка, и подготовка к клубу.</p>
+    </div>
+  </section>
+
+  <!-- ============ КАК ЭТО РАБОТАЕТ ============ -->
+  <section class="view" id="v-tips" hidden>
+    <div class="panel">
+      <span class="eyebrow">Неделя за 3 шага</span>
+      <h2>Как это работает</h2>
+      <ol>
+        <li><b>Саша</b> отмечает задания у себя на странице и вечером нажимает «Отправить папе». Вам в MAX приходит сообщение со ссылкой.</li>
+        <li><b>Вы</b> открываете ссылку и попадаете сюда, отметки уже на месте. Если что-то не так, нажмите на пункт. Штрафы выписываются на вкладке «Штрафы».</li>
+        <li><b>Задачка дня:</b> на вкладке «Задачки» выберите задачу на нужный день (можно сразу на неделю вперёд). Саша увидит её в своём плане дня, когда получит от вас итог.</li>
+        <li><b>В воскресенье</b> нажмите «Подтвердить неделю», а затем «Отправить итог Саше». После перевода денег нажмите «Перевёл деньги» и ещё раз отправьте итог. Саша откроет ссылку и увидит итог у себя.</li>
+      </ol>
+      <p class="small muted">Все данные хранятся только в браузере этого телефона, на сервер ничего не отправляется. Открывайте ссылки из отчётов в одном и том же браузере, иначе история недель будет разной.</p>
+      <p class="small muted"><b>Как сделать приложение с иконкой.</b> Android (Chrome): меню ⋮ → «Добавить на главный экран». iPhone (Safari): кнопка «Поделиться» → «На экран Домой». На iPhone приложение хранит данные отдельно от Safari, поэтому ссылки из MAX вставляйте внизу вкладки «Неделя».</p>
+    </div>
+
+    <div class="panel">
+      <span class="eyebrow">Деньги</span>
+      <h2>1 балл = 1 ₽</h2>
+      <ul>
+        <li>Максимум около <b id="t-max">994 ₽</b> в неделю. Если Саша сделает три четверти, выйдет около 750 ₽.</li>
+        <li>Бонусы: 60 ₽ за пианино все 7 дней, 40 ₽ за чтение все 7 дней, 60 ₽, если каждый раз сам садился за уроки.</li>
+        <li>Книги: на вкладке «Книги» вы задаёте книгу, срок и награду. Успел к сроку — вся награда, позже — половина. За книгу, которую Саша выбрал сам, — 40 ₽.</li>
+        <li>Штрафы: тройка −50 ₽, двойка −100 ₽, невыполненное задание по музыке −50 ₽. Неделя не уходит в минус.</li>
+        <li>Платите в один и тот же день, например в воскресенье вечером. Регулярность важнее суммы.</li>
+      </ul>
+    </div>
+
+    <div class="panel">
+      <span class="eyebrow">Уроки без войны</span>
+      <h2>Что помогает начать</h2>
+      <div class="tip"><b>Хвалите за старт, а не за оценку.</b><span>Пункт «Сел сам, без напоминаний» стоит отдельно именно поэтому. Заметили, что он сел сам, — скажите об этом вслух.</span></div>
+      <div class="tip"><b>Раунды по 20 минут.</b><span>В задании «Уроки» у Саши встроен таймер: 20 минут работы и 5 минут отдыха, как раунды в кикбоксинге. Большая гора уроков превращается в 2–3 коротких раунда.</span></div>
+      <div class="tip"><b>Сначала уроки, потом компьютер.</b><span>Договоритесь об этом один раз и спокойно. Тогда компьютер — награда за сделанное, а не повод для спора каждый вечер.</span></div>
+      <div class="tip"><b>Не сидите рядом весь вечер.</b><span>Проверьте план в начале («что задано?») и результат в конце. Если взрослый сидит рядом всё время, ребёнок привыкает ждать, а не делать.</span></div>
+      <div class="tip"><b>15 минут лучше, чем ничего.</b><span>Пианино, чтение и зарядка рассчитаны на 10–20 минут. Маленький ежедневный шаг дастся легче, чем большой раз в неделю.</span></div>
+    </div>
+
+    <div class="panel">
+      <span class="eyebrow">Рост и еда</span>
+      <h2>Что важно знать</h2>
+      <ul>
+        <li><b>Белок:</b> Саше нужно около 35–40 г в день. Это немного: омлет утром, творожок или йогурт после школы, курица или котлета на ужин, стакан молока. Спортивный протеин и добавки — только по совету врача.</li>
+        <li><b>Энергия важнее «правильности»:</b> при кикбоксинге и активном дне ребёнку нужно примерно 1800–2100 ккал. Если он мало ест, регулярные приёмы пищи (3 основных и 2 перекуса) помогут больше, чем уговоры доесть.</li>
+        <li><b>Перекус до тренировки</b> во вторник и четверг за 45–60 минут: йогурт, бутерброд с сыром, какао, банан.</li>
+        <li><b>Кальций и витамин D</b> нужны для костей: молочные продукты каждый день. Витамины и добавки — по назначению врача, который наблюдает Сашу.</li>
+        <li><b>Сон 9–10 часов.</b> Гормон роста выделяется в глубоком сне, поэтому отбой в 21:30 в будни тоже работает на рост.</li>
+        <li><b>Без давления:</b> не ругайте за то, что не доел, и не сравнивайте с другими детьми. Дайте выбор из двух белковых вариантов. Хорошо работает, когда ребёнок готовит сам: омлет, сырники.</li>
+      </ul>
+    </div>
+
+    <div class="panel">
+      <span class="eyebrow">Разговор о росте</span>
+      <h2>Если Саша переживает</h2>
+      <ul>
+        <li>Не обещайте «вырастешь». Скажите честно: «Мальчики растут по-разному, у многих рывок бывает в 13–15 лет. А то, что ты делаешь сейчас (сон, еда, спорт), этому помогает».</li>
+        <li>Говорите о силе, скорости, технике и характере. В кикбоксинге и футболе это решает больше, чем рост. На странице Саши есть примеры: Месси, Иньеста, Модрич, Гризманн.</li>
+        <li>Если его дразнят или он замыкается, стоит спокойно поговорить или показаться детскому психологу.</li>
+      </ul>
+    </div>
+  </section>
+</div>
+
+<script src="core.js"></script>
+<script src="puzzles.js"></script>
+<script src="danya-core.js"></script>
+<script src="kids-switch.js"></script>
+<script>
+(function(){
+"use strict";
+if(window.KIDS_REDIRECT) return;
+const S=window.SC;
+const $=id=>document.getElementById(id);
+const esc=s=>String(s==null?"":s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+
+let days=S.LS.get("pa-days",{});   // {date:[keys]} — отметки Саши
+let ov=S.LS.get("pa-ov",{});       // {date:{key:0|1}} — решения папы
+let fines=S.LS.get("pa-fi",[]);    // [{id,d,a,w}]
+let cf=S.LS.get("pa-cf",[]);       // подтверждённые недели (понедельники)
+let pd=S.LS.get("pa-pd",[]);       // оплаченные недели
+let books=S.LS.get("pa-books",{list:[],cur:null,pg:{}});
+if(!books.pg) books.pg={};
+let assign=S.LS.get("pa-as",[]);  // [{id,t,a,pg,from,due,rw}] — книги, заданные папой
+let pz=S.LS.get("pa-pz",{});      // {date: id задачки}
+let ans=S.LS.get("pa-ans",{});    // {date: ответ Саши}
+const PZ=window.PUZZLES;
+let lastAt=S.LS.get("pa-last",0);
+const save=()=>{S.LS.set("pa-as",assign);S.LS.set("pa-pz",pz);S.LS.set("pa-ans",ans);S.LS.set("pa-days",days);S.LS.set("pa-ov",ov);S.LS.set("pa-fi",fines);S.LS.set("pa-cf",cf);S.LS.set("pa-pd",pd);S.LS.set("pa-books",books);S.LS.set("pa-last",lastAt);if(window.KIDS)window.KIDS.draw();};
+
+const today=new Date(), todayISO=S.iso(today);
+let mon=S.mondayOf(today);
+
+// ---------- приём отчёта Саши ----------
+const rep=S.readHash("r");
+if(rep&&rep.v===1&&!rep.c){
+  if((rep.at||0)>=lastAt){
+    let n=0;
+    Object.entries(rep.d||{}).forEach(([d,k])=>{days[d]=k?k.split(","):[];n++;});
+    // даты окна отчёта без отметок — значит, Саша всё снял
+    for(let i=0;i<28;i++){const ds=S.iso(S.addDays(new Date(rep.at||Date.now()),-i)); if(!(ds in (rep.d||{}))&&days[ds]) delete days[ds];}
+    books={list:rep.bk||[],cur:rep.cur||null,pg:rep.pg||{}};
+    Object.assign(ans,rep.an||{});
+    lastAt=rep.at||Date.now(); save();
+    $("imp").innerHTML=`<b>Отчёт Саши получен.</b> Обновлено дней: ${n}. Проверьте неделю, при необходимости поправьте отметки и выпишите штрафы.`;
+  } else {
+    $("imp").innerHTML="<b>Это старый отчёт.</b> У вас уже есть более свежий, ничего не изменилось.";
+  }
+  $("imp").hidden=false; S.clearHash();
+}
+const sasha=(d,k)=>!!(days[d]&&days[d].includes(k));
+const eff=(d,k)=>{const o=ov[d]; if(o&&o[k]!==undefined) return o[k]===1; return sasha(d,k);};
+const firstMon=()=>{const all=Object.keys(days).sort(); return all.length?S.mondayOf(S.parse(all[0])):S.mondayOf(today);};
+
+// ---------- неделя ----------
+function renderWeek(){
+  const m=S.iso(mon), w=S.week(mon,eff,books.list,fines,assign,pz);
+  $("noreports").hidden=!!Object.keys(days).length;
+  $("w-title").textContent=S.range(mon);
+  $("w-prev").disabled=mon<=firstMon();
+  $("w-next").disabled=S.iso(mon)>=S.iso(S.mondayOf(today));
+  $("w-total").textContent=S.rub(w.total);
+  $("w-of").textContent="из "+w.max+" ₽ возможных";
+  $("w-calc").innerHTML=
+    `<div><span>Задания</span><b>${w.base} ₽</b></div>`+
+    (w.bon.map(b=>`<div><span>Бонус: ${b.t.toLowerCase()}</span><b>+${b.pts} ₽</b></div>`).join(""))+
+    (w.books.length?`<div><span>Книги: ${w.books.map(b=>"«"+esc(b.t)+"»").join(", ")}</span><b>+${w.books.reduce((s,b)=>s+b.pts,0)} ₽</b></div>`:"")+
+    (w.fines.map(f=>`<div><span>Штраф: ${esc(f.w)} (${S.parse(f.d).getDate()}.${String(S.parse(f.d).getMonth()+1).padStart(2,"0")})</span><b style="color:var(--bad)">−${f.a} ₽</b></div>`).join(""));
+  const isC=cf.includes(m), isP=pd.includes(m);
+  $("w-status").className="status"+(isC||isP?" ok":"");
+  $("w-status").textContent=isP?"Неделя подтверждена и оплачена.":isC?"Неделя подтверждена. Осталось перевести деньги.":"Неделя ещё не подтверждена.";
+  $("w-conf").textContent=isC?"Снять подтверждение":"Подтвердить неделю";
+  $("w-conf").setAttribute("aria-pressed",isC?"true":"false");
+  $("w-paid").textContent=isP?"Оплата отмечена ✓":"Перевёл деньги";
+  $("w-paid").setAttribute("aria-pressed",isP?"true":"false");
+  $("top-total").textContent=S.rub(S.week(S.mondayOf(today),eff,books.list,fines,assign,pz).total);
+  $("s-p").textContent=w.pd+"/7"; $("s-r").textContent=w.rd+"/7"; $("s-u").textContent=w.uOk+"/"+w.uDays;
+  let zc=0; for(let i=0;i<7;i++) if(eff(S.iso(S.addDays(mon,i)),"z")) zc++; $("s-z").textContent=zc+"/7";
+  $("last-rep").textContent=lastAt?"Последний отчёт Саши: "+new Date(lastAt).toLocaleString("ru-RU",{weekday:"short",day:"numeric",month:"short",hour:"2-digit",minute:"2-digit"}):"Отчётов пока нет";
+
+  const box=$("days"); const openSet=new Set([...box.querySelectorAll("details[open]")].map(x=>x.dataset.d));
+  box.innerHTML="";
+  for(let i=0;i<7;i++){
+    const dt=S.addDays(mon,i), ds=S.iso(dt), dd=w.days[i];
+    const el=document.createElement("details"); el.className="day"; el.dataset.d=ds;
+    if(openSet.has(ds)||(!openSet.size&&ds===todayISO)) el.open=true;
+    el.innerHTML=`<summary>${S.dayLong(dt)}<span>${dd.got} из ${dd.max} ₽</span></summary><div class="mini"><i style="width:${Math.round(dd.got/dd.max*100)}%"></i></div><div class="its"></div>`;
+    const its=el.querySelector(".its");
+    const items=S.plan(i), p=pz[ds]&&PZ.BY[pz[ds]];
+    if(p){
+      items.unshift({k:"zq",title:"Задачка дня",pts:S.PZ_PTS});
+      const box2=document.createElement("div"); box2.className="pzday";
+      box2.innerHTML=`<span class="muted">${esc(PZ.GROUPS[p.g])} · ${"★".repeat(p.l)}</span><span>${esc(p.q)}</span><span class="muted">Ответ Саши:</span><span class="ans">${ans[ds]?esc(ans[ds]):"— пока нет —"}</span><details><summary class="small" style="cursor:pointer;color:var(--accent);font-weight:700">Правильный ответ</summary><span>${esc(p.a)}</span></details>`;
+      el.appendChild(box2);
+    }
+    items.forEach(it=>{
+      const sm=sasha(ds,it.k), e=eff(ds,it.k);
+      const st=sm?(e?"yes":"rej"):(e?"papa":"no");
+      const who={yes:"Саша",rej:"не засчитано",papa:"засчитал папа",no:ds>todayISO?"":"не отмечено"}[st];
+      const b=document.createElement("button"); b.type="button"; b.className="it s-"+st;
+      b.innerHTML=`<span class="mk">${st==="rej"?"✕":"✓"}</span><span class="lbl">${esc(it.title)}</span><span class="who"><b>${it.pts} ₽</b>${who}</span>`;
+      b.onclick=()=>{
+        ov[ds]=ov[ds]||{};
+        if(st==="yes") ov[ds][it.k]=0;
+        else if(st==="rej") delete ov[ds][it.k];
+        else if(st==="no") ov[ds][it.k]=1;
+        else delete ov[ds][it.k];
+        if(!Object.keys(ov[ds]).length) delete ov[ds];
+        save(); renderWeek();
+      };
+      its.appendChild(b);
+    });
+    box.appendChild(el);
+  }
+}
+$("w-prev").onclick=()=>{mon=S.addDays(mon,-7);renderWeek();};
+$("w-next").onclick=()=>{mon=S.addDays(mon,7);renderWeek();};
+$("w-conf").onclick=()=>{const m=S.iso(mon); cf=cf.includes(m)?cf.filter(x=>x!==m):[...cf,m]; save(); renderWeek(); if(cf.includes(m)) $("w-send").focus();};
+$("w-paid").onclick=()=>{const m=S.iso(mon); pd=pd.includes(m)?pd.filter(x=>x!==m):[...pd,m]; if(pd.includes(m)&&!cf.includes(m)) cf.push(m); save(); renderWeek();};
+
+// ---------- итог Саше ----------
+$("w-send").onclick=async()=>{
+  const tt={}; [...new Set([...cf,...pd])].forEach(m=>{tt[m]=S.week(S.parse(m),eff,books.list,fines,assign,pz).total;});
+  const payload={v:1,at:Date.now(),ov,fi:fines,cf,pd,tt,as:assign,pz};
+  const url=S.pageURL("index.html")+"#p="+S.enc(payload);
+  const m=S.iso(mon), w=S.week(mon,eff,books.list,fines,assign,pz);
+  let line=`Саша, итог недели ${S.range(mon)}: ${w.total} ₽`;
+  if(pd.includes(m)) line+=", деньги перевёл"; else if(cf.includes(m)) line+=", подтверждено";
+  if(w.fsum) line+=` (штрафы −${w.fsum} ₽)`;
+  const txt=line+".\nОткрой ссылку, чтобы увидеть у себя:\n"+url;
+  const r=await S.share(txt);
+  if(r==="fallback"){ $("fb-text").value=txt; $("fb").hidden=false; } else $("fb").hidden=true;
+};
+$("fb-copy").onclick=async()=>{
+  const ta=$("fb-text"); let ok=false;
+  try{await navigator.clipboard.writeText(ta.value);ok=true;}catch(e){try{ta.select();ok=document.execCommand("copy");}catch(e2){}}
+  $("fb-st").textContent=ok?"Скопировано. Вставьте текст в чат с Сашей.":"Выделите текст и скопируйте вручную.";
+};
+
+// ---------- задачки ----------
+let pzGroup="all", pzShow=20;
+const usedIds=()=>new Set(Object.values(pz));
+const usedOn=id=>Object.keys(pz).filter(d=>pz[d]===id).sort();
+function pzFiltered(){
+  const lv=+$("pz-lvl").value, q=$("pz-q").value.trim().toLowerCase(), onlyNew=$("pz-new").checked, used=usedIds();
+  return PZ.LIST.filter(p=>(pzGroup==="all"||p.g===pzGroup)&&(!lv||p.l===lv)&&(!q||(p.q+" "+p.a).toLowerCase().includes(q))&&(!onlyNew||!used.has(p.id)));
+}
+function setPz(date,id){
+  if(!date){$("pz-st").textContent="Выберите день.";return;}
+  pz[date]=id; save();
+  $("pz-st").innerHTML=`<span style="color:var(--accent);font-weight:700">Задачка задана на ${S.dayLong(S.parse(date)).toLowerCase()}.</span> Нажмите «Отправить итог Саше» на вкладке «Неделя», чтобы она появилась у него.`;
+  renderPuzzles(); renderWeek();
+}
+function renderPuzzles(){
+  $("pz-total").textContent=PZ.LIST.length+" шт.";
+  const gb=$("pz-groups");
+  if(!gb.children.length){
+    [["all","Все"],...Object.entries(PZ.GROUPS)].forEach(([k,n])=>{const b=document.createElement("button");b.type="button";b.dataset.g=k;b.textContent=n+(k==="all"?"":" · "+PZ.LIST.filter(p=>p.g===k).length);b.onclick=()=>{pzGroup=k;pzShow=20;renderPuzzles();};gb.appendChild(b);});
+  }
+  gb.querySelectorAll("button").forEach(b=>b.setAttribute("aria-pressed",b.dataset.g===pzGroup?"true":"false"));
+  // план
+  const plan=Object.keys(pz).filter(d=>d>=S.iso(S.addDays(today,-7))).sort();
+  $("pz-plan").innerHTML=plan.length?plan.map(d=>{const p=PZ.BY[pz[d]];return `<div><span><b>${S.parse(d).toLocaleDateString("ru-RU",{weekday:"short",day:"numeric",month:"short"})}</b> · ${p?esc(p.q.length>70?p.q.slice(0,70)+"…":p.q):"?"}${ans[d]?' <small style="color:var(--accent)">есть ответ</small>':""}</span><button class="x" type="button" data-d="${d}">Снять</button></div>`;}).join(""):'<p class="small muted">Пока ничего не задано.</p>';
+  $("pz-plan").querySelectorAll(".x").forEach(b=>b.onclick=()=>{delete pz[b.dataset.d];save();renderPuzzles();renderWeek();});
+  // список
+  const L=pzFiltered(), date=$("pz-date").value;
+  const dl=date?S.parse(date).toLocaleDateString("ru-RU",{day:"numeric",month:"short"}):"";
+  $("pz-list").innerHTML=L.slice(0,pzShow).map(p=>{
+    const u=usedOn(p.id);
+    return `<div class="pz${u.length?" used":""}"><div class="pz-meta"><span>${esc(PZ.GROUPS[p.g])} · ${"★".repeat(p.l)}</span><span>${u.length?"задана "+u.map(d=>S.parse(d).toLocaleDateString("ru-RU",{day:"numeric",month:"short"})).join(", "):""}</span></div><div class="pz-q">${esc(p.q)}</div><details><summary>Ответ</summary><p>${esc(p.a)}</p></details><div class="row"><button class="btn" type="button" data-id="${p.id}">${pz[date]===p.id?"✓ Задана на "+dl:"Задать на "+dl}</button></div></div>`;
+  }).join("")||'<p class="small muted">Ничего не найдено. Попробуйте другую группу или снимите галочку «только новые».</p>';
+  $("pz-list").querySelectorAll("button[data-id]").forEach(b=>b.onclick=()=>setPz($("pz-date").value,b.dataset.id));
+  $("pz-more").hidden=L.length<=pzShow;
+}
+$("pz-date").value=S.iso(today);
+["pz-lvl","pz-q","pz-new","pz-date"].forEach(id=>$(id).addEventListener(id==="pz-q"?"input":"change",()=>{pzShow=20;renderPuzzles();}));
+$("pz-more").onclick=()=>{pzShow+=20;renderPuzzles();};
+$("pz-rand").onclick=()=>{const L=pzFiltered(); if(!L.length){$("pz-st").textContent="Под фильтр ничего не подходит.";return;} setPz($("pz-date").value,L[Math.floor(Math.random()*L.length)].id);};
+
+// ---------- штрафы ----------
+S.FINES.forEach(f=>{const o=document.createElement("option"); o.value=f.id; o.textContent=f.t+(f.a?" (−"+f.a+" ₽)":""); $("f-type").appendChild(o);});
+const setAmt=()=>{const f=S.FINES.find(x=>x.id===$("f-type").value); $("f-a").value=f.a||"";};
+$("f-type").onchange=setAmt; setAmt(); $("f-d").value=todayISO;
+$("f-add").onclick=()=>{
+  const f=S.FINES.find(x=>x.id===$("f-type").value), a=Math.max(0,Math.round(+$("f-a").value||0)), d=$("f-d").value||todayISO;
+  if(!a){$("f-st").textContent="Укажите сумму штрафа.";return;}
+  const c=$("f-c").value.trim();
+  const w=(f.id==="x"?(c||"Штраф"):f.t+(c?": "+c:""));
+  fines.push({id:"f"+Date.now().toString(36),d,a,w}); save();
+  $("f-c").value="";
+  $("f-st").textContent=`Штраф выписан: ${w}, −${a} ₽. Чтобы Саша его увидел, нажмите «Отправить итог Саше» на вкладке «Неделя».`;
+  renderFines(); renderWeek();
+};
+function renderFines(){
+  const L=fines.slice().sort((a,b)=>b.d.localeCompare(a.d));
+  $("f-list").innerHTML=L.length?L.map(f=>`<div><span>${S.parse(f.d).toLocaleDateString("ru-RU",{day:"numeric",month:"short"})} · ${esc(f.w)} <b style="color:var(--bad)">−${f.a} ₽</b></span><button class="x" type="button" data-id="${f.id}">Удалить</button></div>`).join(""):'<p class="small muted">Штрафов нет.</p>';
+  $("f-list").querySelectorAll(".x").forEach(b=>b.onclick=()=>{ if(!confirm("Удалить штраф?"))return; fines=fines.filter(f=>f.id!==b.dataset.id); save(); renderFines(); renderWeek(); });
+  $("f-rules").innerHTML=S.FINES.filter(f=>f.a).map(f=>`<tr><td>${f.t}</td><td class="n">−${f.a} ₽</td></tr>`).join("");
+}
+
+// ---------- книги: задания ----------
+const fmtD=ds=>S.parse(ds).toLocaleDateString("ru-RU",{day:"numeric",month:"long"});
+const dirty={days:false,rw:false,due:false};
+function syncDue(){ if(!dirty.due){ const n=Math.max(1,+$("a-days").value||1); $("a-due").value=S.iso(S.addDays(today,n)); } }
+$("a-pg").addEventListener("input",()=>{const pg=+$("a-pg").value||0; if(!dirty.days) $("a-days").value=S.suggestDays(pg); if(!dirty.rw) $("a-rw").value=S.suggestReward(pg); syncDue();});
+$("a-days").addEventListener("input",()=>{dirty.days=true; dirty.due=false; syncDue();});
+$("a-rw").addEventListener("input",()=>{dirty.rw=true;});
+$("a-due").addEventListener("input",()=>{dirty.due=true; const n=Math.round((S.parse($("a-due").value)-S.parse(todayISO))/864e5); if(n>0){$("a-days").value=n; dirty.days=true;}});
+function resetAssignForm(){ $("a-t").value="";$("a-a").value="";$("a-pg").value=""; $("a-days").value=3; $("a-rw").value=40; dirty.days=dirty.rw=dirty.due=false; syncDue(); }
+$("a-add").onclick=()=>{
+  const t=$("a-t").value.trim(); if(!t){$("a-st").textContent="Напишите название книги.";return;}
+  const due=$("a-due").value||S.iso(S.addDays(today,3));
+  const a={id:"b"+Date.now().toString(36),t,a:$("a-a").value.trim(),pg:Math.max(0,Math.round(+$("a-pg").value||0)),from:todayISO,due,rw:Math.max(0,Math.round(+$("a-rw").value||0))};
+  assign.push(a); save(); resetAssignForm();
+  $("a-st").textContent=`Книга «${t}» задана: срок до ${fmtD(due)}, награда ${a.rw} ₽. Теперь нажмите «Отправить итог Саше» на вкладке «Неделя».`;
+  renderBooks();
+};
+function renderAssign(){
+  const L=assign.slice().sort((x,y)=>x.due.localeCompare(y.due));
+  $("a-list").innerHTML=L.length?L.map(a=>{
+    const fin=books.list.find(b=>b.id===a.id), pg=+books.pg[a.id]||0;
+    const left=Math.round((S.parse(a.due)-S.parse(todayISO))/864e5);
+    let st;
+    if(fin) st=`<span style="color:var(--accent);font-weight:700">прочитана ${fmtD(fin.d)}${fin.d<=a.due?" к сроку":" после срока"} · +${S.bookPts(fin,assign)} ₽</span>`;
+    else st=(a.pg?`стр. ${pg} из ${a.pg} · `:"")+(left<0?`<span style="color:var(--bad);font-weight:700">срок прошёл ${fmtD(a.due)}</span>`:`до ${fmtD(a.due)}, осталось ${left} дн.`);
+    const bar=a.pg&&!fin?`<div style="height:4px;border-radius:4px;background:var(--line);overflow:hidden;margin-top:4px"><i style="display:block;height:100%;width:${Math.min(100,Math.round(pg/a.pg*100))}%;background:var(--accent)"></i></div>`:"";
+    return `<div style="display:grid;grid-template-columns:1fr auto;align-items:start"><span><b>«${esc(a.t)}»</b>${a.a?" · "+esc(a.a):""}${a.pg?" · "+a.pg+" стр.":""} · награда ${a.rw} ₽<br><small>${st}</small>${bar}</span><button class="x" type="button" data-id="${a.id}">Удалить</button></div>`;
+  }).join(""):'<p class="small muted">Вы ещё не задали ни одной книги.</p>';
+  $("a-list").querySelectorAll(".x").forEach(b=>b.onclick=()=>{ if(!confirm("Удалить заданную книгу?"))return; assign=assign.filter(a=>a.id!==b.dataset.id); save(); renderBooks(); });
+}
+resetAssignForm();
+
+// ---------- книги ----------
+function renderBooks(){
+  renderAssign();
+  $("b-cur").textContent=books.cur&&books.cur.t?("«"+books.cur.t+"»"+(books.cur.a?", "+books.cur.a:"")):"Саша ещё не указал книгу.";
+  const n=books.list.length;
+  $("b-count").textContent=n+" "+(n%10===1&&n%100!==11?"книга":(n%10>=2&&n%10<=4&&(n%100<10||n%100>=20))?"книги":"книг");
+  $("b-list").innerHTML=n?books.list.slice().reverse().map(b=>`<div><span><b>${esc(b.t)}</b>${b.a?" · "+esc(b.a):""} ${"★".repeat(b.s||0)}</span><small>${S.parse(b.d).toLocaleDateString("ru-RU",{day:"numeric",month:"short"})}</small></div>`).join(""):'<p class="small muted">Пока ни одной.</p>';
+}
+
+// ---------- вкладки ----------
+const TABS=["week","puzzles","fines","books","tips"];
+function tab(){
+  let t=(location.hash||"#week").slice(1); if(!TABS.includes(t)) t="week";
+  TABS.forEach(x=>{$("v-"+x).hidden=x!==t; document.querySelector(`[data-tab="${x}"]`).setAttribute("aria-current",x===t?"page":"false");});
+  if(t==="puzzles") renderPuzzles();
+  if(t==="fines") renderFines();
+  if(t==="books") renderBooks();
+  if(t==="week") renderWeek();
+  window.scrollTo(0,0);
+}
+window.addEventListener("hashchange",tab);
+$("paste-go").onclick=()=>{
+  const m=$("paste-in").value.match(/#r=([A-Za-z0-9_-]+)/);
+  if(!m){$("paste-st").textContent="Это не ссылка из отчёта: в ней должно быть «#r=». Отчёт Дани тоже можно вставить сюда.";return;}
+  location.hash="r="+m[1]; location.reload();
+};
+$("t-max").textContent=S.week(S.mondayOf(today),()=>true,[],[]).max+" ₽";
+renderWeek(); tab();
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,18 @@
+{
+  "id": "./danya.html?app=danya",
+  "name": "Экспедиция Дани",
+  "short_name": "Экспедиция",
+  "description": "Сила, еда, книги и маленький шаг каждый день",
+  "start_url": "./danya.html",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#EEF0F7",
+  "theme_color": "#2B2775",
+  "lang": "ru",
+  "icons": [
+    { "src": "icon-danya-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "icon-danya-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
+    { "src": "icon-danya-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+  ]
+}

@@ -1,0 +1,895 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="robots" content="noindex,nofollow">
+<title>Экспедиция Дани</title>
+<link rel="manifest" href="danya.webmanifest">
+<link rel="icon" type="image/png" sizes="32x32" href="icon-danya-32.png">
+<link rel="apple-touch-icon" href="icon-danya-180.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Экспедиция">
+<meta name="theme-color" content="#2B2775">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=Russo+One&display=swap">
+<style>
+:root{
+  --bg:#EEF0F7; --surface:#FFFFFF; --ink:#161A2E; --muted:#5A6078; --line:#D7DBE8;
+  --accent:#4A43C4; --accent-soft:#E5E4FA; --gold:#A86A00; --gold-soft:#FBEFD6;
+  --bad:#B42318; --bad-soft:#FBE3E0; --blue:#2D5BB8; --blue-soft:#E2EAFA; --ok:#16834A; --ok-soft:#DDF1E5;
+  --sport:#16834A; --food:#A86A00; --study:#C2410C; --math:#B4235A; --fr:#2D5BB8; --out:#0E7C86; --read:#6D3FB8; --game:#7A5C12; --mood:#A23A9A; --home:#5B6B2E; --sleep:#5E6A85; --puzzle:#7A3FB8;
+  --display:"Russo One","Manrope",system-ui,sans-serif;
+  --body:"Manrope",system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#0D0F1C; --surface:#171A2C; --ink:#E6E8F3; --muted:#9DA2BA; --line:#2A2E46;
+  --accent:#A5A0FF; --accent-soft:#25234A; --gold:#E9B55A; --gold-soft:#33270F;
+  --bad:#F2877C; --bad-soft:#3A1A17; --blue:#8FB0F2; --blue-soft:#1A2640; --ok:#4CC984; --ok-soft:#143022;
+  --sport:#4CC984; --food:#E9B55A; --study:#F59362; --math:#F27BA8; --fr:#8FB0F2; --out:#4FC7D0; --read:#BC93F0; --game:#D9B45A; --mood:#E58AD9; --home:#B5C77A; --sleep:#A3AECB; --puzzle:#BC93F0; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#0D0F1C; --surface:#171A2C; --ink:#E6E8F3; --muted:#9DA2BA; --line:#2A2E46;
+  --accent:#A5A0FF; --accent-soft:#25234A; --gold:#E9B55A; --gold-soft:#33270F;
+  --bad:#F2877C; --bad-soft:#3A1A17; --blue:#8FB0F2; --blue-soft:#1A2640; --ok:#4CC984; --ok-soft:#143022;
+  --sport:#4CC984; --food:#E9B55A; --study:#F59362; --math:#F27BA8; --fr:#8FB0F2; --out:#4FC7D0; --read:#BC93F0; --game:#D9B45A; --mood:#E58AD9; --home:#B5C77A; --sleep:#A3AECB; --puzzle:#BC93F0; color-scheme:dark}
+*{box-sizing:border-box}
+html{padding-top:env(safe-area-inset-top,0px)}
+body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.5 var(--body);-webkit-text-size-adjust:100%}
+[hidden]{display:none!important}
+.wrap{max-width:660px;margin:0 auto;padding:10px max(16px,env(safe-area-inset-right,0px)) 48px max(16px,env(safe-area-inset-left,0px))}
+h1,h2,h3{margin:0;text-wrap:balance}
+h1{font:400 23px/1.1 var(--display)}
+h2{font:400 18px/1.2 var(--display)}
+h3{font-size:15px}
+p{margin:0}
+button:focus-visible,summary:focus-visible,input:focus-visible,a:focus-visible,textarea:focus-visible,select:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.top{position:sticky;top:0;z-index:5;background:var(--bg);padding:8px 0;display:grid;gap:10px}
+.brand{display:flex;justify-content:space-between;align-items:center;gap:10px}
+.brand p{color:var(--muted);font-size:12.5px;margin-top:2px}
+.chip{flex:0 0 auto;display:grid;justify-items:end;font-variant-numeric:tabular-nums}
+.chip b{font:400 19px/1 var(--display);color:var(--gold)}
+.chip small{font-size:11px;color:var(--muted)}
+.tabs{display:grid;grid-auto-flow:column;grid-auto-columns:1fr;gap:3px;background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:4px}
+.tabs a{text-align:center;text-decoration:none;color:var(--muted);font-weight:700;font-size:12.5px;padding:7px 1px;border-radius:10px}
+.tabs a[aria-current="page"]{background:var(--ink);color:var(--surface)}
+.view{display:grid;gap:14px;padding-top:6px}
+.week{display:grid;grid-template-columns:repeat(7,1fr);gap:4px}
+.week button{appearance:none;border:1px solid var(--line);background:var(--surface);color:var(--ink);border-radius:12px;padding:6px 0 5px;font:700 13px var(--body);display:grid;justify-items:center;gap:1px;cursor:pointer;min-width:0}
+.week button small{font-weight:600;font-size:10.5px;color:var(--muted);font-variant-numeric:tabular-nums}
+.week button[aria-pressed="true"]{background:var(--accent);border-color:var(--accent);color:var(--surface)}
+.week button[aria-pressed="true"] small{color:var(--surface)}
+.week button.today:not([aria-pressed="true"]){border-color:var(--accent)}
+.rules{display:flex;gap:6px;overflow-x:auto;scrollbar-width:none;padding-bottom:2px}
+.rules::-webkit-scrollbar{display:none}
+.rule{flex:0 0 auto;font-size:12px;font-weight:700;background:var(--accent-soft);color:var(--accent);border-radius:999px;padding:5px 10px;white-space:nowrap}
+.daybar{display:flex;align-items:baseline;justify-content:space-between;gap:10px;flex-wrap:wrap}
+.daybar span{color:var(--muted);font-size:13px;font-variant-numeric:tabular-nums}
+.progress{height:7px;background:var(--line);border-radius:6px;overflow:hidden}
+.progress i{display:block;height:100%;background:var(--accent);width:0;transition:width .3s}
+.tl{display:grid;gap:8px}
+.item{display:grid;grid-template-columns:50px 1fr;gap:8px;align-items:start}
+.time{font:700 12px/1.15 var(--body);font-variant-numeric:tabular-nums;padding-top:17px;text-align:right;color:var(--muted)}
+details.card{background:var(--surface);border:1px solid var(--line);border-radius:16px;min-width:0;border-left:4px solid var(--k,var(--accent))}
+details.card.done{opacity:.62}
+summary{list-style:none;display:flex;gap:10px;align-items:center;padding:12px;cursor:pointer}
+summary::-webkit-details-marker{display:none}
+.sm{flex:1;min-width:0}
+.sm b{display:block;font-weight:700;font-size:15px;line-height:1.3}
+.tag{display:inline-block;font-size:11px;font-weight:700;border-radius:6px;padding:1px 6px;margin-top:3px;margin-right:4px;color:var(--k);background:color-mix(in srgb,var(--k) 14%,transparent)}
+.flag{display:inline-block;font-size:11px;font-weight:700;border-radius:6px;padding:1px 6px;margin-top:3px;background:var(--bad-soft);color:var(--bad)}
+.flag.ok{background:var(--blue-soft);color:var(--blue)}
+.pts{flex:0 0 auto;font-size:12px;font-weight:800;color:var(--gold);font-variant-numeric:tabular-nums}
+.chev{flex:0 0 auto;width:18px;height:18px;color:var(--muted);transition:transform .2s}
+details[open] .chev{transform:rotate(180deg)}
+.check{flex:0 0 auto;appearance:none;width:28px;height:28px;border-radius:50%;border:2px solid var(--line);background:var(--surface);display:grid;place-items:center;cursor:pointer;margin:0}
+.check:checked{background:var(--accent);border-color:var(--accent)}
+.check:checked::after{content:"";width:11px;height:6px;border:2.5px solid var(--surface);border-top:0;border-right:0;transform:translateY(-1px) rotate(-45deg)}
+.check:disabled{opacity:.4;cursor:default}
+.body{padding:0 12px 14px;display:grid;gap:10px;font-size:14px}
+.body ol,.body ul{margin:0;padding-left:20px;display:grid;gap:3px}
+.lead{color:var(--muted)}
+.note{font-size:13px;background:var(--gold-soft);border-radius:10px;padding:8px 10px}
+.note b{color:var(--gold)}
+.kind{font-size:13px;background:var(--accent-soft);border-radius:10px;padding:8px 10px}
+.kind b{color:var(--accent)}
+.timer{background:var(--bg);border-radius:12px;padding:12px;display:grid;gap:8px;justify-items:center;text-align:center}
+.tm-big{font:400 40px/1 var(--display);font-variant-numeric:tabular-nums}
+.tm-name{font-weight:700;font-size:14px}
+.tm-step{font-size:12px;color:var(--muted)}
+.panel{background:var(--surface);border:1px solid var(--line);border-radius:16px;padding:14px;display:grid;gap:10px}
+.panel>p,.panel li{font-size:14px}
+.panel ul,.panel ol{margin:0;padding-left:20px;display:grid;gap:5px}
+.muted{color:var(--muted)}
+.small{font-size:13px}
+.row{display:flex;flex-wrap:wrap;gap:8px;justify-content:center}
+.panel .row{justify-content:flex-start}
+.eyebrow{font-size:11.5px;font-weight:800;letter-spacing:.06em;text-transform:uppercase;color:var(--accent)}
+.btn{appearance:none;border:0;background:var(--accent);color:var(--surface);font:700 14px var(--body);border-radius:12px;padding:10px 16px;cursor:pointer;text-decoration:none;display:inline-block}
+.btn.ghost{background:transparent;color:var(--accent);border:1px solid var(--line);padding:8px 12px;font-size:13px}
+.btn.big{font-size:16px;padding:13px 20px}
+.banner{background:var(--blue-soft);color:var(--ink);border-radius:14px;padding:12px 14px;font-size:14px;display:grid;gap:4px}
+.banner b{color:var(--blue)}
+.praise{background:var(--gold-soft);border-radius:14px;padding:12px 14px;font-size:14.5px;display:grid;gap:4px}
+.praise b{color:var(--gold)}
+.calm{background:var(--surface);border:1px solid var(--line);border-radius:16px;border-left:4px solid var(--mood)}
+.calm>summary{font-weight:700}
+.calm .body{padding-top:0}
+.level{display:grid;gap:10px;background:var(--ink);color:var(--surface);border-radius:18px;padding:16px}
+.level .nm{font:400 25px/1.1 var(--display)}
+.level .sub{font-size:13px;opacity:.78}
+.level .bar{height:8px;background:color-mix(in srgb,var(--surface) 22%,transparent);border-radius:8px;overflow:hidden}
+.level .bar i{display:block;height:100%;background:var(--gold);width:0}
+.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.stat{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:10px;display:grid;gap:2px;min-width:0}
+.stat b{font:400 22px/1.1 var(--display);font-variant-numeric:tabular-nums}
+.stat span{font-size:12px;color:var(--muted);line-height:1.25}
+.sum{display:flex;align-items:baseline;gap:8px;flex-wrap:wrap}
+.sum b{font:400 32px/1 var(--display);color:var(--gold);font-variant-numeric:tabular-nums}
+.sum span{color:var(--muted);font-size:14px}
+#e-bar{background:var(--gold)}
+.bonus{display:grid;gap:6px}
+.bonus div{display:grid;grid-template-columns:1fr auto;gap:2px 10px;padding:8px 10px;border-radius:10px;background:var(--bg);font-size:13.5px}
+.bonus div.got{background:var(--accent-soft)}
+.bonus div b{font-variant-numeric:tabular-nums}
+.bonus .bar2{grid-column:1/-1;height:4px;border-radius:4px;background:var(--line);overflow:hidden}
+.bonus .bar2 i{display:block;height:100%;background:var(--accent)}
+.tblwrap{overflow-x:auto}
+table{border-collapse:collapse;width:100%;font-size:13.5px;font-variant-numeric:tabular-nums}
+th,td{text-align:left;padding:7px 8px;border-bottom:1px solid var(--line)}
+th{font-size:11.5px;color:var(--muted);font-weight:700;letter-spacing:.03em;text-transform:uppercase;white-space:nowrap}
+td.n{white-space:nowrap}
+.ok-t{color:var(--ok);font-weight:700}
+.bad-t{color:var(--bad);font-weight:700}
+.ladder{display:grid;gap:5px}
+.ladder div{display:flex;justify-content:space-between;gap:8px;font-size:13.5px;padding:6px 10px;border-radius:10px;background:var(--bg)}
+.ladder div.cur{background:var(--accent-soft);font-weight:700}
+.ladder span{font-variant-numeric:tabular-nums;color:var(--muted)}
+.food{display:grid;grid-template-columns:repeat(2,1fr);gap:6px}
+.food div{background:var(--bg);border-radius:10px;padding:8px 10px;font-size:13.5px;display:flex;justify-content:space-between;gap:6px}
+.food div b{color:var(--gold);white-space:nowrap;font-variant-numeric:tabular-nums}
+.steps{display:grid;gap:5px;counter-reset:st}
+.steps div{display:grid;grid-template-columns:28px 1fr;gap:8px;align-items:center;background:var(--bg);border-radius:10px;padding:7px 10px;font-size:13.5px}
+.steps div b{display:grid;place-items:center;width:26px;height:26px;border-radius:50%;background:var(--food);color:var(--surface);font-size:13px}
+form.grid{display:grid;grid-template-columns:repeat(2,1fr);gap:8px}
+form.grid label{display:grid;gap:3px;font-size:12.5px;color:var(--muted);min-width:0}
+form.grid label.wide{grid-column:1/-1}
+input[type=text],input[type=number],textarea,select{font:600 15px var(--body);color:var(--ink);background:var(--bg);border:1px solid var(--line);border-radius:10px;padding:8px 10px;width:100%;min-width:0}
+textarea{font-weight:500;min-height:80px;resize:vertical}
+.books{display:grid;gap:6px}
+.books div{display:flex;justify-content:space-between;gap:10px;padding:8px 10px;border-radius:10px;background:var(--bg);font-size:14px}
+.books small{color:var(--muted);white-space:nowrap}
+.fallback{display:grid;gap:8px}
+.fallback textarea{font-size:12.5px;min-height:110px}
+.foot{font-size:12.5px;color:var(--muted)}
+.aslist{display:grid;gap:8px}
+.as{background:var(--bg);border-radius:12px;padding:10px 12px;display:grid;gap:6px;border-left:4px solid var(--read)}
+.as.fin{border-left-color:var(--ok);opacity:.8}
+.as-h{display:flex;justify-content:space-between;gap:10px;align-items:baseline}
+.as-pgl{display:flex;align-items:center;gap:6px;flex-wrap:wrap}
+.as-pgl input{width:84px;font:600 15px var(--body);color:var(--ink);background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:6px 8px}
+.as-row{display:flex;gap:8px;flex-wrap:wrap}
+.as-row select{flex:1 1 150px;width:auto;background:var(--surface)}
+.moods{display:grid;grid-template-columns:repeat(5,1fr);gap:6px}
+.moods button{appearance:none;border:1px solid var(--line);background:var(--bg);border-radius:12px;padding:6px 0;font:600 11px var(--body);color:var(--muted);display:grid;justify-items:center;gap:2px;cursor:pointer}
+.moods button span{font-size:24px;line-height:1}
+.moods button[aria-pressed="true"]{border-color:var(--mood);background:color-mix(in srgb,var(--mood) 16%,transparent);color:var(--ink)}
+.cards{display:grid;gap:6px}
+.fc{appearance:none;width:100%;text-align:left;border:1px solid var(--line);background:var(--bg);color:var(--ink);border-radius:12px;padding:10px 12px;display:grid;grid-template-columns:1fr auto;gap:8px;align-items:center;cursor:pointer;font:600 15px var(--body)}
+.fc .ru{font-weight:500;color:var(--muted);font-size:13.5px}
+.fc .ru.hide{filter:blur(5px)}
+.say{appearance:none;border:1px solid var(--line);background:var(--surface);border-radius:10px;width:40px;height:36px;font-size:17px;cursor:pointer}
+.pzbox{display:grid;gap:8px;background:var(--bg);border-radius:12px;padding:10px 12px}
+.pzrow{display:flex;gap:8px}
+.pzrow input{flex:1}
+.paste{display:grid;gap:6px;border-top:1px solid var(--line);padding-top:10px}
+.paste-row{display:flex;gap:8px}
+.paste-row input{flex:1;min-width:0}
+.mstrip{display:grid;grid-template-columns:repeat(7,1fr);gap:4px;text-align:center}
+.mstrip div{background:var(--bg);border-radius:10px;padding:5px 0;font-size:11px;color:var(--muted);display:grid;gap:1px}
+.mstrip div span{font-size:20px;line-height:1.1}
+.circ{display:grid;gap:4px}
+.circ div{display:grid;grid-template-columns:22px 1fr;gap:6px;font-size:13.5px;background:var(--bg);border-radius:10px;padding:7px 10px}
+.circ div b{color:var(--sport)}
+.circ div small{grid-column:2;color:var(--muted);font-size:12.5px}
+@media (max-width:380px){.tabs a{font-size:11.5px}}
+@media (prefers-reduced-motion: reduce){.chev,.progress i{transition:none}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header class="top">
+    <div class="brand">
+      <div><h1>Экспедиция Дани</h1><p>Маленький шаг каждый день — и карта открывается</p></div>
+      <div class="chip"><b id="top-money">0 ₽</b><small id="top-lv">за неделю</small></div>
+    </div>
+    <nav class="tabs" aria-label="Разделы">
+      <a href="#today" data-tab="today">Сегодня</a>
+      <a href="#progress" data-tab="progress">Прогресс</a>
+      <a href="#body" data-tab="body">Сила</a>
+      <a href="#food" data-tab="food">Еда</a>
+      <a href="#books" data-tab="books">Книги</a>
+    </nav>
+  </header>
+
+  <!-- ============ СЕГОДНЯ ============ -->
+  <section class="view" id="v-today">
+    <div class="praise" id="praise" hidden></div>
+    <div class="banner" id="papa-banner" hidden></div>
+    <nav class="week" id="week" aria-label="День недели"></nav>
+    <div class="rules" aria-label="Правила экспедиции">
+      <span class="rule">Ошибка — это просто данные</span>
+      <span class="rule">Сначала дела, потом компьютер</span>
+      <span class="rule">Раунд 20 минут, перерыв 5</span>
+      <span class="rule">Пробовать — уже победа</span>
+      <span class="rule">Экран выключаем за час до сна</span>
+    </div>
+    <div class="daybar"><h2 id="dayname"></h2><span id="daycount"></span></div>
+    <div class="progress"><i id="bar"></i></div>
+    <main class="tl" id="tl"></main>
+
+    <details class="calm" id="calm">
+      <summary><span class="sm"><b>Расстроился? Открой меня</b><span class="tag" style="--k:var(--mood)">2 минуты</span></span>
+        <svg class="chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg></summary>
+      <div class="body">
+        <p class="lead">Расстраиваться — нормально. Это значит, что тебе не всё равно. Вот что помогает быстро вернуться в форму:</p>
+        <ol>
+          <li><b>Дыхание «квадрат»:</b> вдох на 4 счёта, пауза на 4, выдох на 4, пауза на 4. Четыре круга — таймер ниже.</li>
+          <li><b>5–4–3:</b> найди глазами 5 предметов, услышь 4 звука, потрогай 3 разные вещи. Мозг переключается.</li>
+          <li><b>Скажи себе как другу:</b> «Сейчас не получилось. Это не про то, какой я, а про то, чему я ещё учусь».</li>
+          <li><b>Подвигайся:</b> 20 прыжков или бой с тенью. Злость и обида выходят через мышцы.</li>
+          <li><b>Расскажи</b> папе или другу, что случилось. Можно написать — так тоже легче.</li>
+        </ol>
+        <div class="timer" data-t="br"><div class="tm-big">--:--</div><div class="tm-name">Нажми «Старт»</div><div class="tm-step"></div><div class="row"><button class="btn tm-go" type="button">Старт</button><button class="btn ghost tm-next" type="button">Дальше</button><button class="btn ghost tm-reset" type="button">Сброс</button></div></div>
+        <p class="kind"><b>Знаешь что?</b> Многие писатели и поэты, которых ты читаешь, были очень чувствительными людьми. Именно поэтому они замечали то, мимо чего другие проходят.</p>
+      </div>
+    </details>
+
+    <div class="panel" id="send">
+      <span class="eyebrow">Отчёт папе</span>
+      <h2>Отправить отметки папе</h2>
+      <p>Каждый вечер нажимай кнопку и выбирай чат с папой. Папа посмотрит отметки, подтвердит их и переведёт деньги в воскресенье.</p>
+      <p class="muted small" id="s-last"></p>
+      <div class="row"><button class="btn big" type="button" id="s-go">Отправить папе</button></div>
+      <div class="fallback" id="s-fb" hidden>
+        <p class="small">Меню «Поделиться» не открылось. Нажми «Скопировать», открой мессенджер и вставь текст в чат с папой.</p>
+        <textarea id="s-text" readonly></textarea>
+        <div class="row"><button class="btn" type="button" id="s-copy">Скопировать</button></div>
+        <p class="muted small" id="s-st"></p>
+      </div>
+      <form class="paste" onsubmit="return false">
+        <span class="small muted">Открываешь приложение с иконки, а ссылка от папы открылась в браузере? Скопируй её и вставь сюда:</span>
+        <div class="paste-row"><input type="text" id="paste-in" placeholder="https://…#p=…" autocomplete="off"><button class="btn" type="button" id="paste-go">Открыть</button></div>
+        <p class="small bad-t" id="paste-st"></p>
+      </form>
+    </div>
+    <p class="foot">Отмечай только то, что правда сделал. Папа видит отметки и может что-то не засчитать. Честность — главный навык исследователя.</p>
+  </section>
+
+  <!-- ============ ПРОГРЕСС ============ -->
+  <section class="view" id="v-progress" hidden>
+    <div class="level">
+      <span class="sub">Твой уровень</span>
+      <span class="nm" id="lv-name">Считатель ворон</span>
+      <div class="bar"><i id="lv-bar"></i></div>
+      <span class="sub" id="lv-next"></span>
+    </div>
+    <div class="stats">
+      <div class="stat"><b id="st-z">0</b><span>дней зарядки подряд</span></div>
+      <div class="stat"><b id="st-f">0</b><span>новых вкусов попробовал</span></div>
+      <div class="stat"><b id="st-b">0</b><span>книг прочитано</span></div>
+    </div>
+
+    <div class="panel">
+      <span class="eyebrow">1 балл = 1 ₽</span>
+      <h2>Эта неделя</h2>
+      <div class="sum"><b id="e-week">0 ₽</b><span id="e-of"></span></div>
+      <div class="progress"><i id="e-bar"></i></div>
+      <p class="small" id="e-papa"></p>
+      <p class="small muted" id="e-hint"></p>
+    </div>
+
+    <div class="panel">
+      <span class="eyebrow">Настроение недели</span>
+      <div class="mstrip" id="mstrip"></div>
+      <p class="small muted">Отмечай настроение каждый вечер в пункте «Как прошёл день». Плохие дни бывают у всех, и это нормально.</p>
+    </div>
+
+    <div class="panel">
+      <span class="eyebrow">Бонусы недели</span>
+      <h2>Сделай всю серию и получи бонус</h2>
+      <div class="bonus" id="bonus"></div>
+    </div>
+
+    <div class="panel">
+      <span class="eyebrow">История</span>
+      <h2>Мои недели</h2>
+      <div class="tblwrap"><table id="hist"><thead><tr><th>Неделя</th><th>Заработал</th><th>Штрафы</th><th>Итого</th><th>Папа</th></tr></thead><tbody></tbody></table></div>
+      <p class="small muted" id="papa-at"></p>
+    </div>
+
+    <div class="panel">
+      <span class="eyebrow">Лестница уровней</span>
+      <h2>От ворон до Легенды</h2>
+      <div class="ladder" id="ladder"></div>
+      <p class="small muted">Уровень растёт от всех заработанных баллов. Штрафы его не уменьшают: то, что ты уже прошёл, у тебя никто не заберёт.</p>
+    </div>
+
+    <div class="panel">
+      <span class="eyebrow">Правила известны заранее</span>
+      <h2>Штрафы</h2>
+      <div class="tblwrap"><table><thead><tr><th>За что</th><th>Сколько</th></tr></thead><tbody id="fine-rules"></tbody></table></div>
+      <p class="small muted">Штрафы выписывает только папа, и сначала он предупреждает. Неделя не уходит ниже нуля. Исправил оценку — скажи папе, он может вернуть деньги.</p>
+    </div>
+
+    <div class="panel">
+      <span class="eyebrow">Сколько стоит</span>
+      <h2>Баллы за задания</h2>
+      <div class="tblwrap"><table><thead><tr><th>Задание</th><th>₽</th></tr></thead><tbody id="pts-rules"></tbody></table></div>
+      <p class="small muted" id="pts-max"></p>
+    </div>
+  </section>
+
+  <!-- ============ СИЛА ============ -->
+  <section class="view" id="v-body" hidden>
+    <div class="panel">
+      <span class="eyebrow">Почему это работает</span>
+      <h2>Ловкость тренируется, как французский</h2>
+      <p>В 12–15 лет тело растёт очень быстро: руки и ноги становятся длиннее, а мозг ещё не успел «перерисовать карту» тела. Поэтому многие подростки задевают углы и роняют вещи. Это не навсегда.</p>
+      <p>Мозгу нужно много повторений: стоять на одной ноге, ловить, отталкиваться, держать спину. Через 6–8 недель регулярных занятий движения становятся увереннее. А кикбоксинг по вторникам и четвергам ускоряет всё это вдвое.</p>
+    </div>
+
+    <div class="panel">
+      <span class="eyebrow">Неделя силы</span>
+      <h2>Три комплекса по 16 минут</h2>
+      <p class="small muted">8 упражнений, 40 секунд работы, 20 секунд отдыха, 2 круга. Понедельник — A, среда — B, пятница — C. Таймер — в задании «Сила и ловкость» на вкладке «Сегодня».</p>
+      <div id="circuits" style="display:grid;gap:12px"></div>
+    </div>
+
+    <div class="panel">
+      <span class="eyebrow">Раз в две недели</span>
+      <h2>Тест силы</h2>
+      <p class="small muted">Сравнивай себя только с собой прошлым. Запиши результаты — они уйдут папе в отчёте.</p>
+      <form class="grid" id="t-form" onsubmit="return false">
+        <label>Планка, секунд<input type="number" id="t-pl" min="0" inputmode="numeric"></label>
+        <label>Отжимания подряд<input type="number" id="t-pu" min="0" inputmode="numeric"></label>
+        <label>Приседаний за 30 с<input type="number" id="t-sq" min="0" inputmode="numeric"></label>
+        <label>На одной ноге, глаза закрыты, с<input type="number" id="t-bl" min="0" inputmode="numeric"></label>
+        <label class="wide"><button class="btn" type="button" id="t-add">Записать результат</button></label>
+      </form>
+      <p class="small ok-t" id="t-st"></p>
+      <div class="tblwrap"><table id="t-table"><thead><tr><th>Дата</th><th>Планка</th><th>Отж.</th><th>Прис.</th><th>Баланс</th></tr></thead><tbody></tbody></table></div>
+    </div>
+
+    <div class="panel">
+      <span class="eyebrow">Правила безопасности</span>
+      <h2>Чтобы без травм</h2>
+      <ul>
+        <li>Освободи место: вокруг тебя на вытянутые руки ничего не должно стоять.</li>
+        <li>Стойку на одной ноге с закрытыми глазами делай рядом со стеной.</li>
+        <li>Боль в суставе — стоп. Мышцы могут «гореть», суставы болеть не должны.</li>
+        <li>Лучше 5 правильных повторов, чем 15 кривых.</li>
+        <li>Попей воды до и после.</li>
+      </ul>
+    </div>
+  </section>
+
+  <!-- ============ ЕДА ============ -->
+  <section class="view" id="v-food" hidden>
+    <div class="panel">
+      <span class="eyebrow">Исследователь вкусов</span>
+      <h2>Тебя никто не заставляет есть</h2>
+      <p>Твоя задача не «съесть всё», а <b>исследовать</b>. Учёные выяснили: чтобы новая еда начала нравиться, её нужно встретить 10–15 раз. Даже если ты просто понюхал или лизнул — это уже одна встреча, и вкусовая память уже работает.</p>
+      <p>За каждую пробу +10 ₽, любая ступенька засчитывается:</p>
+      <div class="steps" id="taste-steps"></div>
+    </div>
+
+    <div class="panel">
+      <span class="eyebrow">Моя карта вкусов</span>
+      <h2 id="fd-count">Попробовано: 0</h2>
+      <div class="books" id="fd-list"></div>
+      <p class="small muted">Пробу добавляй в пункте «Проба вкуса» на вкладке «Сегодня». «Пока нет» — честный и нормальный ответ: попробуешь ещё раз через неделю.</p>
+    </div>
+
+    <div class="panel">
+      <span class="eyebrow">Мосты</span>
+      <h2>От любимого к новому</h2>
+      <p class="small muted">Самый лёгкий путь — маленький шаг от того, что ты уже любишь, к похожему.</p>
+      <div class="books" id="bridges"></div>
+    </div>
+
+    <div class="panel">
+      <span class="eyebrow">Топливо для мышц и мозга</span>
+      <h2>Три правила</h2>
+      <ol>
+        <li><b>Не пропускай завтрак.</b> Можно маленький: бутерброд с сыром, йогурт, какао. Мозгу на математике и французском нужна энергия.</li>
+        <li><b>Перекус до кикбоксинга</b> за 45–60 минут: йогурт, бутерброд, банан, какао. На пустой желудок сил не будет, и движения станут неуклюжими.</li>
+        <li><b>Белок в каждой еде.</b> Из него строятся мышцы. Тебе нужно примерно 45–60 г в день.</li>
+      </ol>
+    </div>
+
+    <div class="panel">
+      <span class="eyebrow">Сколько белка</span>
+      <h2>Собери 50 граммов за день</h2>
+      <div class="food">
+        <div>Яйцо<b>6 г</b></div>
+        <div>Стакан молока или какао<b>6 г</b></div>
+        <div>Творог, 100 г<b>17 г</b></div>
+        <div>Сырники, 3 шт.<b>15 г</b></div>
+        <div>Йогурт<b>5 г</b></div>
+        <div>Сыр, 2 ломтика<b>7 г</b></div>
+        <div>Курица, 100 г<b>23 г</b></div>
+        <div>Котлета<b>12 г</b></div>
+        <div>Пельмени, 10 шт.<b>12 г</b></div>
+        <div>Гречка, тарелка<b>6 г</b></div>
+      </div>
+      <p class="small muted">Если ешь немного — это нормально. Лучше 5 маленьких приёмов пищи, чем 2 больших.</p>
+    </div>
+  </section>
+
+  <!-- ============ КНИГИ ============ -->
+  <section class="view" id="v-books" hidden>
+    <div class="panel">
+      <span class="eyebrow">Задания от папы</span>
+      <h2>Книги на срок</h2>
+      <p class="small muted">Папа сам выбирает книги и сроки. Успеешь к сроку — получишь всю награду, после срока — половину. Аудиокнига тоже считается. Записывай, на какой ты странице, — страница сама посчитает, сколько читать в день.</p>
+      <div class="aslist" id="as-list"></div>
+      <p class="small ok-t" id="as-st"></p>
+    </div>
+
+    <div class="panel">
+      <span class="eyebrow">Своя книга или аудиокнига</span>
+      <h2>Что я читаю</h2>
+      <form class="grid" id="bk-form" onsubmit="return false">
+        <label class="wide">Книга<input type="text" id="bk-t" placeholder="Название" autocomplete="off"></label>
+        <label class="wide">Автор<input type="text" id="bk-a" placeholder="Кто написал" autocomplete="off"></label>
+        <label class="wide">Мои мысли<textarea id="bk-n" placeholder="Что зацепило? Какая фраза запомнилась?"></textarea></label>
+        <label>Оценка книге<select id="bk-s"><option value="5">5 — супер</option><option value="4">4 — хорошо</option><option value="3">3 — нормально</option><option value="2">2 — так себе</option><option value="1">1 — не понравилось</option></select></label>
+        <label>Формат<select id="bk-f"><option value="">бумажная</option><option value="аудио">аудиокнига</option></select></label>
+        <label class="wide"><button class="btn" type="button" id="bk-done">Дочитал! +40 ₽</button></label>
+      </form>
+      <p class="small muted" id="bk-st"></p>
+    </div>
+
+    <div class="panel">
+      <span class="eyebrow">Подкасты</span>
+      <h2>Мои факты</h2>
+      <div class="books" id="fx-list"></div>
+      <p class="small muted">Факты записываются в задании «Умный подкаст» по средам и субботам.</p>
+    </div>
+
+    <div class="panel">
+      <span class="eyebrow">Моя полка</span>
+      <h2 id="bk-count">Прочитано: 0</h2>
+      <div class="books" id="bk-list"></div>
+    </div>
+  </section>
+</div>
+
+<script src="danya-core.js"></script>
+<script src="danya-bank.js"></script>
+<script src="puzzles.js"></script>
+<script>
+(function(){
+"use strict";
+const S=window.DC, B=window.BANK, PZ=window.PUZZLES||{LIST:[],BY:{},GROUPS:{}};
+const $=id=>document.getElementById(id);
+const esc=s=>String(s==null?"":s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+
+let done=S.LS.get("dn-done",{});          // {date:{key:1}}
+let papa=S.LS.get("dn-papa",{ov:{},fi:[],cf:[],pd:[],tt:{},as:[],pz:{},msg:"",at:0});
+["as"].forEach(k=>{if(!papa[k])papa[k]=[];}); if(!papa.pz)papa.pz={};
+let ans=S.LS.get("dn-ans",{});            // {date: ответ на задачку от папы}
+let books=S.LS.get("dn-books",{cur:{t:"",a:"",n:""},list:[],pg:{}}); if(!books.pg) books.pg={};
+let mood=S.LS.get("dn-mood",{});          // {date: 1..5}
+let food=S.LS.get("dn-food",[]);          // [{d,f,st,r}]
+let tests=S.LS.get("dn-tests",[]);        // [{d,pl,pu,sq,bl}]
+let facts=S.LS.get("dn-facts",{});        // {date: факт из подкаста}
+const today=new Date(); const todayISO=S.iso(today);
+let sel=S.dowOf(today);
+const mon=S.mondayOf(today);
+
+// ---------- ответ папы по ссылке ----------
+const fromPapa=S.readHash("p");
+if(fromPapa&&fromPapa.v===1&&fromPapa.c==="danya"){
+  const oldAs=new Set((papa.as||[]).map(a=>a.id)), oldMsg=papa.msg;
+  papa={ov:fromPapa.ov||{},fi:fromPapa.fi||[],cf:fromPapa.cf||[],pd:fromPapa.pd||[],tt:fromPapa.tt||{},as:fromPapa.as||[],pz:fromPapa.pz||{},msg:fromPapa.msg||"",at:fromPapa.at||Date.now()};
+  const newAs=papa.as.filter(a=>!oldAs.has(a.id));
+  S.LS.set("dn-papa",papa); S.clearHash();
+  const m=S.iso(mon);
+  let msg="<b>Папа прислал итог.</b> ";
+  if(papa.cf.includes(m)) msg+="Эта неделя подтверждена: "+S.rub(papa.tt[m]||0)+". ";
+  if(papa.pd.includes(S.iso(S.addDays(mon,-7)))) msg+="Прошлая неделя переведена. ";
+  const newF=papa.fi.filter(f=>f.d>=m);
+  if(newF.length) msg+="Штрафы на этой неделе: "+newF.map(f=>esc(f.w)+" −"+f.a+" ₽").join(", ")+". ";
+  const upPz=Object.keys(papa.pz).filter(d=>d>=todayISO).sort();
+  if(upPz.length) msg+=(upPz[0]===todayISO?"Сегодня тебя ждёт задачка от папы! ":"Папа приготовил задачки: "+upPz.length+". ");
+  if(newAs.length) msg+="Новая книга от папы: "+newAs.map(a=>"«"+esc(a.t)+"»").join(", ")+". Загляни во вкладку «Книги».";
+  $("papa-banner").innerHTML=msg; $("papa-banner").hidden=false;
+}
+if(papa.msg){ $("praise").innerHTML="<b>Папа пишет:</b> "+esc(papa.msg); $("praise").hidden=false; }
+
+const eff=(d,k)=>{const o=papa.ov[d]; if(o&&o[k]!==undefined) return o[k]===1; return !!(done[d]&&done[d][k]);};
+const mine=(d,k)=>!!(done[d]&&done[d][k]);
+const setDone=(ds,k,on)=>{done[ds]=done[ds]||{}; if(on) done[ds][k]=1; else delete done[ds][k]; if(!Object.keys(done[ds]).length) delete done[ds]; S.LS.set("dn-done",done);};
+const W=()=>S.week(mon,eff,books.list,papa.fi,papa.as,papa.pz);
+
+// ---------- банк: что сегодня ----------
+const dn=d=>S.dayNum(d);
+const puzOf=d=>B.PUZ[dn(d)%B.PUZ.length];
+const frOf=d=>{const n=Math.floor(B.FR.length/5), k=(dn(d)%n)*5; return B.FR.slice(k,k+5);};
+const slOf=i=>i===0?0:i===2?1:2;
+const mpuOf=d=>B.MPU[Math.floor(dn(d)/7)%B.MPU.length];
+const poemOf=d=>B.POEMS[Math.floor(dn(d)/7)%B.POEMS.length];
+const podOf=d=>B.PODCAST[dn(d)%B.PODCAST.length];
+function norm(s){return String(s||"").toLowerCase().replace(/ё/g,"е").replace(/[\s.,!]+/g,"").replace(/(руб|₽|кг|км|минут|мин|лет|года|год|дней|дня|день)$/,"");}
+
+// ---------- таймеры ----------
+const circuit=i=>{const c=B.SL[slOf(i)].ex, out=[]; for(let r=1;r<=2;r++) c.forEach((e,j)=>{out.push({n:"Круг "+r+": "+e[0],s:40}); const nx=c[j+1]||(r===1?c[0]:null); if(nx) out.push({n:"Отдых · дальше: "+nx[0],s:20});}); return out;};
+const TM={
+  hw:()=>[{n:"Раунд 1: работаем",s:1200},{n:"Перерыв: можно помечтать 5 минут",s:300},{n:"Раунд 2: работаем",s:1200},{n:"Перерыв",s:300},{n:"Раунд 3: добиваем",s:1200}],
+  z:i=>B.ZAR[i%2].flatMap((n,j)=>j<9?[{n,s:40},{n:"Отдых · дальше: "+B.ZAR[i%2][j+1],s:20}]:[{n,s:40}]),
+  sl:circuit,
+  m:()=>[{n:"Математика: думаем спокойно",s:600}],
+  r:()=>[{n:"Читаем или слушаем",s:1200}],
+  pc:()=>[{n:"Слушаем подкаст",s:1200}],
+  br:()=>{const o=[]; for(let r=1;r<=4;r++) o.push({n:"Вдох носом · круг "+r,s:4},{n:"Пауза",s:4},{n:"Медленный выдох",s:4},{n:"Пауза",s:4}); return o;}
+};
+const timerBox=t=>`<div class="timer" data-t="${t}"><div class="tm-big">--:--</div><div class="tm-name">Нажми «Старт»</div><div class="tm-step"></div><div class="row"><button class="btn tm-go" type="button">Старт</button><button class="btn ghost tm-next" type="button">Дальше</button><button class="btn ghost tm-reset" type="button">Сброс</button></div></div>`;
+
+// ---------- описания заданий ----------
+function info(k,i,ds){
+  const d=S.parse(ds);
+  switch(k){
+  case "z": return `<p class="lead">10 упражнений: 40 секунд работаешь, 20 отдыхаешь. Здесь есть упражнения на баланс — они делают движения точнее.</p><ol>${B.ZAR[i%2].map(x=>`<li>${esc(x)}</li>`).join("")}</ol>${timerBox("z")}<p class="note"><b>Как у бойцов:</b> лучше медленно и правильно, чем быстро и криво.</p>`;
+  case "sl": { const c=B.SL[slOf(i)]; return `<p class="lead">Комплекс ${esc(c.n)}. 8 упражнений × 2 круга, 40 секунд работы и 20 отдыха.</p><div class="circ">${c.ex.map((e,j)=>`<div><b>${j+1}</b><span>${esc(e[0])}</span><small>${esc(e[1])}</small></div>`).join("")}</div>${timerBox("sl")}<p class="note"><b>Не получается?</b> Отлично — значит, мозг как раз сейчас учится. Получается всё — делай медленнее.</p>`; }
+  case "kb": return `<p class="lead">Кикбоксинг с 17:00 до 18:30. Возьми воду. За час до тренировки — перекус-заряд. После — ужин с белком: мышцы растут после нагрузки.</p><p class="kind"><b>Секрет:</b> кикбоксинг учит не только бить, но и держать равновесие и чувствовать своё тело. Это лучшая тренировка ловкости.</p>`;
+  case "wk": return `<p class="lead">Пятница — день друзей. Погуляйте хотя бы час на улице: свежий воздух, шаги и смех тоже считаются тренировкой.</p>`;
+  case "u1": return `<p class="lead">Самое трудное — начать. Сядешь сам, пока тебе не напомнили, — получишь +10 ₽.</p><ol><li>Телефон — в другую комнату.</li><li>Выпиши на листок, что задано, по пунктам.</li><li>Начни с самого лёгкого предмета, чтобы разогнаться. Математику и французский — во второй раунд, когда голова уже включилась.</li><li>Работай раундами: 20 минут дело, 5 минут перерыв. В перерыве можно смотреть в окно и мечтать — это разрешено!</li><li>Вычеркивай сделанное.</li></ol>${timerBox("hw")}<p class="note"><b>Улетел в мечты посреди раунда?</b> Ничего страшного. Заметил — вернись к листку. Каждое возвращение тренирует внимание.</p>`;
+  case "u2": return `<p class="lead">Все задания на завтра сделаны, рюкзак собран. Если что-то не получилось — это нормально. Отметь, что пробовал, и спроси завтра учителя.</p>`;
+  case "m": { const p=puzOf(d), ok=!!(done[ds]&&done[ds].mq);
+    return `<p class="lead">10 минут спокойной математики. Можно задачу из домашки, а можно задачу дня ниже. Здесь не нужна скорость, нужно терпение.</p>
+      <div class="pzbox"><b>Задача дня: ${esc(p[0])}</b><span>${esc(p[1])}</span>
+        ${ok?`<span class="ok-t">✓ Решено! Ответ: ${esc(p[2][0])}</span>`:`<div class="pzrow"><input type="text" class="mq-a" placeholder="Ответ" autocomplete="off"><button class="btn mq-go" type="button">Проверить</button></div><span class="small mq-st"></span>`}
+        <details><summary class="small" style="padding:0;color:var(--accent);font-weight:700">Подсказка</summary><p class="small" style="margin-top:4px">${esc(p[3])}</p></details></div>
+      ${timerBox("m")}
+      <p class="kind"><b>Математика как детектив:</b> прочитай условие вслух, как стихотворение. Нарисуй картинку. Задай вопрос: «Что я знаю? Что надо найти?» Не решил за 10 минут — всё равно отмечай: ты тренировал мозг, и баллы твои.</p>`; }
+  case "fr": { const w=frOf(d);
+    return `<p class="lead">5 слов на сегодня. Нажми 🔊 и послушай, повтори вслух 3 раза. Потом нажми на карточку и проверь себя.</p>
+      <div class="cards">${w.map(([f,r],j)=>`<div class="fc" role="button" tabindex="0" data-j="${j}"><span><span>${esc(f)}</span><br><span class="ru hide">${esc(r)}</span></span><button class="say" type="button" data-say="${esc(f)}" aria-label="Послушать">🔊</button></div>`).join("")}</div>
+      <p class="kind"><b>Ты любишь слушать — это твоя суперсила.</b> Французский лучше всего запоминается на слух. Перед сном включи песню на французском или «Маленького принца» в аудио на французском — просто слушай, понимать всё не нужно.</p>`; }
+  case "pr": return `<p class="lead">Программирование в субботу. Дома расскажи или покажи папе, что ты сделал. Код — это тоже язык, а языки ты любишь.</p>`;
+  case "ol": return `<p class="lead">Подготовка к олимпиаде «Музеи. Парки. Усадьбы». Задание этой недели:</p><p class="note"><b>Задание:</b> ${esc(mpuOf(d))}</p><p class="small muted">Запиши ответ в тетрадь олимпиады. Через месяц у тебя будет целая энциклопедия.</p>`;
+  case "ex": return `<p class="lead">Вылазка в парк, усадьбу или музей. Будь исследователем: найди 3 детали, которые никто не заметил, и сфотографируй их. Вечером расскажи папе.</p>`;
+  case "pc": { const v=facts[ds]||"";
+    return `<p class="lead">Послушай умный подкаст или лекцию 20 минут. Вопрос дня: <b>${esc(podOf(d))}</b></p>${timerBox("pc")}
+      <label class="small muted" style="display:grid;gap:4px">Один факт, который расскажу за ужином<textarea class="fx-in" rows="2" placeholder="Например: у осьминога три сердца">${esc(v)}</textarea></label>`; }
+  case "po": return `<p class="lead">Выучи стихотворение или напиши своё и прочитай папе. Предложение этой недели: <b>${esc(poemOf(d))}</b>.</p><p class="small muted">Можно выбрать любое другое. Учи по 2 строчки: прочитай, закрой глаза, повтори, добавь следующие 2.</p>`;
+  case "r": { const a=activeAssign()[0]; let pl="";
+    if(a){ const x=asCalc(a); pl=`<p class="note"><b>Книга от папы: «${esc(a.t)}».</b> ${x.left<0?"Срок прошёл, дочитывай скорее.":x.perDay?"Сегодня примерно "+x.perDay+" стр. — и успеешь к сроку.":"Срок до "+fmtD(a.due)+"."}</p>`; }
+    return `<p class="lead">20 минут читаешь книгу или слушаешь аудиокнигу. Потом запиши во вкладке «Книги» одну мысль или фразу, которая зацепила.</p>${pl}${timerBox("r")}`; }
+  case "bg": return `<p class="lead">Настольная игра с семьёй или друзьями. Стратегии, подсчёт очков, вероятности — это математика, которая нравится. Проиграл? Спроси победителя, как он думал.</p>`;
+  case "mo": { const v=mood[ds];
+    return `<p class="lead">Как прошёл день? Выбери честно, любой ответ правильный. Папа увидит в отчёте.</p><div class="moods">${S.MOODS.map(([n,e,t])=>`<button type="button" data-m="${n}" aria-pressed="${v===n?"true":"false"}"><span>${e}</span>${t}</button>`).join("")}</div><p class="small muted">Тяжёлый день? Открой «Расстроился?» внизу страницы или просто скажи папе: «Мне сегодня тяжело».</p>`; }
+  case "f1": return `<p class="lead">Завтрак — даже маленький. Бутерброд с сыром, йогурт, какао, омлет, сырники, хлопья с молоком. Без завтрака мозг на первом уроке спит.</p>`;
+  case "f2": return `<p class="lead">Перекус-заряд: йогурт, бутерброд, творожок, какао, банан, орешки (если можно). Перед кикбоксингом — за 45–60 минут.</p>`;
+  case "f3": return `<p class="lead">Ужин: что-то с белком (курица, котлета, яйца, сыр, творог, пельмени) и что-то, что ты любишь. Поел — отмечай.</p>`;
+  case "fn": { const t=food.filter(x=>x.d===ds);
+    return `<p class="lead">Одна проба нового вкуса. Можно совсем маленький шаг — любая ступенька засчитывается.</p>
+      <form class="grid fn-form" onsubmit="return false">
+        <label class="wide">Что пробовал<input type="text" class="fn-f" placeholder="например, запечённая морковка" autocomplete="off"></label>
+        <label class="wide">Ступенька<select class="fn-st">${S.TASTE.map(([n,t])=>`<option value="${n}">${n}. ${t}</option>`).join("")}</select></label>
+        <label>Как тебе?<select class="fn-r"><option value="👍">👍 понравилось</option><option value="🤔">🤔 непонятно</option><option value="👎">👎 пока нет</option></select></label>
+        <label>&nbsp;<button class="btn fn-add" type="button">Записать пробу</button></label>
+      </form>
+      ${t.length?`<p class="small ok-t">Сегодня: ${t.map(x=>esc(x.f)+" "+x.r).join(", ")}</p>`:""}
+      <p class="kind"><b>Идея на сегодня:</b> ${esc(B.BRIDGES[dn(d)%B.BRIDGES.length][1])}.</p>`; }
+  case "h": return `<p class="lead">Сегодня: ${esc(S.CHORES[i].toLowerCase())}. В экспедиции каждый отвечает за свою часть лагеря.</p>`;
+  case "s": return `<p class="lead">В 13 лет нужно спать 9–10 часов: во сне мозг раскладывает по полочкам французские слова и движения из тренировки. Выключи экраны за час до сна. Можно аудиокнигу с таймером.</p>`;
+  }
+  return "";
+}
+
+// ---------- Сегодня ----------
+const CHEV='<svg class="chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg>';
+function renderWeek(){
+  const w=$("week"); w.innerHTML="";
+  const wk=W();
+  for(let i=0;i<7;i++){
+    const d=S.addDays(mon,i), ds=S.iso(d), got=wk.days[i].got;
+    const b=document.createElement("button"); b.type="button";
+    b.setAttribute("aria-pressed",i===sel?"true":"false");
+    if(ds===todayISO)b.classList.add("today");
+    b.innerHTML=`${S.DSHORT[i]}<small>${got?got+" ₽":d.getDate()}</small>`;
+    b.onclick=()=>{sel=i;render();};
+    w.appendChild(b);
+  }
+}
+let fr=null;
+function speak(t){ try{ const u=new SpeechSynthesisUtterance(t); u.lang="fr-FR"; u.rate=.85; const v=speechSynthesis.getVoices().find(x=>/^fr/i.test(x.lang)); if(v) u.voice=v; speechSynthesis.cancel(); speechSynthesis.speak(u);}catch(e){} }
+function renderDay(){
+  const d=S.addDays(mon,sel), ds=S.iso(d), future=ds>todayISO;
+  $("dayname").textContent=S.dayLong(d);
+  const items=S.plan(sel); let got=0,max=0,n=0;
+  const tl=$("tl"); tl.innerHTML="";
+  const pzId=papa.pz[ds], pz=pzId&&PZ.BY[pzId];
+  if(pz){
+    const it={k:"zq",time:"",title:"Задачка от папы",pts:S.PZ_PTS,kind:"puzzle"};
+    items.unshift(it);
+    it.body=`<p class="small muted">${esc(PZ.GROUPS[pz.g])} · ${"★".repeat(pz.l)}</p><p style="font-size:15.5px;font-weight:600">${esc(pz.q)}</p>
+      <label class="small muted" style="display:grid;gap:4px">Твой ответ (папа проверит)<textarea class="pz-ans" rows="3" placeholder="Напиши ответ и как ты рассуждал" ${future?"disabled":""}>${esc(ans[ds]||"")}</textarea></label>
+      <p class="note"><b>Подсказка:</b> не спеши. Прочитай условие два раза, нарисуй картинку. Даже если не уверен — напиши, как думал: папа ценит рассуждение.</p>`;
+  }
+  items.forEach(it=>{
+    max+=it.pts; const on=eff(ds,it.k); if(on){got+=it.pts;n++;}
+    const o=papa.ov[ds]&&papa.ov[ds][it.k];
+    let flag="";
+    if(o===0&&mine(ds,it.k)) flag='<span class="flag">папа не засчитал</span>';
+    if(o===1&&!mine(ds,it.k)) flag='<span class="flag ok">засчитал папа</span>';
+    const row=document.createElement("div"); row.className="item";
+    row.innerHTML=`<div class="time">${esc(it.time)}</div><details class="card${on?" done":""}" data-k="${it.k}" style="--k:var(--${it.kind})"><summary><input class="check" type="checkbox" aria-label="Сделано: ${esc(it.title)}" ${mine(ds,it.k)?"checked":""} ${future?"disabled":""}><div class="sm"><b>${esc(it.title)}</b><span class="tag">${S.KIND[it.kind]||"Задачка"}</span>${flag}</div><span class="pts">+${it.pts} ₽</span>${CHEV}</summary><div class="body">${it.body||info(it.k,sel,ds)}</div></details>`;
+    const cb=row.querySelector(".check");
+    cb.addEventListener("click",e=>e.stopPropagation());
+    cb.addEventListener("change",()=>{ setDone(ds,it.k,cb.checked); render(true); });
+    // задачка от папы
+    const ta=row.querySelector(".pz-ans");
+    if(ta) ta.addEventListener("input",()=>{ if(ta.value.trim()) ans[ds]=ta.value; else delete ans[ds]; S.LS.set("dn-ans",ans); });
+    // математика: самопроверка
+    const mg=row.querySelector(".mq-go");
+    if(mg) mg.onclick=()=>{ const p=puzOf(d), a=norm(row.querySelector(".mq-a").value); if(!a) return;
+      if(p[2].some(x=>norm(x)===a)){ done[ds]=done[ds]||{}; done[ds].mq=1; done[ds].m=1; S.LS.set("dn-done",done); render(true); }
+      else row.querySelector(".mq-st").textContent="Пока нет. Это нормально — открой подсказку или нарисуй условие."; };
+    // французский
+    row.querySelectorAll(".fc").forEach(c=>{ const flip=()=>c.querySelector(".ru").classList.toggle("hide"); c.addEventListener("click",flip); c.addEventListener("keydown",e=>{if(e.key==="Enter"||e.key===" "){e.preventDefault();flip();}}); });
+    row.querySelectorAll(".say").forEach(b=>b.addEventListener("click",e=>{e.stopPropagation();speak(b.dataset.say);}));
+    // подкаст
+    const fx=row.querySelector(".fx-in");
+    if(fx) fx.addEventListener("input",()=>{ if(fx.value.trim()) facts[ds]=fx.value.trim().slice(0,200); else delete facts[ds]; S.LS.set("dn-facts",facts); });
+    // настроение
+    row.querySelectorAll(".moods button").forEach(b=>b.onclick=()=>{ if(future) return; mood[ds]=+b.dataset.m; S.LS.set("dn-mood",mood); setDone(ds,"mo",true); render(true); });
+    // проба еды
+    const fa=row.querySelector(".fn-add");
+    if(fa) fa.onclick=()=>{ if(future) return; const f=row.querySelector(".fn-f").value.trim(); if(!f){row.querySelector(".fn-f").focus();return;}
+      food.push({d:ds,f:f.slice(0,60),st:+row.querySelector(".fn-st").value,r:row.querySelector(".fn-r").value}); S.LS.set("dn-food",food); setDone(ds,"fn",true); render(true); };
+    row.querySelectorAll(".timer").forEach(mountTimer);
+    tl.appendChild(row);
+  });
+  $("daycount").textContent=`${n} из ${items.length} · ${got} из ${max} ₽`;
+  $("bar").style.width=(max?Math.round(got/max*100):0)+"%";
+}
+
+// ---------- таймер (один на страницу) ----------
+const T0={box:null,segs:[],idx:0,left:0,end:0,run:false,iv:null};
+let actx=null;
+function beep(){
+  try{actx=actx||new (window.AudioContext||window.webkitAudioContext)();const o=actx.createOscillator(),g=actx.createGain();o.frequency.value=880;g.gain.value=.15;o.connect(g);g.connect(actx.destination);o.start();o.stop(actx.currentTime+.25);}catch(e){}
+  try{navigator.vibrate&&navigator.vibrate(200);}catch(e){}
+}
+const mmss=s=>String(Math.floor(s/60)).padStart(2,"0")+":"+String(Math.floor(s%60)).padStart(2,"0");
+function tmDraw(){
+  const b=T0.box; if(!b||!b.isConnected) return;
+  const seg=T0.segs[T0.idx];
+  b.querySelector(".tm-big").textContent=seg?mmss(T0.left):"Готово!";
+  b.querySelector(".tm-name").textContent=seg?seg.n:(b.dataset.t==="br"?"Молодец. Как ты сейчас?":"Молодец! Теперь отметь задание галочкой.");
+  b.querySelector(".tm-step").textContent=seg?`Шаг ${T0.idx+1} из ${T0.segs.length}`:"";
+  b.querySelector(".tm-go").textContent=T0.run?"Пауза":(T0.idx||T0.left<(seg?seg.s:0)?"Продолжить":"Старт");
+}
+function tmTick(){
+  if(!T0.run) return;
+  T0.left=Math.max(0,(T0.end-Date.now())/1000);
+  if(T0.left<=0){ if(T0.box.dataset.t!=="br") beep(); else { try{navigator.vibrate&&navigator.vibrate(60);}catch(e){} } T0.idx++; const seg=T0.segs[T0.idx]; if(seg){T0.left=seg.s;T0.end=Date.now()+seg.s*1000;} else {T0.run=false;clearInterval(T0.iv);beep();} }
+  tmDraw();
+}
+function mountTimer(box){
+  const kind=box.dataset.t;
+  const fresh=()=>{T0.box=box;T0.segs=TM[kind](sel);T0.idx=0;T0.left=T0.segs[0].s;T0.run=false;clearInterval(T0.iv);};
+  if(T0.box&&T0.box.dataset&&T0.box.dataset.t===kind&&!T0.box.isConnected&&T0.segs.length){T0.box=box;tmDraw();}
+  else { box.querySelector(".tm-big").textContent=mmss(TM[kind](sel)[0].s); }
+  box.querySelector(".tm-go").onclick=()=>{
+    if(T0.box!==box) fresh();
+    if(!T0.segs[T0.idx]) fresh();
+    T0.run=!T0.run;
+    if(T0.run){T0.end=Date.now()+T0.left*1000;clearInterval(T0.iv);T0.iv=setInterval(tmTick,250);}
+    tmDraw();
+  };
+  box.querySelector(".tm-next").onclick=()=>{ if(T0.box!==box) return; T0.idx++; const seg=T0.segs[T0.idx]; if(seg){T0.left=seg.s;T0.end=Date.now()+seg.s*1000;} else {T0.run=false;clearInterval(T0.iv);} tmDraw(); };
+  box.querySelector(".tm-reset").onclick=()=>{ fresh(); tmDraw(); };
+}
+
+// ---------- Прогресс ----------
+function totalXP(){
+  let xp=0;
+  const dates=new Set([...Object.keys(done),...Object.keys(papa.ov)]);
+  dates.forEach(ds=>{const i=S.dowOf(S.parse(ds)); S.plan(i).forEach(it=>{if(eff(ds,it.k))xp+=it.pts;}); if(papa.pz[ds]&&eff(ds,"zq")) xp+=S.PZ_PTS;});
+  const mons=new Set([...dates].map(ds=>S.iso(S.mondayOf(S.parse(ds)))));
+  mons.forEach(m=>{xp+=S.week(S.parse(m),eff,books.list,[],papa.as,{}).bonus;});
+  return xp;
+}
+function renderProgress(){
+  const xp=totalXP(), L=S.level(xp);
+  $("lv-name").textContent=L.name;
+  $("lv-bar").style.width=(L.next?Math.round((xp-L.from)/(L.next-L.from)*100):100)+"%";
+  $("lv-next").textContent=L.next?`${xp} XP · до уровня «${L.nextName}» осталось ${L.next-xp}`:`${xp} XP · высший уровень!`;
+  $("st-z").textContent=S.streak(eff,"z",today);
+  $("st-f").textContent=new Set(food.map(x=>x.f.toLowerCase())).size;
+  $("st-b").textContent=books.list.length;
+
+  const w=W(), m=S.iso(mon);
+  $("e-week").textContent=S.rub(w.total);
+  $("e-of").textContent="из "+w.max+" ₽ возможных";
+  $("e-bar").style.width=Math.min(100,Math.round(w.total/w.max*100))+"%";
+  let pp="";
+  if(papa.pd.includes(m)) pp=`<span class="ok-t">Папа перевёл ${S.rub(papa.tt[m]||w.total)}.</span>`;
+  else if(papa.cf.includes(m)) pp=`<span class="ok-t">Папа подтвердил ${S.rub(papa.tt[m]||w.total)}.</span>`;
+  else pp="Папа подтвердит неделю в воскресенье.";
+  if(w.fines.length) pp+=` Штрафы: ${w.fines.map(f=>esc(f.w)+" −"+f.a+" ₽").join(", ")}.`;
+  $("e-papa").innerHTML=pp;
+  $("e-hint").textContent=`Заработал за задания ${w.base} ₽, бонусы ${w.bonus} ₽${w.fsum?", штрафы −"+w.fsum+" ₽":""}.`;
+
+  $("mstrip").innerHTML=[0,1,2,3,4,5,6].map(i=>{const ds=S.iso(S.addDays(mon,i)), v=mood[ds], e=v?S.MOODS.find(x=>x[0]===v)[1]:"·"; return `<div><span>${e}</span>${S.DSHORT[i]}</div>`;}).join("");
+
+  const bd=[[S.BONUS[0],w.zd,7],[S.BONUS[1],w.fd,5],[S.BONUS[2],w.uOk,w.uDays]];
+  $("bonus").innerHTML=bd.map(([b,x,of])=>`<div class="${x>=of?"got":""}"><span>${b.t}</span><b>${x>=of?"✓ ":""}+${b.pts} ₽</b><span class="muted small">${Math.min(x,of)} из ${of}</span><span></span><div class="bar2"><i style="width:${Math.min(100,Math.round(x/of*100))}%"></i></div></div>`).join("")
+    +`<div class="${w.books.length?"got":""}"><span>Дочитал книгу</span><b>${w.books.length?"+"+w.books.reduce((s,b)=>s+b.pts,0)+" ₽":"награда по книге"}</b><span class="muted small">на этой неделе: ${w.books.length} · книга от папы — его награда, своя — ${S.BOOK_PTS} ₽</span></div>`;
+
+  const all=[...Object.keys(done),...Object.keys(papa.ov)].sort();
+  const first=all.length?S.mondayOf(S.parse(all[0])):mon;
+  const rows=[];
+  for(let x=new Date(mon);x>=first&&rows.length<12;x=S.addDays(x,-7)){
+    const ww=S.week(x,eff,books.list,papa.fi,papa.as,papa.pz), mm=S.iso(x);
+    const st=papa.pd.includes(mm)?'<span class="ok-t">перевёл</span>':papa.cf.includes(mm)?'<span class="ok-t">подтвердил</span>':'<span class="muted">ждём</span>';
+    rows.push(`<tr><td class="n">${S.range(x)}</td><td class="n">${ww.base+ww.bonus} ₽</td><td class="n">${ww.fsum?'<span class="bad-t">−'+ww.fsum+' ₽</span>':"—"}</td><td class="n"><b>${ww.total} ₽</b></td><td class="n">${st}</td></tr>`);
+  }
+  $("hist").querySelector("tbody").innerHTML=rows.join("");
+  $("papa-at").textContent=papa.at?"Последний итог от папы: "+new Date(papa.at).toLocaleString("ru-RU",{day:"numeric",month:"long",hour:"2-digit",minute:"2-digit"}):"Папа пришлёт тебе ссылку с итогом. Открой её, и подтверждения появятся здесь.";
+
+  $("fine-rules").innerHTML=S.FINES.filter(f=>f.a).map(f=>`<tr><td>${f.t}</td><td class="n bad-t">−${f.a} ₽</td></tr>`).join("");
+  $("ladder").innerHTML=S.LEVELS.map(([x,n],i)=>`<div class="${i===L.i?"cur":""}"><b style="font-weight:inherit">${n}</b><span>${x} XP</span></div>`).join("");
+  const once=new Map(); for(let i=0;i<7;i++) S.plan(i).forEach(it=>{const key=it.k==="h"?"Дело по дому":it.k==="s"?"Отбой вовремя":it.title; const c=once.get(key)||{pts:it.pts,n:0}; c.n++; once.set(key,c);});
+  $("pts-rules").innerHTML=[...once].map(([t,c])=>`<tr><td>${esc(t)} <span class="muted small">· ${c.n===7?"каждый день":c.n+" р. в неделю"}</span></td><td class="n">${c.pts}</td></tr>`).join("")
+    +`<tr><td>Задачка от папы (когда задана)</td><td class="n">${S.PZ_PTS}</td></tr>`
+    +S.BONUS.map(b=>`<tr><td>Бонус: ${b.t}</td><td class="n">${b.pts}</td></tr>`).join("")+`<tr><td>Книга от папы, дочитал к сроку</td><td class="n">награда от папы</td></tr><tr><td>Своя книга или аудиокнига</td><td class="n">${S.BOOK_PTS}</td></tr>`;
+  const base=S.week(mon,()=>true,[],[],[],{}).max;
+  $("pts-max").textContent=`Если сделать всё, за неделю выйдет около ${base} ₽, плюс задачки и книги. Если сделать три четверти, выйдет примерно ${Math.round(base*.75/10)*10} ₽.`;
+}
+
+// ---------- Сила ----------
+function renderBody(){
+  $("circuits").innerHTML=B.SL.map((c,ci)=>`<div><h3>${esc(c.n)} <span class="muted small">· ${["понедельник","среда","пятница"][ci]}</span></h3><div class="circ" style="margin-top:6px">${c.ex.map((e,j)=>`<div><b>${j+1}</b><span>${esc(e[0])}</span><small>${esc(e[1])}</small></div>`).join("")}</div></div>`).join("");
+  const best={pl:0,pu:0,sq:0,bl:0}; tests.forEach(t=>Object.keys(best).forEach(k=>{best[k]=Math.max(best[k],+t[k]||0);}));
+  $("t-table").querySelector("tbody").innerHTML=tests.length?tests.slice().reverse().map(t=>`<tr><td class="n">${S.parse(t.d).toLocaleDateString("ru-RU",{day:"numeric",month:"short"})}</td>${["pl","pu","sq","bl"].map(k=>`<td class="n">${t[k]===""||t[k]==null?"—":t[k]}${+t[k]&&+t[k]===best[k]&&tests.length>1?" 🏆":""}</td>`).join("")}</tr>`).join(""):'<tr><td colspan="5" class="muted">Пока нет записей. Первый тест — точка отсчёта.</td></tr>';
+}
+$("t-add").onclick=()=>{
+  const v=id=>{const x=$(id).value; return x===""?"":Math.max(0,Math.round(+x));};
+  const t={d:todayISO,pl:v("t-pl"),pu:v("t-pu"),sq:v("t-sq"),bl:v("t-bl")};
+  if([t.pl,t.pu,t.sq,t.bl].every(x=>x==="")){$("t-st").textContent="Впиши хотя бы один результат.";return;}
+  tests=tests.filter(x=>x.d!==todayISO); tests.push(t); S.LS.set("dn-tests",tests);
+  ["t-pl","t-pu","t-sq","t-bl"].forEach(id=>$(id).value="");
+  $("t-st").textContent="Записано! Через две недели сравнишь."; renderBody();
+};
+
+// ---------- Еда ----------
+function renderFood(){
+  $("taste-steps").innerHTML=S.TASTE.map(([n,t])=>`<div><b>${n}</b><span>${esc(t)}</span></div>`).join("");
+  const n=new Set(food.map(x=>x.f.toLowerCase())).size;
+  $("fd-count").textContent="Попробовано: "+n;
+  $("fd-list").innerHTML=food.length?food.slice().reverse().slice(0,40).map(x=>`<div><span><b>${esc(x.f)}</b> ${x.r} <span class="muted small">· ступенька ${x.st}</span></span><small>${S.parse(x.d).toLocaleDateString("ru-RU",{day:"numeric",month:"short"})}</small></div>`).join(""):'<p class="small muted">Пока пусто. Первая проба появится здесь.</p>';
+  $("bridges").innerHTML=B.BRIDGES.map(([a,b])=>`<div><span><b>${esc(a)}</b> → ${esc(b)}</span></div>`).join("");
+}
+
+// ---------- Книги ----------
+const fmtD=ds=>S.parse(ds).toLocaleDateString("ru-RU",{day:"numeric",month:"long"});
+const activeAssign=()=>(papa.as||[]).filter(a=>!books.list.some(b=>b.id===a.id)).sort((x,y)=>x.due.localeCompare(y.due));
+function asCalc(a){
+  const left=Math.round((S.parse(a.due)-S.parse(todayISO))/864e5);
+  const pg=+books.pg[a.id]||0, rest=Math.max(0,(+a.pg||0)-pg);
+  const perDay=a.pg&&rest?Math.ceil(rest/Math.max(1,left+1)):0;
+  return {left,pg,perDay,pct:a.pg?Math.min(100,Math.round(pg/a.pg*100)):0};
+}
+const STARS='<option value="5">5 — супер</option><option value="4">4 — хорошо</option><option value="3">3 — нормально</option><option value="2">2 — так себе</option><option value="1">1 — не понравилось</option>';
+function renderAssign(){
+  const L=papa.as||[], box=$("as-list");
+  if(!L.length){box.innerHTML='<p class="small muted">Папа пока не задал книг. Когда задаст, они появятся здесь со сроком и наградой.</p>';return;}
+  const order=[...activeAssign(),...L.filter(a=>books.list.some(b=>b.id===a.id))];
+  box.innerHTML=order.map(a=>{
+    const fin=books.list.find(b=>b.id===a.id);
+    const meta=`${a.a?esc(a.a)+" · ":""}${a.pg?a.pg+" стр. · ":""}срок до ${fmtD(a.due)}`;
+    if(fin) return `<div class="as fin"><div class="as-h"><b>✓ «${esc(a.t)}»</b><span class="pts">+${S.bookPts(fin,L)} ₽</span></div><span class="small muted">${meta}</span><span class="small ok-t">Прочитано ${fmtD(fin.d)}${fin.d<=a.due?", успел к сроку!":", после срока — половина награды"}</span></div>`;
+    const x=asCalc(a);
+    const when=x.left<0?`<span class="small bad-t">Срок прошёл. Дочитаешь — получишь половину: ${Math.round(a.rw/2)} ₽.</span>`
+      :x.left===0?`<span class="small bad-t">Сегодня последний день!${x.perDay?" Осталось "+(a.pg-x.pg)+" стр.":""}</span>`
+      :`<span class="small">Осталось дней: <b>${x.left}</b>${x.perDay?` · читай примерно <b>${x.perDay} стр. в день</b>`:""}</span>`;
+    return `<div class="as" data-id="${a.id}"><div class="as-h"><b>«${esc(a.t)}»</b><span class="pts">+${a.rw} ₽</span></div><span class="small muted">${meta}</span>${when}
+      ${a.pg?`<div class="progress"><i style="width:${x.pct}%"></i></div><label class="small as-pgl">Я на странице <input type="number" class="as-pg" min="0" max="${a.pg}" value="${x.pg||""}" inputmode="numeric"> из ${a.pg}</label>`:""}
+      <div class="as-row"><select class="as-s" aria-label="Оценка книге">${STARS}</select><button class="btn as-done" type="button">Дочитал!</button></div></div>`;
+  }).join("");
+  box.querySelectorAll(".as[data-id]").forEach(el=>{
+    const id=el.dataset.id, a=L.find(z=>z.id===id), inp=el.querySelector(".as-pg");
+    if(inp) inp.addEventListener("change",()=>{books.pg[id]=Math.max(0,Math.min(+a.pg,+inp.value||0));S.LS.set("dn-books",books);renderAssign();});
+    el.querySelector(".as-done").onclick=()=>{
+      if(books.list.some(b=>b.id===id)) return;
+      books.list.push({id,t:a.t,a:a.a||"",s:+el.querySelector(".as-s").value,d:todayISO});
+      if(a.pg) books.pg[id]=+a.pg;
+      S.LS.set("dn-books",books);
+      $("as-st").textContent=`Ура! «${a.t}» прочитана: +${S.bookPts({id,d:todayISO},L)} ₽. Отправь отчёт папе.`;
+      renderAssign(); renderBooks(); renderTop();
+    };
+  });
+}
+function renderBooks(){
+  renderAssign();
+  $("bk-t").value=books.cur.t||""; $("bk-a").value=books.cur.a||""; $("bk-n").value=books.cur.n||"";
+  $("bk-count").textContent="Прочитано: "+books.list.length;
+  $("bk-list").innerHTML=books.list.length?books.list.slice().reverse().map(b=>`<div><span><b>${esc(b.t)}</b>${b.a?" · "+esc(b.a):""}${b.f?" · 🎧":""} · ${"★".repeat(b.s||0)}</span><small>${S.parse(b.d).toLocaleDateString("ru-RU",{day:"numeric",month:"short"})}</small></div>`).join(""):'<p class="small muted">Пока пусто. Первая книга будет здесь.</p>';
+  const fk=Object.keys(facts).sort().reverse();
+  $("fx-list").innerHTML=fk.length?fk.slice(0,20).map(d=>`<div><span>${esc(facts[d])}</span><small>${S.parse(d).toLocaleDateString("ru-RU",{day:"numeric",month:"short"})}</small></div>`).join(""):'<p class="small muted">Пока ни одного факта.</p>';
+}
+["bk-t","bk-a","bk-n"].forEach(id=>$(id).addEventListener("input",()=>{books.cur={t:$("bk-t").value,a:$("bk-a").value,n:$("bk-n").value};S.LS.set("dn-books",books);}));
+$("bk-done").onclick=()=>{
+  const t=$("bk-t").value.trim(); if(!t){$("bk-st").textContent="Сначала напиши название книги.";return;}
+  books.list.push({t,a:$("bk-a").value.trim(),s:+$("bk-s").value,f:$("bk-f").value,d:todayISO});
+  books.cur={t:"",a:"",n:""}; S.LS.set("dn-books",books);
+  $("bk-st").textContent="Отлично! Книга на полке, +"+S.BOOK_PTS+" ₽ к неделе. Не забудь отправить отчёт папе.";
+  renderBooks(); renderTop();
+};
+
+// ---------- отчёт папе ----------
+function report(){
+  const d={}, mo={}, fx={}; for(let i=0;i<28;i++){const ds=S.iso(S.addDays(today,-i)); if(done[ds]) d[ds]=Object.keys(done[ds]).join(","); if(mood[ds]) mo[ds]=mood[ds]; if(facts[ds]) fx[ds]=facts[ds];}
+  const from=S.iso(S.addDays(today,-27));
+  const an={}; Object.keys(ans).filter(x=>x>=from).forEach(x=>an[x]=ans[x]);
+  const payload={v:1,c:"danya",at:Date.now(),d,bk:books.list,pg:books.pg,cur:books.cur.t?{t:books.cur.t,a:books.cur.a}:null,an,mo,fx,
+    fd:food.slice(-40),ts:tests.slice(-6)};
+  const url=S.pageURL("papa-danya.html")+"#r="+S.enc(payload);
+  const w=W();
+  let tg=0; S.plan(S.dowOf(today)).forEach(it=>{if(eff(todayISO,it.k))tg+=it.pts;});
+  const mm=mood[todayISO]?S.MOODS.find(x=>x[0]===mood[todayISO])[1]:"";
+  return `Папа, это Даня! Отчёт за неделю ${S.range(mon)}.\nСегодня: ${tg} ₽${mm?" · настроение "+mm:""}, за неделю: ${w.base+w.bonus} ₽.\nЗарядка ${w.zd}/7 · тренировки ${w.sd} · новые вкусы ${w.fd} · уроки сам ${w.uOk}/${w.uDays}\nОткрой, чтобы проверить и подтвердить:\n${url}`;
+}
+$("s-go").onclick=async()=>{
+  const txt=report(), r=await S.share(txt);
+  if(r==="shared"){ S.LS.set("dn-last",Date.now()); $("s-fb").hidden=true; renderLast(); }
+  else if(r==="fallback"){ $("s-text").value=txt; $("s-fb").hidden=false; }
+};
+$("s-copy").onclick=async()=>{
+  const ta=$("s-text"); let ok=false;
+  try{await navigator.clipboard.writeText(ta.value);ok=true;}catch(e){try{ta.select();ok=document.execCommand("copy");}catch(e2){}}
+  $("s-st").textContent=ok?"Скопировано! Открой мессенджер и вставь текст в чат с папой.":"Не получилось скопировать. Выдели текст пальцем и скопируй вручную.";
+  if(ok){S.LS.set("dn-last",Date.now());renderLast();}
+};
+function renderLast(){const t=S.LS.get("dn-last",0);$("s-last").textContent=t?"Последний отчёт: "+new Date(t).toLocaleString("ru-RU",{weekday:"short",day:"numeric",month:"short",hour:"2-digit",minute:"2-digit"}):"Ты ещё не отправлял отчёт.";}
+$("paste-go").onclick=()=>{
+  const m=$("paste-in").value.match(/#p=([A-Za-z0-9_-]+)/);
+  if(!m){$("paste-st").textContent="Это не ссылка от папы. В ней должно быть «#p=».";return;}
+  location.hash="p="+m[1]; location.reload();
+};
+
+// ---------- вкладки ----------
+function renderTop(){
+  $("top-money").textContent=S.rub(W().total);
+  $("top-lv").textContent=S.level(totalXP()).name;
+}
+function render(keepOpen){
+  let open=null;
+  if(keepOpen){ const o=document.querySelector("#tl details[open]"); if(o) open=o.dataset.k; }
+  renderWeek(); renderDay(); renderTop();
+  if(open){ const dt=document.querySelector(`#tl details[data-k="${open}"]`); if(dt) dt.open=true; }
+}
+const TABS=["today","progress","body","food","books"];
+function tab(){
+  let t=(location.hash||"#today").slice(1); if(!TABS.includes(t)) t="today";
+  TABS.forEach(x=>{$("v-"+x).hidden=x!==t; document.querySelector(`[data-tab="${x}"]`).setAttribute("aria-current",x===t?"page":"false");});
+  if(t==="progress") renderProgress();
+  if(t==="body") renderBody();
+  if(t==="food") renderFood();
+  if(t==="books") renderBooks();
+  window.scrollTo(0,0);
+}
+window.addEventListener("hashchange",tab);
+try{ speechSynthesis.getVoices(); speechSynthesis.onvoiceschanged=()=>{}; }catch(e){}
+render(); renderLast(); tab();
+document.querySelectorAll("#calm .timer").forEach(mountTimer);
+})();
+</script>
+</body>
+</html>
