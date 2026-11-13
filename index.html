@@ -19,7 +19,7 @@
   --bg:#EEF2EE; --surface:#FFFFFF; --ink:#13201A; --muted:#5A6A61; --line:#D5DED8;
   --accent:#16834A; --accent-soft:#DDF1E5; --gold:#A86A00; --gold-soft:#FBEFD6;
   --bad:#B42318; --bad-soft:#FBE3E0; --blue:#2D5BB8; --blue-soft:#E2EAFA;
-  --sport:#16834A; --food:#A86A00; --study:#C2410C; --music:#7A3FB8; --out:#0E7C86; --read:#2D5BB8; --home:#5B6B2E; --sleep:#5E6A85; --puzzle:#C0267A;
+  --sport:#16834A; --food:#A86A00; --study:#C2410C; --music:#7A3FB8; --out:#0E7C86; --read:#2D5BB8; --home:#5B6B2E; --sleep:#5E6A85; --puzzle:#C0267A; --mood:#A23A9A;
   --display:"Russo One","Manrope",system-ui,sans-serif;
   --body:"Manrope",system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
 }
@@ -27,12 +27,12 @@
   --bg:#0C1410; --surface:#15201A; --ink:#E4ECE7; --muted:#9AAAA1; --line:#26352D;
   --accent:#4CC984; --accent-soft:#143022; --gold:#E9B55A; --gold-soft:#33270F;
   --bad:#F2877C; --bad-soft:#3A1A17; --blue:#8FB0F2; --blue-soft:#1A2640;
-  --sport:#4CC984; --food:#E9B55A; --study:#F59362; --music:#BC93F0; --out:#4FC7D0; --read:#8FB0F2; --home:#B5C77A; --sleep:#A3AECB; --puzzle:#F07AB8; color-scheme:dark}}
+  --sport:#4CC984; --food:#E9B55A; --study:#F59362; --music:#BC93F0; --out:#4FC7D0; --read:#8FB0F2; --home:#B5C77A; --sleep:#A3AECB; --puzzle:#F07AB8; --mood:#E58AD9; color-scheme:dark}}
 :root[data-theme="dark"]{
   --bg:#0C1410; --surface:#15201A; --ink:#E4ECE7; --muted:#9AAAA1; --line:#26352D;
   --accent:#4CC984; --accent-soft:#143022; --gold:#E9B55A; --gold-soft:#33270F;
   --bad:#F2877C; --bad-soft:#3A1A17; --blue:#8FB0F2; --blue-soft:#1A2640;
-  --sport:#4CC984; --food:#E9B55A; --study:#F59362; --music:#BC93F0; --out:#4FC7D0; --read:#8FB0F2; --home:#B5C77A; --sleep:#A3AECB; --puzzle:#F07AB8; color-scheme:dark}
+  --sport:#4CC984; --food:#E9B55A; --study:#F59362; --music:#BC93F0; --out:#4FC7D0; --read:#8FB0F2; --home:#B5C77A; --sleep:#A3AECB; --puzzle:#F07AB8; --mood:#E58AD9; color-scheme:dark}
 *{box-sizing:border-box}
 html{padding-top:env(safe-area-inset-top,0px)}
 body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.5 var(--body);-webkit-text-size-adjust:100%}
@@ -90,6 +90,18 @@ details[open] .chev{transform:rotate(180deg)}
 .lead{color:var(--muted)}
 .note{font-size:13px;background:var(--gold-soft);border-radius:10px;padding:8px 10px}
 .note b{color:var(--gold)}
+.moods{display:grid;grid-template-columns:repeat(5,1fr);gap:6px}
+.moods button{appearance:none;border:1px solid var(--line);background:var(--bg);border-radius:12px;padding:6px 0;font:600 11px var(--body);color:var(--muted);display:grid;justify-items:center;gap:2px;cursor:pointer}
+.moods button span{font-size:24px;line-height:1}
+.moods button[aria-pressed="true"]{border-color:var(--mood);background:color-mix(in srgb,var(--mood) 16%,transparent);color:var(--ink)}
+.calm{background:var(--surface);border:1px solid var(--line);border-radius:16px;border-left:4px solid var(--mood)}
+.calm summary{list-style:none;display:flex;gap:10px;align-items:center;padding:12px;cursor:pointer}
+.calm summary::-webkit-details-marker{display:none}
+.calm .body{padding:0 12px 14px;display:grid;gap:10px}
+.calm ol{margin:0;padding-left:20px;display:grid;gap:4px;font-size:14px}
+.calm .kind{font-size:13.5px;background:color-mix(in srgb,var(--mood) 12%,transparent);border-radius:10px;padding:8px 10px}
+.mstrip{display:grid;grid-template-columns:repeat(7,1fr);gap:4px;margin-top:8px;text-align:center;font-size:11px;color:var(--muted)}
+.mstrip span{display:block;font-size:20px;line-height:1.2}
 .timer{background:var(--bg);border-radius:12px;padding:12px;display:grid;gap:8px;justify-items:center;text-align:center}
 .tm-big{font:400 40px/1 var(--display);font-variant-numeric:tabular-nums}
 .tm-name{font-weight:700;font-size:14px}
@@ -224,6 +236,31 @@ textarea{font-weight:500;min-height:90px;resize:vertical}
       <div class="row"><a class="btn ghost" id="enot-link" target="_blank" rel="noopener">Открыть курс</a><span class="small muted" id="enot-st"></span></div>
       <div class="enl" id="enot-list"></div>
     </div>
+
+    <div class="panel" id="mood-box">
+      <span class="eyebrow">Как прошёл день</span>
+      <h2>Как ты сегодня?</h2>
+      <p class="small muted">Выбери честно — любой ответ правильный. Папа увидит в отчёте. Хочешь — допиши пару слов, это тоже увидит только папа.</p>
+      <div class="moods" id="moods"></div>
+      <label class="small muted" style="display:grid;gap:4px;margin-top:6px">Пара слов о дне (можно пустое)<input type="text" id="mood-note" maxlength="200" placeholder="что было сегодня"></label>
+      <div class="mstrip" id="mstrip"></div>
+    </div>
+
+    <details class="calm" id="calm">
+      <summary><span class="sm"><b>Расстроился? Открой меня</b><span class="tag" style="--k:var(--mood)">2 минуты</span></span>
+        <svg class="chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg></summary>
+      <div class="body">
+        <p class="lead">Расстраиваться — нормально. Это значит, что тебе не всё равно. Вот что помогает быстро вернуться в форму:</p>
+        <ol>
+          <li><b>Дыхание «квадрат»:</b> вдох на 4 счёта, пауза на 4, выдох на 4, пауза на 4. Четыре круга.</li>
+          <li><b>5–4–3:</b> найди глазами 5 предметов, услышь 4 звука, потрогай 3 разные вещи. Мозг переключается.</li>
+          <li><b>Скажи себе как другу:</b> «Сейчас не получилось. Это не про то, какой я, а про то, чему я ещё учусь».</li>
+          <li><b>Подвигайся:</b> 20 прыжков, бой с тенью или пробежка по лестнице. Злость и обида выходят через мышцы.</li>
+          <li><b>Расскажи</b> папе или другу, что случилось. Можно написать в поле выше — папа увидит.</li>
+        </ol>
+        <p class="kind"><b>Знаешь что?</b> Ты уже умеешь то, чего не умел год назад. Тяжёлый день не отменяет того, что ты растёшь.</p>
+      </div>
+    </details>
 
     <div class="panel" id="send">
       <span class="eyebrow">Отчёт папе</span>
@@ -428,13 +465,16 @@ function pushIfChanged(){
   if(sig===S.LS.get("sa-sync-sig","")) return;
   SY.write("sasha/child.json",p,"Саша: отметки").then(ok=>{ if(ok){ _set("sa-sync-sig",sig); _set("sa-last",Date.now()); renderLast(); } });
 }
-S.LS.set=(k,v)=>{ _set(k,v); if(/^sa-(done|ans|enot|books)$/.test(k)){ clearTimeout(pushT); pushT=setTimeout(pushIfChanged,2500); } };
+S.LS.set=(k,v)=>{ _set(k,v); if(/^sa-(done|ans|enot|books|mood|moodnotes)$/.test(k)){ clearTimeout(pushT); pushT=setTimeout(pushIfChanged,2500); } };
 
 let done=S.LS.get("sa-done",{});          // {date:{key:1}}
 let papa=S.LS.get("sa-papa",{ov:{},fi:[],cf:[],pd:[],tt:{},as:[],pz:{},at:0});
 if(!papa.as) papa.as=[];
 if(!papa.pz) papa.pz={};
 let ans=S.LS.get("sa-ans",{});            // {date: ответ на задачку дня}
+let mood=S.LS.get("sa-mood",{});          // {date: 1..5}
+let moodNotes=S.LS.get("sa-moodnotes",{}); // {date: пара слов о дне}
+const MOODS=[[5,"😎","отлично"],[4,"🙂","хорошо"],[3,"😐","нормально"],[2,"😏","тяжело"],[1,"😭","плохо"]];
 let enot=S.LS.get("sa-enot",{});          // курс «Енот Чек»: {номер урока: дата}
 if(!papa.ev) papa.ev={};
 const EN=window.ENOT;
@@ -734,11 +774,26 @@ $("bk-done").onclick=()=>{
 };
 
 // ---------- отчёт папе ----------
+function renderMood(){
+  const box=$("moods"); if(!box)return;
+  const v=mood[todayISO];
+  box.innerHTML=MOODS.map(([n,e,t])=>`<button type="button" data-m="${n}" aria-pressed="${v===n?"true":"false"}"><span>${e}</span>${t}</button>`).join("");
+  $("mood-note").value=moodNotes[todayISO]||"";
+  $("mstrip").innerHTML=[0,1,2,3,4,5,6].map(i=>{const ds=S.iso(S.addDays(mon,i)),m=mood[ds],e=m?(MOODS.find(x=>x[0]===m)||[0,"·"])[1]:"·";return `<div><span>${e}</span>${S.DSHORT[i]}</div>`;}).join("");
+  box.querySelectorAll("button").forEach(b=>b.onclick=()=>{
+    const n=+b.dataset.m;
+    if(mood[todayISO]===n)delete mood[todayISO]; else mood[todayISO]=n;
+    S.LS.set("sa-mood",mood); renderMood();
+  });
+  $("mood-note").oninput=()=>{const v2=$("mood-note").value.trim(); if(v2)moodNotes[todayISO]=v2.replace(/[|\\n\\r]/g," ").slice(0,200); else delete moodNotes[todayISO]; S.LS.set("sa-moodnotes",moodNotes);};
+}
 function childPayload(){
   const now=new Date();
   const d={}; for(let i=0;i<28;i++){const ds=S.iso(S.addDays(now,-i)); if(done[ds]) d[ds]=Object.keys(done[ds]).join(",");}
   const an={}; Object.keys(ans).forEach(k=>{ if(k>=S.iso(S.addDays(now,-27))) an[k]=ans[k].slice(0,400); });
-  return {v:1,at:Date.now(),d,an,en:enot,bk:books.list,pg:books.pg,cur:books.cur.t?{t:books.cur.t,a:books.cur.a}:null};
+  const mo={}; Object.keys(mood).forEach(k=>{ if(k>=S.iso(S.addDays(now,-27))) mo[k]=mood[k]; });
+  const mn={}; Object.keys(moodNotes).forEach(k=>{ if(k>=S.iso(S.addDays(now,-27))) mn[k]=moodNotes[k]; });
+  return {v:1,at:Date.now(),d,an,en:enot,bk:books.list,pg:books.pg,cur:books.cur.t?{t:books.cur.t,a:books.cur.a}:null,mo,mn};
 }
 function report(){
   const payload=childPayload();
@@ -771,7 +826,7 @@ function renderTop(){
 function render(keepOpen){
   let open=null;
   if(keepOpen){ const o=document.querySelector("#tl details[open] .sm b"); if(o) open=o.textContent; }
-  renderWeek(); renderDay(); renderTop();
+  renderWeek(); renderDay(); renderTop(); renderMood();
   if(open) document.querySelectorAll("#tl details").forEach(dt=>{ if(dt.querySelector(".sm b").textContent===open) dt.open=true; });
 }
 const TABS=["today","progress","food","books"];

@@ -143,6 +143,10 @@ td.n{white-space:nowrap}
 .pz details summary{cursor:pointer;color:var(--accent);font-weight:700;font-size:13px}
 .pz details p{font-size:14px;margin-top:6px;background:var(--accent-soft);border-radius:10px;padding:8px 10px}
 .pzday{display:grid;gap:4px;font-size:13px;background:var(--bg);border-radius:10px;padding:8px 10px;margin:0 10px 10px}
+.moodday{display:grid;gap:3px;font-size:13px;background:var(--accent-soft);border-radius:10px;padding:8px 10px;margin:0 10px 10px}
+.moodday.bad{background:var(--bad-soft)}
+.moodday .me{font-size:20px}
+.moodday .mn{white-space:pre-wrap;color:var(--muted)}
 .pzday .ans{white-space:pre-wrap;font-weight:600}
 .paste{display:grid;gap:6px}
 .paste-row{display:flex;gap:8px}
@@ -401,6 +405,9 @@ const PZ=window.PUZZLES;
 let en=S.LS.get("pa-enot",{}), ev=S.LS.get("pa-ev",{});   // «Енот Чек»: {урок: дата} от Саши, решения папы {урок: 0|1}
 const EN=window.ENOT;
 let lastAt=S.LS.get("pa-last",0);
+// настроение: как Саша сам оценил день, и его пара слов
+let mood=S.LS.get("pa-mood",{}), moodNotes=S.LS.get("pa-moodnotes",{});
+const MOODS=[[5,"😎","отлично"],[4,"🙂","хорошо"],[3,"😐","нормально"],[2,"😏","тяжело"],[1,"😭","плохо"]];
 // автосинхронизация: после любого изменения через 2,5 с пишем sasha/papa.json (если что-то поменялось)
 const SY=window.SYNC;
 let pushT=null;
@@ -410,7 +417,7 @@ function pushIfChanged(){
   if(sig===S.LS.get("pa-sync-sig","")) return;
   SY.write("sasha/papa.json",p,"Папа → Саша").then(ok=>{ if(ok) S.LS.set("pa-sync-sig",sig); });
 }
-const save=()=>{clearTimeout(pushT);pushT=setTimeout(pushIfChanged,2500);S.LS.set("pa-enot",en);S.LS.set("pa-ev",ev);S.LS.set("pa-as",assign);S.LS.set("pa-pz",pz);S.LS.set("pa-ans",ans);S.LS.set("pa-days",days);S.LS.set("pa-ov",ov);S.LS.set("pa-fi",fines);S.LS.set("pa-cf",cf);S.LS.set("pa-pd",pd);S.LS.set("pa-books",books);S.LS.set("pa-last",lastAt);if(window.KIDS)window.KIDS.draw();};
+const save=()=>{clearTimeout(pushT);pushT=setTimeout(pushIfChanged,2500);S.LS.set("pa-enot",en);S.LS.set("pa-ev",ev);S.LS.set("pa-as",assign);S.LS.set("pa-pz",pz);S.LS.set("pa-ans",ans);S.LS.set("pa-mood",mood);S.LS.set("pa-moodnotes",moodNotes);S.LS.set("pa-days",days);S.LS.set("pa-ov",ov);S.LS.set("pa-fi",fines);S.LS.set("pa-cf",cf);S.LS.set("pa-pd",pd);S.LS.set("pa-books",books);S.LS.set("pa-last",lastAt);if(window.KIDS)window.KIDS.draw();};
 
 const today=new Date(), todayISO=S.iso(today);
 let mon=S.mondayOf(today);
@@ -425,6 +432,7 @@ function applyReport(rep){
   for(let i=0;i<28;i++){const ds=S.iso(S.addDays(new Date(rep.at||Date.now()),-i)); if(!(ds in (rep.d||{}))&&days[ds]) delete days[ds];}
   books={list:rep.bk||[],cur:rep.cur||null,pg:rep.pg||{}};
   Object.assign(ans,rep.an||{});
+  Object.assign(mood,rep.mo||{}); Object.assign(moodNotes,rep.mn||{});
   if(rep.en) en=rep.en;
   lastAt=rep.at||Date.now(); save();
   return n;
@@ -438,6 +446,7 @@ if(rep&&rep.v===1&&!rep.c){
     for(let i=0;i<28;i++){const ds=S.iso(S.addDays(new Date(rep.at||Date.now()),-i)); if(!(ds in (rep.d||{}))&&days[ds]) delete days[ds];}
     books={list:rep.bk||[],cur:rep.cur||null,pg:rep.pg||{}};
     Object.assign(ans,rep.an||{});
+    Object.assign(mood,rep.mo||{}); Object.assign(moodNotes,rep.mn||{});
     if(rep.en) en=rep.en;
     lastAt=rep.at||Date.now(); save();
     $("imp").innerHTML=`<b>Отчёт Саши получен.</b> Обновлено дней: ${n}. Проверьте неделю, при необходимости поправьте отметки и выпишите штрафы.`;
@@ -499,6 +508,12 @@ function renderWeek(){
     const el=document.createElement("details"); el.className="day"; el.dataset.d=ds;
     if(openSet.has(ds)||(!openSet.size&&ds===todayISO)) el.open=true;
     el.innerHTML=`<summary>${S.dayLong(dt)}<span>${dd.got} из ${dd.max} ₽</span></summary><div class="mini"><i style="width:${Math.round(dd.got/dd.max*100)}%"></i></div><div class="its"></div>`;
+    // как Саша сам оценил день и что написал
+    const mv=mood[ds], mn=moodNotes[ds];
+    if(mv||mn){const mb=document.createElement("div"); mb.className="moodday"+(+mv<=2?" bad":"");
+      const mm=(MOODS.find(x=>x[0]===+mv)||[0,"",""]) ;
+      mb.innerHTML=(mv?'<span class="me">'+mm[1]+'</span><b>Как прошёл день: '+esc(mm[2])+'</b>':'')+(mn?'<span class="mn">💬 '+esc(mn)+'</span>':'');
+      el.appendChild(mb);}
     const its=el.querySelector(".its");
     const items=S.plan(i), p=pz[ds]&&PZ.BY[pz[ds]];
     if(p){
