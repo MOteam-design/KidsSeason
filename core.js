@@ -149,8 +149,10 @@
 
   // pz: {дата: id задачки} — задачка дня от папы, за решение PZ_PTS (ключ отметки "zq")
   // en/ev — курс «Енот Чек» (enot.js): {урок: дата}, решения папы {урок: 0|1}. Сверх лимита, в max не входит.
-  function week(mon, eff, books, fines, assign, pz, en, ev) {
+  // promo — поощрения от папы (сумма за неделю): идут СВЕРХ лимита, потолком не срезаются.
+  function week(mon, eff, books, fines, assign, pz, en, ev, promo) {
     let base = 0, max = 0, pd = 0, rd = 0, uDays = 0, uOk = 0, pzN = 0, pzOk = 0;
+    promo = +promo || 0;
     const days = [];
     for (let i = 0; i < 7; i++) {
       const d = iso(addDays(mon, i));
@@ -180,13 +182,22 @@
     const fi = (fines || []).filter(f => f.d >= from && f.d <= to);
     const fsum = fi.reduce((s, f) => s + (+f.a || 0), 0);
     const enot = window.ENOT ? window.ENOT.sum(en, ev, from, to) : { n: 0, sum: 0, list: [] };
-    const total = Math.max(0, base + bonus + enot.sum - fsum);
+    const total = Math.max(0, base + bonus + enot.sum - fsum) + promo;
     const maxAll = max + BONUS.reduce((s, b) => s + b.pts, 0);
-    return { from, to, base, bonus, bon, books: bk, fines: fi, fsum, total, max: maxAll, days, pd, rd, uOk, uDays, pzN, pzOk, enot };
+    return { from, to, base, bonus, bon, books: bk, fines: fi, fsum, total, max: maxAll, days, pd, rd, uOk, uDays, pzN, pzOk, enot, promo };
   }
 
-  function level(xp) {
-    let i = 0;
+  // Поощрения: сколько папа начислил за неделю, начинающуюся с mon.
+  // bonus — начислено сразу ({id,d,w,rw}), goal — цель ({id,w,rw,d,status}).
+  function promoSum(list, goals, mon) {
+    const from = iso(mon), to = iso(addDays(mon, 6));
+    let s = 0;
+    (list || []).forEach(b => { const d = b.d || b.at || ""; if (d >= from && d <= to) s += +b.rw || 0; });
+    (goals || []).forEach(g => { if (g.status !== "ok") return; const d = g.d || g.done || ""; if (d >= from && d <= to) s += +g.rw || 0; });
+    return s;
+  }
+
+  function level(xp) {    let i = 0;
     while (i + 1 < LEVELS.length && xp >= LEVELS[i + 1][0]) i++;
     const cur = LEVELS[i], next = LEVELS[i + 1];
     return { i, name: cur[1], from: cur[0], next: next ? next[0] : null, nextName: next ? next[1] : null };
@@ -200,7 +211,7 @@
     return n;
   }
 
-  window.SC = { T, KIND, CHORES, plan, BONUS, BOOK_PTS, PZ_PTS, FINES, LEVELS, bookPts, suggestDays, suggestReward,
+  window.SC = { T, KIND, CHORES, plan, BONUS, BOOK_PTS, PZ_PTS, FINES, LEVELS, bookPts, suggestDays, suggestReward, promoSum,
     iso, parse, addDays, dowOf, mondayOf, dayLong, range, DSHORT, MON, rub,
     LS, enc, dec, readHash, clearHash, pageURL, share, week, level, streak };
 })();

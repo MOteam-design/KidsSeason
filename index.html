@@ -456,6 +456,29 @@ textarea{font-weight:500;min-height:90px;resize:vertical}
 <script src="puzzles.js?v=20261113b"></script>
 <script src="enot.js?v=20261113b"></script>
 <script src="sync.js?v=20261113b"></script>
+<div class="panel" id="push-card" hidden style="margin-top:12px">
+  <span class="eyebrow">Уведомления</span>
+  <p class="small muted">Приходят сверху на телефон, даже когда приложение закрыто.</p>
+  <div class="row"><button class="btn" type="button" id="push-on">Включить уведомления</button></div>
+</div>
+<script src="push.js?v=20261116a"></script>
+<script>
+(function(){
+  var V='BJMRYi1S6OTcrJ5LB07oONgnvkNLi1vqzSWGjIEi9QMSq8YIb76gomWwnzBwurHizUV9rqQMtYz2QqCwREL1uGQ';
+  var card=document.getElementById('push-card'),btn=document.getElementById('push-on');
+  if(!card||!btn||!window.PUSH) return;
+  card.hidden=false;
+  PUSH.status().then(function(on){ if(on){btn.textContent='Уведомления включены ✓';btn.disabled=true;} });
+  btn.addEventListener('click',function(){
+    var key=(window.SYNC&&SYNC.getKey)?SYNC.getKey():'';
+    if(!key){btn.textContent='Сначала включите синхронизацию';return;}
+    btn.disabled=true;btn.textContent='Настраиваю…';
+    PUSH.enable({vapid:V,repo:'KidsData',key:key,role:'sasha',prefix:'sa'}).then(function(){
+      btn.textContent='Уведомления включены ✓';
+    }).catch(function(){btn.disabled=false;btn.textContent='Включить уведомления';});
+  });
+})();
+</script>
 <script>
 (function(){
 "use strict";
