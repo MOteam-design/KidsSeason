@@ -246,6 +246,14 @@ textarea{font-weight:500;min-height:90px;resize:vertical}
       <div class="mstrip" id="mstrip"></div>
     </div>
 
+    <div class="panel" id="promo-box" hidden>
+      <span class="eyebrow">Сверх лимита</span>
+      <h2>Поощрения от папы</h2>
+      <p class="small muted">То, что папа заметил и решил отметить отдельно. Эти деньги идут сверх обычного лимита.</p>
+      <div id="promo-list" style="display:grid;gap:8px"></div>
+      <div id="promo-goals" style="display:grid;gap:8px"></div>
+    </div>
+
     <details class="calm" id="calm">
       <summary><span class="sm"><b>Расстроился? Открой меня</b><span class="tag" style="--k:var(--mood)">2 минуты</span></span>
         <svg class="chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg></summary>
@@ -471,6 +479,8 @@ let done=S.LS.get("sa-done",{});          // {date:{key:1}}
 let papa=S.LS.get("sa-papa",{ov:{},fi:[],cf:[],pd:[],tt:{},as:[],pz:{},at:0});
 if(!papa.as) papa.as=[];
 if(!papa.pz) papa.pz={};
+if(!papa.bo) papa.bo=[];   // поощрения от папы: [{id,d,w,rw,at}]
+if(!papa.go) papa.go=[];   // цели от папы: [{id,w,rw,d,status,done}]
 let ans=S.LS.get("sa-ans",{});            // {date: ответ на задачку дня}
 let mood=S.LS.get("sa-mood",{});          // {date: 1..5}
 let moodNotes=S.LS.get("sa-moodnotes",{}); // {date: пара слов о дне}
@@ -773,6 +783,25 @@ $("bk-done").onclick=()=>{
   renderBooks(); renderTop();
 };
 
+// ---------- поощрения от папы ----------
+function renderPromo(){
+  const box=$("promo-box"); if(!box)return;
+  const bo=papa.bo||[], go=papa.go||[];
+  const active=bo.length||go.length;
+  box.hidden=!active;
+  if(!active) return;
+  $("promo-list").innerHTML=bo.slice().sort((a,b)=>(b.at||"")<(a.at||"")?-1:1).slice(0,8).map(b=>
+    `<div class="box"><div class="row sp"><b>🎁 ${esc(b.w)}</b><b style="color:var(--accent)">+${b.rw} ₽</b></div><span class="small muted">от папы · сверх лимита</span></div>`).join("");
+  $("promo-goals").innerHTML=go.map(g=>{
+    if(g.status==="ok") return `<div class="box"><div class="row sp"><b>🎯 ${esc(g.w)}</b><b style="color:var(--accent)">+${g.rw} ₽</b></div><span class="small muted">Засчитано папой ✓</span></div>`;
+    if(g.done) return `<div class="box"><div class="row sp"><b>🎯 ${esc(g.w)}</b><b style="color:var(--accent)">+${g.rw} ₽</b></div><span class="small muted">Отмечено: сделано. Ждём, пока папа подтвердит.</span></div>`;
+    return `<div class="box"><div class="row sp"><b>🎯 ${esc(g.w)}</b><b style="color:var(--accent)">+${g.rw} ₽</b></div><span class="small muted">Цель от папы. Сделал — нажми кнопку.</span><div class="row"><button class="btn ok sm" type="button" data-goal="${g.id}">✅ Сделал</button></div></div>`;
+  }).join("");
+  $("promo-goals").querySelectorAll("button[data-goal]").forEach(b=>b.onclick=()=>{
+    const g=(papa.go||[]).find(x=>x.id===b.dataset.goal); if(!g) return;
+    g.done=todayISO; S.LS.set("sa-papa",papa); renderPromo();
+  });
+}
 // ---------- отчёт папе ----------
 function renderMood(){
   const box=$("moods"); if(!box)return;
@@ -793,7 +822,7 @@ function childPayload(){
   const an={}; Object.keys(ans).forEach(k=>{ if(k>=S.iso(S.addDays(now,-27))) an[k]=ans[k].slice(0,400); });
   const mo={}; Object.keys(mood).forEach(k=>{ if(k>=S.iso(S.addDays(now,-27))) mo[k]=mood[k]; });
   const mn={}; Object.keys(moodNotes).forEach(k=>{ if(k>=S.iso(S.addDays(now,-27))) mn[k]=moodNotes[k]; });
-  return {v:1,at:Date.now(),d,an,en:enot,bk:books.list,pg:books.pg,cur:books.cur.t?{t:books.cur.t,a:books.cur.a}:null,mo,mn};
+  return {v:1,at:Date.now(),d,an,en:enot,bk:books.list,pg:books.pg,cur:books.cur.t?{t:books.cur.t,a:books.cur.a}:null,mo,mn,gd:(papa.go||[]).filter(g=>g.done&&g.status!=="ok").reduce((o,g)=>{o[g.id]=g.done;return o;},{})};
 }
 function report(){
   const payload=childPayload();
@@ -826,7 +855,7 @@ function renderTop(){
 function render(keepOpen){
   let open=null;
   if(keepOpen){ const o=document.querySelector("#tl details[open] .sm b"); if(o) open=o.textContent; }
-  renderWeek(); renderDay(); renderTop(); renderMood();
+  renderWeek(); renderDay(); renderTop(); renderMood(); renderPromo();
   if(open) document.querySelectorAll("#tl details").forEach(dt=>{ if(dt.querySelector(".sm b").textContent===open) dt.open=true; });
 }
 const TABS=["today","progress","food","books"];

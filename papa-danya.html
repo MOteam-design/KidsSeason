@@ -58,6 +58,9 @@ button:focus-visible,a:focus-visible,input:focus-visible,select:focus-visible,te
 .tabs a[aria-current="page"]{background:var(--ink);color:var(--surface)}
 .view{display:grid;gap:14px;padding-top:6px}
 .panel{background:var(--surface);border:1px solid var(--line);border-radius:16px;padding:14px;display:grid;gap:10px}
+.box{background:var(--bg);border:1px solid var(--line);border-radius:12px;padding:10px 12px;display:grid;gap:6px}
+.box .row{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.box .row.sp{justify-content:space-between}
 .panel>p,.panel li{font-size:14px}
 .panel ul,.panel ol{margin:0;padding-left:20px;display:grid;gap:6px}
 .muted{color:var(--muted)}
@@ -215,9 +218,32 @@ td.n{white-space:nowrap}
       <div class="stat"><b id="s-u">0/5</b><span>сел за уроки сам</span></div>
     </div>
 
+    <div class="card" id="promo-card">
+      <h2>🎁 Поощрения</h2>
+      <p class="small muted" id="promo-hint">За что угодно, что вы заметили сами. Сумма любая — идёт <b>сверх лимита недели</b>.</p>
+      <div id="promo-list" style="display:grid;gap:8px"></div>
+      <details class="fold" id="promo-fold"><summary>➕ Начислить поощрение</summary><div>
+        <form class="f" onsubmit="return false">
+          <label class="wide">За что<input type="text" id="p-w" maxlength="80" placeholder="например: сам сел за математику без напоминаний" autocomplete="off"></label>
+          <label>Сумма, ₽<input type="number" id="p-rw" min="0" step="10" inputmode="numeric" placeholder="например, 200"></label>
+          <label>Дата<input type="date" id="p-d"></label>
+          <button class="btn wide" type="button" id="p-add">Начислить сейчас</button>
+        </form>
+      </div></details>
+      <details class="fold" id="goal-fold"><summary>🎯 Поставить цель на будущее</summary><div>
+        <p class="small">Даня увидит цель у себя и нажмёт «Сделал». Вы подтвердите — и сумма начислится.</p>
+        <form class="f" onsubmit="return false">
+          <label class="wide">Цель<input type="text" id="g-w" maxlength="80" placeholder="например: неделю без пропущенных уроков" autocomplete="off"></label>
+          <label>Награда, ₽<input type="number" id="g-rw" min="0" step="10" inputmode="numeric" placeholder="например, 300"></label>
+          <button class="btn wide" type="button" id="g-add">Поставить цель</button>
+        </form>
+      </div></details>
+    </div>
+
     <div class="panel">
       <span class="eyebrow">Настроение Дани</span>
       <div class="mstrip" id="mstrip"></div>
+      <div id="mnotes"></div>
       <div class="mwarn" id="mwarn" hidden></div>
     </div>
 
@@ -443,7 +469,9 @@ const K=k=>"dr-"+k;
 let days=S.LS.get(K("days"),{}), ov=S.LS.get(K("ov"),{}), fines=S.LS.get(K("fi"),[]), cf=S.LS.get(K("cf"),[]), pd=S.LS.get(K("pd"),[]);
 let books=S.LS.get(K("books"),{list:[],cur:null,pg:{}}); if(!books.pg) books.pg={};
 let assign=S.LS.get(K("as"),[]), pz=S.LS.get(K("pz"),{}), ans=S.LS.get(K("ans"),{});
-let mood=S.LS.get(K("mood"),{}), food=S.LS.get(K("food"),[]), tests=S.LS.get(K("tests"),[]), facts=S.LS.get(K("facts"),{});
+let mood=S.LS.get(K("mood"),{}), moodNotes=S.LS.get(K("moodnotes"),{}), food=S.LS.get(K("food"),[]), tests=S.LS.get(K("tests"),[]), facts=S.LS.get(K("facts"),{});
+let bonuses=S.LS.get(K("bonus"),[]);   // [{id,d,w,rw,at}] — поощрения, начисленные сразу
+let goals=S.LS.get(K("goals"),[]);     // [{id,w,rw,d,status,done}] — цели на будущее
 let msg=S.LS.get(K("msg"),""), lastAt=S.LS.get(K("last"),0);
 let en=S.LS.get(K("enot"),{}), ev=S.LS.get(K("ev"),{});   // «Енот Чек»: {урок: дата}, решения папы {урок: 0|1}
 const EN=window.ENOT;
@@ -456,7 +484,7 @@ function pushIfChanged(){
   if(sig===S.LS.get(K("sync-sig"),"")) return;
   SY.write("danya/papa.json",p,"Папа → Даня").then(ok=>{ if(ok) S.LS.set(K("sync-sig"),sig); });
 }
-const save=()=>{clearTimeout(pushT); pushT=setTimeout(pushIfChanged,2500); [["enot",en],["ev",ev],["days",days],["ov",ov],["fi",fines],["cf",cf],["pd",pd],["books",books],["as",assign],["pz",pz],["ans",ans],["mood",mood],["food",food],["tests",tests],["facts",facts],["msg",msg],["last",lastAt]].forEach(([k,v])=>S.LS.set(K(k),v)); if(window.KIDS) window.KIDS.draw();};
+const save=()=>{clearTimeout(pushT); pushT=setTimeout(pushIfChanged,2500); [["enot",en],["ev",ev],["days",days],["ov",ov],["fi",fines],["cf",cf],["pd",pd],["books",books],["as",assign],["pz",pz],["ans",ans],["mood",mood],["moodnotes",moodNotes],["bonus",bonuses],["goals",goals],["food",food],["tests",tests],["facts",facts],["msg",msg],["last",lastAt]].forEach(([k,v])=>S.LS.set(K(k),v)); if(window.KIDS) window.KIDS.draw();};
 
 const today=new Date(), todayISO=S.iso(today);
 let mon=S.mondayOf(today);
@@ -470,7 +498,9 @@ function applyReport(rep){
   Object.entries(rep.d||{}).forEach(([d,k])=>{days[d]=k?k.split(","):[];n++;});
   for(let i=0;i<28;i++){const ds=S.iso(S.addDays(new Date(rep.at||Date.now()),-i)); if(!(ds in (rep.d||{}))&&days[ds]) delete days[ds];}
   books={list:rep.bk||[],cur:rep.cur||null,pg:rep.pg||{}};
-  Object.assign(ans,rep.an||{}); Object.assign(mood,rep.mo||{}); Object.assign(facts,rep.fx||{});
+  Object.assign(ans,rep.an||{}); Object.assign(mood,rep.mo||{}); Object.assign(moodNotes,rep.mn||{}); Object.assign(facts,rep.fx||{});
+  // Даня отметил цель сделанной — показываем её на подтверждение
+  Object.entries(rep.gd||{}).forEach(([id,d])=>{ const g=goals.find(x=>x.id===id); if(g&&g.status==="open") g.done=d; });
   if(rep.en) en=rep.en;
   const seen=new Set(food.map(x=>x.d+"|"+x.f)); (rep.fd||[]).forEach(x=>{ if(!seen.has(x.d+"|"+x.f)) food.push(x); });
   const tmap={}; tests.concat(rep.ts||[]).forEach(t=>{tmap[t.d]=t;}); tests=Object.values(tmap).sort((a,b)=>a.d.localeCompare(b.d));
@@ -487,7 +517,7 @@ const kid=(d,k)=>!!(days[d]&&days[d].includes(k));
 const eff=(d,k)=>{const o=ov[d]; if(o&&o[k]!==undefined) return o[k]===1; return kid(d,k);};
 const firstMon=()=>{const all=Object.keys(days).sort(); return all.length?S.mondayOf(S.parse(all[0])):S.mondayOf(today);};
 const fmtS=ds=>S.parse(ds).toLocaleDateString("ru-RU",{day:"numeric",month:"short"});
-const WK=m=>S.week(m,eff,books.list,fines,assign,pz,en,ev);
+const WK=m=>S.week(m,eff,books.list,fines,assign,pz,en,ev,S.promoSum(bonuses,goals,m));
 function renderEnot(){
   const done=Object.keys(en).length, ok=Object.keys(en).filter(n=>ev[n]!==0).length;
   $("en-st").textContent=`Пройдено ${done} из ${EN.LESSONS.length} · засчитано ${S.rub(ok*EN.PTS)}`;
@@ -500,6 +530,20 @@ function renderEnot(){
   $("en-list").querySelectorAll("button[data-n]").forEach(b=>b.onclick=()=>{const n=b.dataset.n, v=+b.dataset.v; if(ev[n]===v) delete ev[n]; else ev[n]=v; save(); renderWeek();});
 }
 
+// ---------- поощрения ----------
+function renderPromo(){
+  const box=$("promo-list"); if(!box) return;
+  const ps=S.promoSum(bonuses,goals,mon);
+  let h="";
+  goals.forEach(g=>{ if(g.status!=="open"||!g.done) return;
+    h+=`<div class="box"><div class="row sp"><b>🎯 ${esc(g.w)}</b><b>+${g.rw} ₽</b></div><span class="small muted">Даня отметил: сделано. Подтвердите.</span><div class="row"><button class="btn ok sm" type="button" data-promo="gok" data-id="${g.id}">✅ Засчитать</button><button class="btn no sm" type="button" data-promo="gno" data-id="${g.id}">Не сейчас</button></div></div>`;});
+  goals.forEach(g=>{ if(g.status!=="open"||g.done) return;
+    h+=`<div class="box"><div class="row sp"><b>🎯 ${esc(g.w)}</b><b>+${g.rw} ₽</b></div><span class="small muted">Ждём, пока Даня сделает.</span><div class="row"><button class="btn ghost sm" type="button" data-promo="ungoal" data-id="${g.id}">Снять цель</button></div></div>`;});
+  bonuses.slice().sort((a,b)=>(b.at||"")<(a.at||"")?-1:1).slice(0,10).forEach(b=>{
+    h+=`<div class="box"><div class="row sp"><b>🎁 ${esc(b.w)}</b><b>+${b.rw} ₽</b></div><span class="small muted">${S.parse(b.d||b.at).getDate()}.${String(S.parse(b.d||b.at).getMonth()+1).padStart(2,"0")} · сверх лимита</span><div class="row"><button class="btn ghost sm" type="button" data-promo="unbonus" data-id="${b.id}">Убрать</button></div></div>`;});
+  box.innerHTML=h||'<p class="small muted">Пока пусто. Начислите за что-то, что заметили, или поставьте цель.</p>';
+  $("promo-hint").innerHTML='За что угодно, что вы заметили сами. Сумма любая — идёт <b>сверх лимита недели</b>.'+(ps?` На этой неделе начислено <b>${ps} ₽</b>.`:'');
+}
 // ---------- неделя ----------
 function renderWeek(){
   const m=S.iso(mon), w=WK(mon);
@@ -524,9 +568,12 @@ function renderWeek(){
   $("s-z").textContent=w.zd+"/7"; $("s-s").textContent=w.sd+"/"+sDays; $("s-f").textContent=w.fd+"/7"; $("s-u").textContent=w.uOk+"/"+w.uDays;
   $("last-rep").textContent=lastAt?"Последний отчёт Дани: "+new Date(lastAt).toLocaleString("ru-RU",{weekday:"short",day:"numeric",month:"short",hour:"2-digit",minute:"2-digit"}):"Отчётов пока нет";
   if(document.activeElement!==$("w-msg")) $("w-msg").value=msg;
+  try{renderPromo();}catch(e){}
 
   // настроение
   $("mstrip").innerHTML=[0,1,2,3,4,5,6].map(i=>{const ds=S.iso(S.addDays(mon,i)), v=mood[ds], e=v?S.MOODS.find(x=>x[0]===v)[1]:"·"; return `<div><span>${e}</span>${S.DSHORT[i]}</div>`;}).join("");
+  // «пара слов» от Дани за каждый день недели
+  $("mnotes").innerHTML=[0,1,2,3,4,5,6].map(i=>{const ds=S.iso(S.addDays(mon,i)), n=moodNotes[ds]; return n?`<div class="small" style="margin-top:4px"><b>${S.DSHORT[i]}</b> · ${esc(n)}</div>`:"";}).join("");
   let low=0, run=0; for(let i=0;i<14;i++){const v=mood[S.iso(S.addDays(today,-i))]; if(v&&v<=2){run++; low=Math.max(low,run);} else if(v) run=0;}
   $("mwarn").hidden=low<3;
   if(low>=3) $("mwarn").innerHTML="<b>Несколько тяжёлых дней подряд.</b> Найдите спокойную минуту и спросите один на один: «Как ты? Что было самым трудным?» Без советов, просто послушайте.";
@@ -566,12 +613,37 @@ $("w-prev").onclick=()=>{mon=S.addDays(mon,-7);renderWeek();};
 $("w-next").onclick=()=>{mon=S.addDays(mon,7);renderWeek();};
 $("w-conf").onclick=()=>{const m=S.iso(mon); cf=cf.includes(m)?cf.filter(x=>x!==m):[...cf,m]; save(); renderWeek();};
 $("w-paid").onclick=()=>{const m=S.iso(mon); pd=pd.includes(m)?pd.filter(x=>x!==m):[...pd,m]; if(pd.includes(m)&&!cf.includes(m)) cf.push(m); save(); renderWeek();};
+
+// ---------- поощрения: начислить, поставить цель, подтвердить ----------
+$("p-d").value=S.iso(today);
+$("p-add").onclick=()=>{
+  const w=$("p-w").value.trim(), rw=Math.round(+$("p-rw").value||0), d=$("p-d").value||S.iso(today);
+  if(!w){$("p-w").focus();return;} if(rw<=0){$("p-rw").focus();return;}
+  bonuses.push({id:"b"+Date.now().toString(36),w,rw,d,at:S.iso(today)});
+  $("p-w").value="";$("p-rw").value="";$("promo-fold").open=false; save(); renderWeek();
+};
+$("g-add").onclick=()=>{
+  const w=$("g-w").value.trim(), rw=Math.round(+$("g-rw").value||0);
+  if(!w){$("g-w").focus();return;} if(rw<=0){$("g-rw").focus();return;}
+  goals.push({id:"g"+Date.now().toString(36),w,rw,d:S.iso(today),status:"open",done:null});
+  $("g-w").value="";$("g-rw").value="";$("goal-fold").open=false; save(); renderWeek();
+};
+$("promo-list").addEventListener("click",e=>{
+  const b=e.target.closest("button[data-promo]"); if(!b) return;
+  const t=b.dataset.promo, id=b.dataset.id;
+  if(t==="unbonus"||t==="ungoal"){ if(b.dataset.sure!=="1"){b.dataset.sure="1";b.textContent="точно?";return;} }
+  if(t==="unbonus") bonuses=bonuses.filter(x=>x.id!==id);
+  if(t==="ungoal") goals=goals.filter(x=>x.id!==id);
+  if(t==="gok"){const g=goals.find(x=>x.id===id); if(g){g.status="ok";g.d=g.done||S.iso(today);}}
+  if(t==="gno"){const g=goals.find(x=>x.id===id); if(g){g.status="open";g.done=null;}}
+  save(); renderWeek();
+});
 $("w-msg").addEventListener("input",()=>{msg=$("w-msg").value.trim().slice(0,300); save();});
 
 // ---------- итог Дане ----------
 function papaPayload(){
   const tt={}; [...new Set([...cf,...pd])].forEach(m=>{tt[m]=WK(S.parse(m)).total;});
-  return {v:1,c:"danya",at:Date.now(),ov,fi:fines,cf,pd,tt,as:assign,pz,ev,msg};
+  return {v:1,c:"danya",at:Date.now(),ov,fi:fines,cf,pd,tt,as:assign,pz,ev,msg,bo:bonuses,go:goals};
 }
 $("w-send").onclick=async()=>{
   const payload=papaPayload();

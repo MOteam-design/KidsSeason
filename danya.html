@@ -98,6 +98,9 @@ details[open] .chev{transform:rotate(180deg)}
 .tm-name{font-weight:700;font-size:14px}
 .tm-step{font-size:12px;color:var(--muted)}
 .panel{background:var(--surface);border:1px solid var(--line);border-radius:16px;padding:14px;display:grid;gap:10px}
+.box{background:var(--bg);border:1px solid var(--line);border-radius:12px;padding:10px 12px;display:grid;gap:6px}
+.box .row{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.box .row.sp{justify-content:space-between}
 .panel>p,.panel li{font-size:14px}
 .panel ul,.panel ol{margin:0;padding-left:20px;display:grid;gap:5px}
 .muted{color:var(--muted)}
@@ -255,6 +258,23 @@ textarea{font-weight:500;min-height:80px;resize:vertical}
       <div class="enl" id="enot-list"></div>
     </div>
 
+    <div class="panel" id="mood-box">
+      <span class="eyebrow">Как прошёл день</span>
+      <h2>Как ты сегодня?</h2>
+      <p class="small muted">Выбери честно — любой ответ правильный. Папа увидит в отчёте. Хочешь — допиши пару слов, это тоже увидит только папа.</p>
+      <div class="moods" id="moods"></div>
+      <label class="small muted" style="display:grid;gap:4px;margin-top:6px">Пара слов о дне (можно пустое)<input type="text" id="mood-note" maxlength="200" placeholder="что было сегодня"></label>
+      <div class="mstrip" id="mstrip"></div>
+    </div>
+
+    <div class="panel" id="promo-box" hidden>
+      <span class="eyebrow">Сверх лимита</span>
+      <h2>Поощрения от папы</h2>
+      <p class="small muted">То, что папа заметил и решил отметить отдельно. Эти деньги идут сверх обычного лимита.</p>
+      <div id="promo-list" style="display:grid;gap:8px"></div>
+      <div id="promo-goals" style="display:grid;gap:8px"></div>
+    </div>
+
     <details class="calm" id="calm">
       <summary><span class="sm"><b>Расстроился? Открой меня</b><span class="tag" style="--k:var(--mood)">2 минуты</span></span>
         <svg class="chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg></summary>
@@ -316,12 +336,6 @@ textarea{font-weight:500;min-height:80px;resize:vertical}
       <div class="progress"><i id="e-bar"></i></div>
       <p class="small" id="e-papa"></p>
       <p class="small muted" id="e-hint"></p>
-    </div>
-
-    <div class="panel">
-      <span class="eyebrow">Настроение недели</span>
-      <div class="mstrip" id="mstrip"></div>
-      <p class="small muted">Отмечай настроение каждый вечер в пункте «Как прошёл день». Плохие дни бывают у всех, и это нормально.</p>
     </div>
 
     <div class="panel">
@@ -517,14 +531,17 @@ function pushIfChanged(){
   if(sig===S.LS.get("dn-sync-sig","")) return;
   SY.write("danya/child.json",p,"Даня: отметки").then(ok=>{ if(ok){ _set("dn-sync-sig",sig); _set("dn-last",Date.now()); renderLast(); } });
 }
-S.LS.set=(k,v)=>{ _set(k,v); if(/^dn-(done|ans|enot|books|mood|food|tests|facts)$/.test(k)){ clearTimeout(pushT); pushT=setTimeout(pushIfChanged,2500); } };
+S.LS.set=(k,v)=>{ _set(k,v); if(/^dn-(done|ans|enot|books|mood|moodnotes|food|tests|facts)$/.test(k)){ clearTimeout(pushT); pushT=setTimeout(pushIfChanged,2500); } };
 
 let done=S.LS.get("dn-done",{});          // {date:{key:1}}
 let papa=S.LS.get("dn-papa",{ov:{},fi:[],cf:[],pd:[],tt:{},as:[],pz:{},msg:"",at:0});
+if(!papa.bo) papa.bo=[];   // поощрения от папы: [{id,d,w,rw,at}]
+if(!papa.go) papa.go=[];   // цели от папы: [{id,w,rw,d,status,done}]
 ["as"].forEach(k=>{if(!papa[k])papa[k]=[];}); if(!papa.pz)papa.pz={};
 let ans=S.LS.get("dn-ans",{});            // {date: ответ на задачку от папы}
 let books=S.LS.get("dn-books",{cur:{t:"",a:"",n:""},list:[],pg:{}}); if(!books.pg) books.pg={};
 let mood=S.LS.get("dn-mood",{});          // {date: 1..5}
+let moodNotes=S.LS.get("dn-moodnotes",{}); // {date: пара слов о дне}
 let food=S.LS.get("dn-food",[]);          // [{d,f,st,r}]
 let tests=S.LS.get("dn-tests",[]);        // [{d,pl,pu,sq,bl}]
 let facts=S.LS.get("dn-facts",{});        // {date: факт из подкаста}
@@ -696,6 +713,9 @@ function renderDay(){
   }
   items.forEach(it=>{
     max+=it.pts; const on=eff(ds,it.k); if(on){got+=it.pts;n++;}
+    // настроение вынесено в отдельный блок «Как прошёл день» — в плане его не рисуем,
+    // но балл за него остаётся (5 ₽), поэтому пункт остаётся в PLAN и в подсчёте max
+    if(it.k==="mo") return;
     const o=papa.ov[ds]&&papa.ov[ds][it.k];
     let flag="";
     if(o===0&&mine(ds,it.k)) flag='<span class="flag">папа не засчитал</span>';
@@ -910,10 +930,10 @@ $("bk-done").onclick=()=>{
 // ---------- отчёт папе ----------
 function childPayload(){
   const now=new Date();
-  const d={}, mo={}, fx={}; for(let i=0;i<28;i++){const ds=S.iso(S.addDays(now,-i)); if(done[ds]) d[ds]=Object.keys(done[ds]).join(","); if(mood[ds]) mo[ds]=mood[ds]; if(facts[ds]) fx[ds]=facts[ds];}
+  const d={}, mo={}, fx={}, mn={}; for(let i=0;i<28;i++){const ds=S.iso(S.addDays(now,-i)); if(done[ds]) d[ds]=Object.keys(done[ds]).join(","); if(mood[ds]) mo[ds]=mood[ds]; if(moodNotes[ds]) mn[ds]=moodNotes[ds]; if(facts[ds]) fx[ds]=facts[ds];}
   const from=S.iso(S.addDays(now,-27));
   const an={}; Object.keys(ans).filter(x=>x>=from).forEach(x=>an[x]=String(ans[x]).slice(0,400));
-  return {v:1,c:"danya",at:Date.now(),d,bk:books.list,pg:books.pg,cur:books.cur.t?{t:books.cur.t,a:books.cur.a}:null,an,mo,fx,
+  return {v:1,c:"danya",at:Date.now(),d,bk:books.list,pg:books.pg,cur:books.cur.t?{t:books.cur.t,a:books.cur.a}:null,an,mo,mn,fx,gd:(papa.go||[]).filter(g=>g.done&&g.status!=="ok").reduce((o,g)=>{o[g.id]=g.done;return o;},{}),
     fd:food.slice(-40),ts:tests.slice(-6),en:enot};
 }
 function report(){
@@ -947,10 +967,48 @@ function renderTop(){
   $("top-money").textContent=S.rub(W().total);
   $("top-lv").textContent=S.level(totalXP()).name;
 }
+// ---------- поощрения от папы ----------
+function renderPromo(){
+  const box=$("promo-box"); if(!box)return;
+  const bo=papa.bo||[], go=papa.go||[];
+  box.hidden=!(bo.length||go.length);
+  if(!bo.length&&!go.length) return;
+  $("promo-list").innerHTML=bo.slice().sort((a,b)=>(b.at||"")<(a.at||"")?-1:1).slice(0,8).map(b=>
+    `<div class="box"><div class="row sp"><b>🎁 ${esc(b.w)}</b><b style="color:var(--mood)">+${b.rw} ₽</b></div><span class="small muted">от папы · сверх лимита</span></div>`).join("");
+  $("promo-goals").innerHTML=go.map(g=>{
+    if(g.status==="ok") return `<div class="box"><div class="row sp"><b>🎯 ${esc(g.w)}</b><b style="color:var(--mood)">+${g.rw} ₽</b></div><span class="small muted">Засчитано папой ✓</span></div>`;
+    if(g.done) return `<div class="box"><div class="row sp"><b>🎯 ${esc(g.w)}</b><b style="color:var(--mood)">+${g.rw} ₽</b></div><span class="small muted">Отмечено: сделано. Ждём, пока папа подтвердит.</span></div>`;
+    return `<div class="box"><div class="row sp"><b>🎯 ${esc(g.w)}</b><b style="color:var(--mood)">+${g.rw} ₽</b></div><span class="small muted">Цель от папы. Сделал — нажми кнопку.</span><div class="row"><button class="btn ok sm" type="button" data-goal="${g.id}">✅ Сделал</button></div></div>`;
+  }).join("");
+  $("promo-goals").querySelectorAll("button[data-goal]").forEach(b=>b.onclick=()=>{
+    const g=(papa.go||[]).find(x=>x.id===b.dataset.goal); if(!g) return;
+    g.done=todayISO; S.LS.set("dn-papa",papa); renderPromo();
+  });
+}
+// ---------- «Как прошёл день»: отдельный блок, как у Саши и Семёна ----------
+// Балл за настроение (5 ₽) остаётся: пункт «mo» живёт в PLAN и в подсчёте max,
+// просто в ленте дня не рисуется — отметка идёт из этого блока.
+function renderMoodPanel(){
+  const box=$("mood-box"); if(!box) return;
+  const ds=S.iso(S.addDays(mon,sel)), future=ds>todayISO, v=mood[ds];
+  const mb=$("moods");
+  mb.innerHTML=S.MOODS.map(([n,e,t])=>`<button type="button" data-m="${n}" aria-pressed="${v===n?"true":"false"}"><span>${e}</span>${t}</button>`).join("");
+  mb.querySelectorAll("button").forEach(b=>b.onclick=()=>{
+    if(future) return;
+    const n=+b.dataset.m;
+    if(mood[ds]===n){ delete mood[ds]; setDone(ds,"mo",false); }
+    else { mood[ds]=n; setDone(ds,"mo",true); }
+    S.LS.set("dn-mood",mood); render(true);
+  });
+  const nt=$("mood-note");
+  nt.value=moodNotes[ds]||"";
+  nt.oninput=()=>{ const x=nt.value.trim(); if(x) moodNotes[ds]=x.slice(0,200); else delete moodNotes[ds]; S.LS.set("dn-moodnotes",moodNotes); };
+  $("mstrip").innerHTML=[0,1,2,3,4,5,6].map(i=>{const k=S.iso(S.addDays(mon,i)), mv=mood[k], e=mv?(S.MOODS.find(x=>x[0]===mv)||[0,"·"])[1]:"·"; return `<div><span>${e}</span>${S.DSHORT[i]}</div>`;}).join("");
+}
 function render(keepOpen){
   let open=null;
   if(keepOpen){ const o=document.querySelector("#tl details[open]"); if(o) open=o.dataset.k; }
-  renderWeek(); renderDay(); renderTop();
+  renderWeek(); renderDay(); renderTop(); renderMoodPanel(); renderPromo();
   if(open){ const dt=document.querySelector(`#tl details[data-k="${open}"]`); if(dt) dt.open=true; }
 }
 const TABS=["today","progress","body","food","books"];
