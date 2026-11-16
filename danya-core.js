@@ -170,8 +170,10 @@
 
   // pz: {дата: id задачки из puzzles.js} — задачка дня от папы, за решение PZ_PTS (ключ отметки "zq")
   // en/ev — курс «Енот Чек» (enot.js): сверх лимита, в max не входит
-  function week(mon, eff, books, fines, assign, pz, en, ev) {
+  // promo — поощрения от папы (сумма за неделю): сверх лимита, потолком не срезаются
+  function week(mon, eff, books, fines, assign, pz, en, ev, promo) {
     let base = 0, max = 0, zd = 0, fd = 0, uDays = 0, uOk = 0, sd = 0, pzN = 0, pzOk = 0;
+    promo = +promo || 0;
     const days = [];
     for (let i = 0; i < 7; i++) {
       const d = iso(addDays(mon, i));
@@ -202,9 +204,18 @@
     const fi = (fines || []).filter(f => f.d >= from && f.d <= to);
     const fsum = fi.reduce((s, f) => s + (+f.a || 0), 0);
     const enot = window.ENOT ? window.ENOT.sum(en, ev, from, to) : { n: 0, sum: 0, list: [] };
-    const total = Math.max(0, base + bonus + enot.sum - fsum);
+    const total = Math.max(0, base + bonus + enot.sum - fsum) + promo;
     const maxAll = max + BONUS.reduce((s, b) => s + b.pts, 0);
-    return { from, to, base, bonus, bon, books: bk, fines: fi, fsum, total, max: maxAll, days, zd, fd, uOk, uDays, sd, pzN, pzOk, enot };
+    return { from, to, base, bonus, bon, books: bk, fines: fi, fsum, total, max: maxAll, days, zd, fd, uOk, uDays, sd, pzN, pzOk, enot, promo };
+  }
+  // Поощрения: сколько папа начислил за неделю с mon.
+  // bonus — начислено сразу ({id,d,w,rw}), goal — цель ({id,w,rw,d,status}).
+  function promoSum(list, goals, mon) {
+    const from = iso(mon), to = iso(addDays(mon, 6));
+    let s = 0;
+    (list || []).forEach(b => { const d = b.d || b.at || ""; if (d >= from && d <= to) s += +b.rw || 0; });
+    (goals || []).forEach(g => { if (g.status !== "ok") return; const d = g.d || g.done || ""; if (d >= from && d <= to) s += +g.rw || 0; });
+    return s;
   }
 
   function level(xp) {
@@ -221,7 +232,7 @@
     return n;
   }
 
-  window.DC = { P, T, KIND, CHORES, plan, BONUS, BOOK_PTS, PZ_PTS, FINES, LEVELS, MOODS, TASTE, bookPts, suggestDays, suggestReward,
+  window.DC = { P, T, KIND, CHORES, plan, BONUS, BOOK_PTS, PZ_PTS, FINES, LEVELS, MOODS, TASTE, bookPts, suggestDays, suggestReward, promoSum,
     iso, parse, addDays, dowOf, mondayOf, dayNum, dayLong, range, DSHORT, MON, rub,
     LS, enc, dec, readHash, clearHash, pageURL, share, week, level, streak };
 })();
